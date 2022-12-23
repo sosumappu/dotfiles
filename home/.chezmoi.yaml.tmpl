@@ -81,12 +81,12 @@
 {{-   writeToStdout "Chezmoi is running in headless environment.\n" -}}
 {{- end -}}
 
-sourceDir: "{{ .chezmoi.sourceDir }}"
+sourceDir: {{ .chezmoi.sourceDir | quote }}
 
 {{ if not $headless -}}
 age:
   identity: "{{ $.chezmoi.homeDir }}/.config/age/key.txt"
-  recipient: "age16kxd4ljclq9ksnxvl2ee7a5xnj744kwyv04p04ka0n3rzxdpl5nsq52svl" # pragma: allowlist secret
+  recipient: "age1n9jltsf9cvcrmhm0elyvzky6tdq9jmvgluus9qt3mfsactg9g5fqxntykf" # pragma: allowlist secret
 {{- end }}
 
 diff:
