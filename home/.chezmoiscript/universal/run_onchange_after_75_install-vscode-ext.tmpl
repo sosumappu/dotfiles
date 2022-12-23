@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+
+{{- $ext := splitList " " (includeTemplate "universal/essential-extensions" .) -}}
+
+{{- if .toolchains.python }}
+{{- $ext = concat $ext list("ms-python.python" ) }}	
+{{- end }}
+
+{{- if .toolschains.rust }}
+{{- $ext = concat $ext list("rust-lang.rust-analyzer")}}
+{{- end }}
+
+{{- if .toolschains.go }}
+{{- $ext = concat $ext list("golang.go")}}
+{{- end }}
+
+{{- if .toolschains.php }}
+{{- $phpext := list
+    "mehedidracula.php-namespace-resolver" 
+    "bmewburn.vscode-intelephense-client"
+    "neilbrayfield.php-docblocker"
+    "junstyle.php-cs-fixer"
+}}
+{{- $ext = concat $ext $phpext }}
+{{- end }}
+
+{{- if .toolschains.docker }}
+{{- $ext = concat $ext list("ms-azuretools.vscode-docker")}}
+{{- end }}
+
+{{- if not .host.headless }}
+{{- $sshext := list
+    "ms-vscode-remote.remote-containers"
+    "ms-vscode-remote.remote-ssh"
+    "ms-vscode-remote.remote-ssh-edit"
+    "ms-vscode-remote.vscode-remote-extensionpack"
+}}
+{{- $ext = concat $ext $sshext }}
+{{- end }}
+
+{{ range ($ext | sortAlpha | uniq) }}
+code --install-extension {{ . }} --force
+{{ end }}
+

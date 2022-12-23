@@ -1,0 +1,40 @@
+{{- $packages := list
+  "gh"
+  "git"
+  "git-delta"
+
+  "webp"
+  "jpeg"
+  "webm"
+
+  "age"
+  "bash"
+  "bat"
+  "coreutils"
+  "direnv"
+  "encfs"
+  "exa"
+  "fd"
+
+  "gnupg"
+  "gocryptfs"
+  "htop"
+  "httpie"
+  "jq"
+  "neovim"
+  "ripgrep"
+  
+  "wget"
+  "curl"
+
+  "tree"
+  "watch"
+  "zsh"
+  "zplug"
+  "zlib"
+  "fzf"
+  "fzy"
+
+  "shellcheck"
+-}}
+{{- $packages | join " " -}}

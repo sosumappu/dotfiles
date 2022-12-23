@@ -1,0 +1,113 @@
+{{- $taps := list
+"homebrew/autoupdate"
+"homebrew/bundle"
+"homebrew/cask"
+"homebrew/cask-fonts"
+"homebrew/cask-versions"
+"homebrew/command-not-found"
+"homebrew/core"
+-}}
+
+
+{{- $brews := splitList " " (includeTemplate "universal/essential-packages" .) }}
+{{- $brews :=  concat (without $brews "encfs" "gocryptfs") (list "mas") -}}
+
+{{- $casks := list
+  "font-jetbrains-mono"
+  "font-fira-code-nerd-font"
+  "font-fantasque-sans-mono"
+  "font-fantasque-sans-mono-nerd-font"
+
+  "qlmarkdown"
+  "quicklook-json"
+  "qlimagesize"
+  "suspicious-package"
+  "quicklookase"
+  "qlvideo"
+  "WebPQuickLook"
+
+  "google-chrome"
+  "rectangle"
+  "maccy"
+  "tableplus"
+  "visual-studio-code"
+  "zoomus"
+
+  "alfred"
+  "raycast"
+  "discord"
+  "docker"
+  "flux"
+  "google-chrome"
+  "google-drive"
+
+  "keycastr"
+  "local"
+  "notion"
+  "figma"
+  "loom"
+
+  "binance"
+  "tradingview"
+
+  "postman"
+  "rescuetime"
+  "slack"
+
+  "telegram"
+  "visual-studio-code"
+  "eset-cyber-security-pro"
+-}}
+
+{{- if .toolchains.cloud -}}
+    {{- $brews = concat $brews (list "azure-cli" "Azure/kubelogin/kubelogin") -}}
+    {{- if not .host.headless -}}
+        {{- $brews = concat $brews (list "awscli") -}}
+    {{- end -}}
+        {{- $casks = concat $casks (list "google-cloud-sdk") -}}
+{{- end -}}
+
+{{- if .toolchains.docker -}}
+    {{- $brews = concat $brews (list "colima") -}}
+{{- end -}}
+
+{{- if .toolchains.kubernetes -}}
+    {{- $casks = concat $casks (list "lens") -}}
+{{- end -}}
+
+{{- if .toolchains.python }}
+{{- $pyenvDependencies := list "openssl" "readline" "sqlite3" "xz" "zlib" "tcl-tk" -}}
+{{- $brews = concat $brews $pyenvDependencies -}}
+{{- end }}
+
+{{- range ($taps | sortAlpha | uniq) }}
+tap "{{ . }}"
+{{- end }}
+
+{{- if not .host.restricted }}
+tap "gromgit/fuse"
+
+cask "macfuse"
+brew "encfs-mac"
+brew "gocryptfs-mac"
+{{- end }}
+
+{{ range ($brews | sortAlpha | uniq) }}
+brew "{{ . }}"
+{{- end }}
+
+{{- if not .host.headless -}}
+{{- range ($casks | sortAlpha | uniq) }}
+cask "{{ . }}"
+{{- end }}
+
+mas "Keka", id: 470158793
+mas "Keynote", id: 409183694
+mas "Numbers", id: 409203825
+mas "Pages", id: 409201541
+mas "Notability", id: 360593530
+mas "Dashlane", id: 552383089
+mas "iStat Menus", id: 1319778037
+mas "Slack", id: 803453959
+
+{{- end -}}
