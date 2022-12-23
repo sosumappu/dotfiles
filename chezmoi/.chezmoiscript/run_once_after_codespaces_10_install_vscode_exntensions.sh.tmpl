@@ -1,0 +1,35 @@
+{{- if .flags.is_codespace -}}
+#!/bin/sh
+
+# Install Packages
+
+# FIXME: cargo not available in codespaces since rust is no installed
+# cargo install git-delta # Error: "memory allocation of 7881122326526296064 bytes failed"
+
+echo "Installing VsCode Extensions..."
+
+#Check if code is installed
+if !command -v code >/dev/null 2>&1; then
+  echo "code isn't installed, please install and retry."
+  exit 0
+fi
+
+#install extensions
+code --install-extension alexdima.copy-relative-path@0.0.2
+code --install-extension alexkrechik.cucumberautocomplete@2.15.2
+code --install-extension aaron-bond.better-comments@3.0.2
+code --install-extension esbenp.prettier-vscode@9.10.3
+code --install-extension github.copilot@1.63.7601
+code --install-extension ritwickdey.liveserver@5.7.9
+code --install-extension eamodio.gitlens@13.1.1
+code --install-extension mikestead.dotenv@1.0.1
+code --install-extension EditorConfig.EditorConfig@0.16.4
+code --install-extension nrwl.angular-console@17.27.1
+code --install-extension teabyii.ayu@1.0.5
+code --install-extension oderwat.indent-rainbow@8.3.1
+code --install-extension mhutchie.git-graph@1.30.0
+code --install-extension ms-python.python@2022.20.1
+
+
+echo "VsCode Exntensions Installed!"
+{{ end -}}

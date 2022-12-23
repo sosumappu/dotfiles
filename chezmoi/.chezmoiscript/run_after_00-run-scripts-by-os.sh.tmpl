@@ -1,0 +1,16 @@
+#!/bin/bash
+
+SCRIPTS_DIR={{ .chezmoi.workingTree }}/scripts
+
+{{- if eq .chezmoi.os "darwin" }}
+  OS=darwin
+{{- else }}
+  echo "Not supported"
+  exit 0
+{{- end }}
+
+for script in $SCRIPTS_DIR/$OS/*.*sh
+do
+  echo $script
+  source $script
+done

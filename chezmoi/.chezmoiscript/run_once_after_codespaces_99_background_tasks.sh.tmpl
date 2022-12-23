@@ -1,0 +1,13 @@
+{{- if .flags.is_codespace -}}
+#!/bin/bash
+
+echo "Running tasks in background for codespaces"
+
+# Fetch z4h plugins
+# TODO: Make it really work in background (now it's suspended)
+# z4h update &>/dev/null
+zsh -c "echo zsh plugins initialized" &
+disown
+# zsh -ic "z4h update"
+
+{{ end -}}
