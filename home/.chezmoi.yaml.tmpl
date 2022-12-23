@@ -108,7 +108,7 @@ data:
       {{ $toolchain}}: {{ $enabled }}
     {{- end }}
     user:
-      email: {{ $email | quote }}
+      email: {{ $email | quote }}
       name: {{ $name | quote }}
       login: {{ .chezmoi.username | quote }}
 
