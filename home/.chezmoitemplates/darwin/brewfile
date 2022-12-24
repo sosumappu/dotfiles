@@ -18,22 +18,14 @@
   "font-fantasque-sans-mono"
   "font-fantasque-sans-mono-nerd-font"
 
-  "qlmarkdown"
-  "quicklook-json"
-  "qlimagesize"
   "suspicious-package"
-  "quicklookase"
-  "qlvideo"
-  "WebPQuickLook"
 
   "google-chrome"
   "rectangle"
-  "maccy"
   "tableplus"
   "visual-studio-code"
   "zoomus"
 
-  "alfred"
   "raycast"
   "discord"
   "docker"
