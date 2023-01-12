@@ -3,12 +3,19 @@
 {{- $ext := splitList " " (includeTemplate "universal/essential-extensions" .) -}}
 
 {{- if .toolchains.python }}
-{{- $ext = concat $ext list("ms-python.python" ) }}	
+{{- $ext = concat $ext list("ms-python.python") }}
 {{- end }}
 
 {{- if .toolschains.rust }}
-{{- $ext = concat $ext list("rust-lang.rust-analyzer")}}
+{{- $rustext := list
+    "rust-lang.rust"
+    "matklad.rust-analyzer"
+    "serayuzgur.crates"
+    "serayuzgur.rust"
+}}
+{{- $ext = concat $ext $rustext }}
 {{- end }}
+
 
 {{- if .toolschains.go }}
 {{- $ext = concat $ext list("golang.go")}}
@@ -16,7 +23,7 @@
 
 {{- if .toolschains.php }}
 {{- $phpext := list
-    "mehedidracula.php-namespace-resolver" 
+    "mehedidracula.php-namespace-resolver"
     "bmewburn.vscode-intelephense-client"
     "neilbrayfield.php-docblocker"
     "junstyle.php-cs-fixer"
