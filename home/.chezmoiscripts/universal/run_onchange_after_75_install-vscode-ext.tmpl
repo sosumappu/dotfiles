@@ -3,10 +3,13 @@
 {{- $ext := splitList " " (includeTemplate "universal/essential-extensions" .) -}}
 
 {{- if .toolchains.python }}
-{{- $ext = concat $ext list("ms-python.python") }}
+{{- $pyext := list
+    "ms-python.python"
+}}
+{{- $ext = concat $ext $pyext }}
 {{- end }}
 
-{{- if .toolschains.rust }}
+{{- if .toolchains.rust }}
 {{- $rustext := list
     "rust-lang.rust"
     "matklad.rust-analyzer"
@@ -17,11 +20,15 @@
 {{- end }}
 
 
-{{- if .toolschains.go }}
-{{- $ext = concat $ext list("golang.go")}}
+{{- if .toolchains.go }}
+{{- $goext := list
+    "golang.go"
+    "ms-vscode.go"
+}}
+{{- $ext = concat $ext $goext }}
 {{- end }}
 
-{{- if .toolschains.php }}
+{{- if .toolchains.php }}
 {{- $phpext := list
     "mehedidracula.php-namespace-resolver"
     "bmewburn.vscode-intelephense-client"
@@ -31,8 +38,11 @@
 {{- $ext = concat $ext $phpext }}
 {{- end }}
 
-{{- if .toolschains.docker }}
-{{- $ext = concat $ext list("ms-azuretools.vscode-docker")}}
+{{- if .toolchains.docker }}
+{{- $dockerext := list
+    "ms-azuretools.vscode-docker"
+}}
+{{- $ext = concat $ext $dockerext }}
 {{- end }}
 
 {{- if not .host.headless }}

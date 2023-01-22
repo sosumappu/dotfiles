@@ -45,6 +45,8 @@
   "postman"
   "rescuetime"
   "slack"
+  "termius"
+  "polypane"
 
   "telegram"
   "visual-studio-code"
@@ -98,7 +100,7 @@ mas "Keynote", id: 409183694
 mas "Numbers", id: 409203825
 mas "Pages", id: 409201541
 mas "Notability", id: 360593530
-mas "Dashlane", id: 552383089
+mas "Dashlane", id: 517914548
 mas "iStat Menus", id: 1319778037
 mas "Slack", id: 803453959
 
