@@ -13,6 +13,13 @@ eval $(/opt/homebrew/bin/brew shellenv)
 eval $(/usr/local/bin/brew shellenv)
 {{- end }}
 
+# {{ includeTemplate "universal/next-update" . }}
+brew update
 brew bundle --verbose --no-lock --file=/dev/stdin <<EOF
 {{ includeTemplate "darwin/brewfile" . }}
 EOF
+{{- if .host.interactive }}
+brew upgrade
+brew upgrade --cask --greedy
+brew cleanup
+{{- end -}}

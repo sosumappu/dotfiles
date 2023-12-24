@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+set -eufo pipefail
+
+# {{ includeTemplate "universal/next-update" . }}
+
+if [ ! "$(command -v dcli)" ]; then
+  echo "Dashlane CLI command was not found"
+  exit 1
+elif ! dcli --nointeraction --quiet login --check; then
+  echo "Please login to Dashlane and set the DCLI_SESSION environment variable"
+  exit 1
+elif ! dcli --nointeraction --quiet unlock --check; then
+  echo "Please unlock Dashlane and set the BW_SESSION environment variable"
+  exit 1
+fi
+
+rm -f "{{ .cache.secrets.dir }}/*"
+mkdir -p "{{ .cache.secrets.dir }}"
+
+secrets=(
+  id_ed25519.key
+)
+
+for secret in "${secrets[@]}"
+do
+    dcli n $secret > "{{ .cache.secrets.dir }}/$secret"
+    chmod 600 "{{ .cache.secrets.dir }}/$secret"
+done

@@ -4,7 +4,7 @@
 {{- $restricted := false -}}
 {{- $work := false -}}
 {{- $gpg := dict "sign" "" "encrypt" "" -}}
-{{- $secrets := dict "age" false "bitwarden" false -}}
+{{- $secrets := dict "age" false "dashlane" false -}}
 {{- $toolchains := list "cloud" "docker" "golang" "iac" "java" "kubernetes" "node" "python" "rust" "extra" }}
 
 {{- $data := . }}
@@ -72,9 +72,9 @@
   {{- $email = "adelarab.school@gmail.com" -}}
   {{- $_ := set $secrets "age" true -}}
   {{- if eq $work false -}}
-    {{- $_ := set $gpg "sign" "0xAE12214C66692D96" -}}  # pragma: allowlist secret
-    {{- $_ := set $gpg "encrypt" "0xE770F55D35040481" -}}  # pragma: allowlist secret
-    {{- $_ := set $secrets "bitwarden" true -}}
+    {{- $_ := set $gpg "sign" "0xAE12214C66692D90" -}}  # pragma: allowlist secret
+    {{- $_ := set $gpg "encrypt" "0xE770F55D35040480" -}}  # pragma: allowlist secret
+    {{- $_ := set $secrets "dashlane" true -}}
   {{- end -}}
 {{- end -}}
 {{- $name = promptStringOnce $data.git "name" "Your Git Name" $name -}}
@@ -100,7 +100,7 @@
 encryption: age
 age:
   identity: "{{ $.chezmoi.homeDir }}/.config/age/key.txt"
-  recipient: "age16kxd4ljclq9ksnxvl2ee7a5xnj744kwyv04p04ka0n3rzxdpl5nsq52svl" # pragma: allowlist secret
+  recipient: "age174szp5f96jqwywelgzylexqfgs3n5vqtaj77373zczpjs4y5e4kq44s5kv" # pragma: allowlist secret
 {{- end }}
 
 diff:
@@ -132,7 +132,7 @@ data:
       headless: {{ $headless }}
     secrets:
       age: {{ $secrets.age }}
-      bitwarden: {{ $secrets.bitwarden }}
+      dashlane: {{ $secrets.dashlane }}
     toolchains:
     {{- range $toolchain, $enabled := $toolchainsEnabled }}
       {{ $toolchain}}: {{ $enabled }}

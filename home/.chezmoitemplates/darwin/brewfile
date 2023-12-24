@@ -1,3 +1,8 @@
+{{- $taps := list -}}
+{{- $brews := list -}}
+{{- $casks := list -}}
+
+
 {{- $taps := list
 "homebrew/autoupdate"
 "homebrew/bundle"
@@ -9,7 +14,7 @@
 -}}
 
 
-{{- $brews := splitList " " (includeTemplate "universal/essential-packages" .) }}
+{{- $brews := splitList " " (includeTemplate "universal/common-packages" .) }}
 {{- $brews :=  concat (without $brews "encfs" "gocryptfs") (list "mas") -}}
 
 {{- $casks := list
@@ -19,18 +24,20 @@
   "font-fantasque-sans-mono-nerd-font"
 
   "suspicious-package"
+  "dashlane/tap/dashlane-cli"
 
-  "google-chrome"
+  "arc"
   "rectangle"
   "tableplus"
   "visual-studio-code"
   "zoomus"
+  "superhuman"
+  "airtable"
 
   "raycast"
   "discord"
   "docker"
   "flux"
-  "google-chrome"
   "google-drive"
 
   "keycastr"
@@ -43,10 +50,10 @@
   "tradingview"
 
   "postman"
-  "rescuetime"
   "slack"
   "termius"
   "polypane"
+  "jetbrains-toolbox"
 
   "telegram"
   "visual-studio-code"
