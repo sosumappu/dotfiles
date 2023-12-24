@@ -1,6 +1,6 @@
-# syntax=docker/dockerfile:1.4
+# syntax=docker/dockerfile:1.6
 
-FROM buildpack-deps:kinetic-curl
+FROM buildpack-deps:jammy-curl
 
 ARG USER=devcontainer
 ARG UID=54321
@@ -19,7 +19,6 @@ RUN set -eux \
               dialog \
               dirmngr \
               gnupg2 \
-              htop \
               init-system-helpers \
               iproute2 \
               jq \

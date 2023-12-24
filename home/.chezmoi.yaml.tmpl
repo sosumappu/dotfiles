@@ -1,28 +1,18 @@
-<<<<<<< HEAD
-{{- $name := "Adel A." -}}
-{{- $email := "adelarab.school@gmail.com" -}}
+{{- $username := "sosumappu" -}}
+{{- $name := "" -}}
+{{- $email := "" -}}
 {{- $restricted := false -}}
 {{- $work := false -}}
-{{- $toolchains := list
-  "cloud"
-  "docker"
-  "iac"
-  "java"
-  "kubernetes"
-  "node"
-  "python"
-  "rust"
-  "go"
-  "php"
-  "c"
-  "ruby"
-  "extra"
- }}
+{{- $gpg := dict "sign" "" "encrypt" "" -}}
+{{- $secrets := dict "age" false "bitwarden" false -}}
+{{- $toolchains := list "cloud" "docker" "golang" "iac" "java" "kubernetes" "node" "python" "rust" "extra" }}
 
 {{- $data := . }}
+{{- $_ := set $data "git" (default (dict) (get $data "git")) -}}
+{{- $_ := set $data "gpg" (default (dict) (get $data "gpg")) -}}
 {{- $_ := set $data "host" (default (dict) (get $data "host")) -}}
-{{- $_ := set $data "user" (default (dict) (get $data "user")) -}}
 {{- $_ := set $data "toolchains" (default (dict) (get $data "toolchains")) -}}
+
 
 {{- $headless := false -}}
 {{- $ephemeral := false -}}
@@ -71,12 +61,33 @@
       {{- $_ := set $toolchainsEnabled $toolchain true }}
     {{- end}}
 {{- end }}
+
 {{- if stdinIsATTY -}}
 
 {{- $work = promptBoolOnce $data.host "work" "Work Environment" $work -}}
 {{- $restricted = promptBoolOnce $data.host "restricted" "Restricted Environment (no sudo access)" $restricted -}}
-{{- $name = promptStringOnce $data.user "name" "Your Name" $name -}}
-{{- $email = promptStringOnce $data.user "email" "Your Email" $email -}}
+{{- $username = promptStringOnce $data.git "username" "Your Git Username" $username -}}
+{{- if eq $username "sosumappu" -}}
+  {{- $name = "Adel Arab" -}}
+  {{- $email = "adelarab.school@gmail.com" -}}
+  {{- $_ := set $secrets "age" true -}}
+  {{- if eq $work false -}}
+    {{- $_ := set $gpg "sign" "0xAE12214C66692D96" -}}  # pragma: allowlist secret
+    {{- $_ := set $gpg "encrypt" "0xE770F55D35040481" -}}  # pragma: allowlist secret
+    {{- $_ := set $secrets "bitwarden" true -}}
+  {{- end -}}
+{{- end -}}
+{{- $name = promptStringOnce $data.git "name" "Your Git Name" $name -}}
+{{- $email = promptStringOnce $data.git "email" "Your Git Email" $email -}}
+
+{{- range $toolchain := $toolchains }}
+    {{- $enabled := promptBoolOnce $data.toolchains $toolchain (list "Enable" $toolchain "toolchain" | join " ") (get $toolchainsEnabled $toolchain) -}}
+    {{- if and (eq $toolchain "kubernetes") $enabled (not $toolchainsEnabled.docker)  -}}
+    {{- $_ := set $toolchainsEnabled "docker" $enabled }}
+    {{-   writeToStdout "Enabled Docker toolchain to support Kubernetes.\n" -}}
+    {{- end -}}
+    {{- $_ := set $toolchainsEnabled $toolchain $enabled }}
+{{- end }}
 
 {{- writeToStdout "💡 Tip: you can re-enter your name and email with `chezmoi init --data=false`.\n" -}}
 
@@ -85,78 +96,44 @@
 {{-   writeToStdout "Chezmoi is running in headless environment.\n" -}}
 {{- end -}}
 
-sourceDir: {{ .chezmoi.sourceDir | quote }}
-
-{{ if not $headless -}}
+{{ if $secrets.age -}}
+encryption: age
 age:
   identity: "{{ $.chezmoi.homeDir }}/.config/age/key.txt"
-  recipient: "age1n9jltsf9cvcrmhm0elyvzky6tdq9jmvgluus9qt3mfsactg9g5fqxntykf" # pragma: allowlist secret
+  recipient: "age16kxd4ljclq9ksnxvl2ee7a5xnj744kwyv04p04ka0n3rzxdpl5nsq52svl" # pragma: allowlist secret
 {{- end }}
 
 diff:
   pager: "delta"
+status:
+  exclude: ["always"]
 data:
+    cache:
+      secrets:
+        dir: "{{ joinPath .chezmoi.cacheDir "user" .chezmoi.username "secrets" }}"
+    git:
+      email: "{{ $email }}"
+      name: "{{ $name }}"
+      username: {{ $username }}
+    gpg:
+      sign: "{{ $gpg.sign }}"
+      encrypt: "{{ $gpg.encrypt }}"
     host:
-      arch: {{ .chezmoi.arch | quote }}
+      arch: "{{ .chezmoi.arch }}"
       distro:
-        family: {{ $distro.family | quote }}
-        id: {{ $distro.id | quote }}
-      home: {{ .chezmoi.homeDir | quote }}
-      type: {{ $chassisType | quote }}
+        family: "{{ $distro.family }}"
+        id: "{{ $distro.id }}"
+      home: "{{ .chezmoi.homeDir }}"
+      source: "{{ .chezmoi.sourceDir }}"
+      type: "{{ $chassisType }}"
       work: {{ $work }}
       interactive: {{ stdinIsATTY }}
       restricted: {{ $restricted }}
       headless: {{ $headless }}
+    secrets:
+      age: {{ $secrets.age }}
+      bitwarden: {{ $secrets.bitwarden }}
     toolchains:
     {{- range $toolchain, $enabled := $toolchainsEnabled }}
       {{ $toolchain}}: {{ $enabled }}
     {{- end }}
-    user:
-      email: {{ $email | quote }}
-      name: {{ $name | quote }}
-      login: {{ .chezmoi.username | quote }}
-
-||||||| parent of b2e4b4f (Aqua Update)
-=======
-{{- $email := "adelarab.school@gmail.com" -}}
-{{- $github_user := "sosumappu" -}}
-{{- $computer_name := default "erdnase" (env "CM_computer_name") -}}
-{{- $hostname := default "localhost" (env "CM_hostname") -}}
-{{- $is_codespace := false -}}
-{{- $passphrase := default "change me with 'SETPASS=1 chezmoi init'" (index . "passphrase") -}}
-
-{{- $is_codespace:= env "CODESPACES" | not | not -}}
-
-{{- if (env "ASK") }}
-{{-   $computer_name = promptString "Computer Name" $computer_name -}}
-{{-   $hostname = promptString "Hostname" $hostname -}}
-{{-   $email = promptString "Email" $email -}}
-{{-   $github_user = promptString "GitHub Username" $github_user -}}
-{{-   $asdf_version = promptString "Asdf Version" $asdf_version -}}
-{{- end }}
-
-{{- if (env "SETPASS") }}
-{{    $passphrase = promptString "Encryption Passphrase" $passphrase -}}
-{{- end }}
-
-{{- $delta_is_not_installed := true }}
-{{- if (contains "delta" (output "bash" "-c" "command -v delta || true")) }}
-{{-   $delta_is_not_installed = false }}
-{{- end }}
-
-data:
-  email: {{ $email | quote }}
-  github_user: {{ $github_user | quote }}
-  computer_name: {{ $computer_name | quote }}
-  hostname: {{ $hostname | quote }}
-  passphrase: {{ $passphrase | quote }}
-
-  flags:
-    delta_is_not_installed: {{ $delta_is_not_installed }}
-    is_codespace: {{ $is_codespace }}
-
-encryption: gpg
-gpg:
-  symmetric: true
-  args: ["--batch", "--passphrase", {{ $passphrase | quote }}, "--no-symkey-cache", "--quiet"]
->>>>>>> b2e4b4f (Aqua Update)
