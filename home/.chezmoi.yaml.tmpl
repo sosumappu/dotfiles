@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {{- $name := "Adel A." -}}
 {{- $email := "adelarab.school@gmail.com" -}}
 {{- $restricted := false -}}
@@ -115,3 +116,47 @@ data:
       name: {{ $name | quote }}
       login: {{ .chezmoi.username | quote }}
 
+||||||| parent of b2e4b4f (Aqua Update)
+=======
+{{- $email := "adelarab.school@gmail.com" -}}
+{{- $github_user := "sosumappu" -}}
+{{- $computer_name := default "erdnase" (env "CM_computer_name") -}}
+{{- $hostname := default "localhost" (env "CM_hostname") -}}
+{{- $is_codespace := false -}}
+{{- $passphrase := default "change me with 'SETPASS=1 chezmoi init'" (index . "passphrase") -}}
+
+{{- $is_codespace:= env "CODESPACES" | not | not -}}
+
+{{- if (env "ASK") }}
+{{-   $computer_name = promptString "Computer Name" $computer_name -}}
+{{-   $hostname = promptString "Hostname" $hostname -}}
+{{-   $email = promptString "Email" $email -}}
+{{-   $github_user = promptString "GitHub Username" $github_user -}}
+{{-   $asdf_version = promptString "Asdf Version" $asdf_version -}}
+{{- end }}
+
+{{- if (env "SETPASS") }}
+{{    $passphrase = promptString "Encryption Passphrase" $passphrase -}}
+{{- end }}
+
+{{- $delta_is_not_installed := true }}
+{{- if (contains "delta" (output "bash" "-c" "command -v delta || true")) }}
+{{-   $delta_is_not_installed = false }}
+{{- end }}
+
+data:
+  email: {{ $email | quote }}
+  github_user: {{ $github_user | quote }}
+  computer_name: {{ $computer_name | quote }}
+  hostname: {{ $hostname | quote }}
+  passphrase: {{ $passphrase | quote }}
+
+  flags:
+    delta_is_not_installed: {{ $delta_is_not_installed }}
+    is_codespace: {{ $is_codespace }}
+
+encryption: gpg
+gpg:
+  symmetric: true
+  args: ["--batch", "--passphrase", {{ $passphrase | quote }}, "--no-symkey-cache", "--quiet"]
+>>>>>>> b2e4b4f (Aqua Update)
