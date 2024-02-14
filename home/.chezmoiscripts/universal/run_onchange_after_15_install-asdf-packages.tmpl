@@ -27,6 +27,7 @@ asdf plugin-add nodejs
 {{- if or .toolchains.python }}
 asdf plugin-add python
 {{- end }}
+asdf plugin-add php
 asdf update
 asdf plugin-update --all
 asdf install || true
