@@ -2,7 +2,6 @@
   "gh"
   "git"
   "git-delta"
-
   "webp"
   "jpeg"
   "webm"
@@ -30,9 +29,8 @@
   "coreutils"
   "direnv"
   "encfs"
-  "exa"
+  "eza"
   "fd"
-
   "gnupg"
   "gocryptfs"
   "htop"
@@ -40,10 +38,8 @@
   "jq"
   "neovim"
   "ripgrep"
-
   "wget"
   "curl"
-
   "tree"
   "watch"
   "zsh"
@@ -51,7 +47,6 @@
   "zlib"
   "fzf"
   "fzy"
-
   "shellcheck"
 -}}
 {{- $packages | join " " -}}
