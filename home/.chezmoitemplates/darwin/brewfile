@@ -22,41 +22,28 @@
   "font-fira-code-nerd-font"
   "font-fantasque-sans-mono"
   "font-fantasque-sans-mono-nerd-font"
-
+  "font-caskaydia-cove-nerd-font"
   "suspicious-package"
-  "dashlane/tap/dashlane-cli"
-
   "arc"
   "rectangle"
   "tableplus"
   "visual-studio-code"
   "zoomus"
   "superhuman"
-  "airtable"
-
   "raycast"
   "discord"
   "docker"
   "flux"
   "google-drive"
-
   "keycastr"
   "local"
   "notion"
   "figma"
   "loom"
-
-  "binance"
   "tradingview"
-
-  "postman"
   "slack"
   "termius"
-  "polypane"
-  "jetbrains-toolbox"
-
   "telegram"
-  "visual-studio-code"
   "eset-cyber-security-pro"
 -}}
 

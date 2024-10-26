@@ -23,7 +23,7 @@
     refreshPeriod = "{{ $refreshPeriod }}"
 [_exa]
     type = "file"
-    url = 'https://raw.githubusercontent.com/ogham/exa/master/completions/zsh/_exa'
+    url = 'https://raw.githubusercontent.com/eza-community/eza/master/completions/zsh/_exa'
     refreshPeriod = "{{ $refreshPeriod }}"
 
 [_fd]
