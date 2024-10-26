@@ -1,6 +1,9 @@
 {{- $packages := splitList " " (includeTemplate "universal/common-packages" .) }}
 {{- $packages = without $packages "gocryptfs" -}}
 {{- $packages = concat $packages (list
+"gmp"
+"libsodium"
+"imagemagick"
 "kubesess"
 "mas"
 "pinentry-mac"

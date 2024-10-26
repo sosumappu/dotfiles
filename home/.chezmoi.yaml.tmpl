@@ -5,7 +5,7 @@
 {{- $work := false -}}
 {{- $gpg := dict "sign" "" "encrypt" "" -}}
 {{- $secrets := dict "age" false "dashlane" false -}}
-{{- $toolchains := list "cloud" "docker" "golang" "iac" "java" "kubernetes" "node" "python" "rust" "extra" }}
+{{- $toolchains := list "cloud" "docker" "golang" "iac" "java" "kubernetes" "node" "python" "rust" "extra" "go" "php" }}
 
 {{- $data := . }}
 {{- $_ := set $data "git" (default (dict) (get $data "git")) -}}
