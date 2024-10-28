@@ -120,6 +120,7 @@ return {
   tab_bar_at_bottom=true,
   show_tab_index_in_tab_bar=false,
   scrollback_lines=30000,
+  default_prog= {"tmux", "new-session", "-A", "-s", "main" },
 	-- term = "wezterm",
 	-- freetype_load_target = "Light",
 }
