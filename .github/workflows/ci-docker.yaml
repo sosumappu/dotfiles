@@ -3,13 +3,13 @@ name: CI Docker
 on:
   push:
     branches:
-      - main
-      - feature/*
+    - main
+    - feature/*
   pull_request:
     branches:
-      - main
+    - main
   schedule:
-    - cron: "0 23 * * 6"
+  - cron: 0 23 * * 6
   workflow_dispatch:
     inputs:
       publish-image:
@@ -26,129 +26,129 @@ env:
   PUBLISH_IMAGE: ${{ (github.event_name == 'push' && github.ref_name == 'main') || github.event.inputs.publish-image == 'true' }}
 jobs:
   changes:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 5
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@755da8c3cf115ac066823e79a1e1788f8940201b # v3.2.0
-      - name: Paths Filter
-        uses: dorny/paths-filter@4512585405083f25c027a35db413c2b3b9006d50 # v2.11.1
-        id: filter
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          base: ${{ github.event.pull_request.base.ref || github.base_ref || github.ref }}
-          filters: |
-            shared: &shared
-              - 'home/.chezmoi*'
-              - 'home/.chezmoiscripts/universal/**'
-              - 'home/.chezmoitemplates/universal/**'
-              - 'home/dot_*/**'
-              - 'home/private_dot_*/**'
-              - 'install.sh'
-              - '.github/workflows/ci-docker.yaml'
-            archlinux:
-              - *shared
-              - 'home/.chezmoiscripts/archlinux/*'
-              - 'home/.chezmoitemplates/archlinux/*'
-              - 'containers/archlinux/**/*'
-            ubuntu:
-              - *shared
-              - 'home/.chezmoiscripts/ubuntu/*'
-              - 'home/.chezmoitemplates/ubuntu/*'
-              - 'containers/ubuntu/Dockerfile'
-      - name: Set Matrix
-        id: set-matrix
-        run: |
-          MATRIX=$(echo '${{ steps.filter.outputs.changes }}' | jq -c 'del(.[] | select(. == "shared")) | {os: select(length > 0) }')
-          echo matrix="$MATRIX" >> $GITHUB_OUTPUT
+    - name: Checkout
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+    - name: Paths Filter
+      uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
+      id: filter
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        base: ${{ github.event.pull_request.base.ref || github.base_ref || github.ref }}
+        filters: |
+          shared: &shared
+            - 'home/.chezmoi*'
+            - 'home/.chezmoiscripts/universal/**'
+            - 'home/.chezmoitemplates/universal/**'
+            - 'home/dot_*/**'
+            - 'home/private_dot_*/**'
+            - 'install.sh'
+            - '.github/workflows/ci-docker.yaml'
+          archlinux:
+            - *shared
+            - 'home/.chezmoiscripts/archlinux/*'
+            - 'home/.chezmoitemplates/archlinux/*'
+            - 'containers/archlinux/**/*'
+          ubuntu:
+            - *shared
+            - 'home/.chezmoiscripts/ubuntu/*'
+            - 'home/.chezmoitemplates/ubuntu/*'
+            - 'containers/ubuntu/Dockerfile'
+    - name: Set Matrix
+      id: set-matrix
+      run: |
+        MATRIX=$(echo '${{ steps.filter.outputs.changes }}' | jq -c 'del(.[] | select(. == "shared")) | {os: select(length > 0) }')
+        echo matrix="$MATRIX" >> $GITHUB_OUTPUT
   docker-build:
     needs: [changes]
     if: ${{ needs.changes.outputs.matrix != '' && needs.changes.outputs.matrix != '[]' }}
     strategy:
       matrix: ${{ fromJSON(needs.changes.outputs.matrix) }}
       fail-fast: false
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 60
     services:
       registry:
         image: registry:2
         ports:
-          - 5000:5000
+        - 5000:5000
     steps:
-      - name: Checkout
-        uses: actions/checkout@755da8c3cf115ac066823e79a1e1788f8940201b # v3.2.0
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@e81a89b1732b9c48d79cd809d8d81d79c4647a18 # v2
-      - name: Setup Docker Buildx
-        id: buildx
-        uses: docker/setup-buildx-action@8c0edbc76e98fa90f69d9a2c020dcb50019dc325 # v2
-        with:
-          driver-opts: network=host
-          install: true
-          platforms: ${{ env.PLATFORMS }}
-      - name: Cache Docker Layers
-        uses: actions/cache@e12d46a63a90f2fae62d114769bbf2a179198b5c # v3
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ matrix.os }}-buildx-${{ github.sha }}
-          restore-keys: |
-            ${{ matrix.os }}-buildx
-      - name: Login to DockerHub
-        uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a # v2
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a # v2
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build and Export to Local Docker Registry
-        uses: docker/build-push-action@1104d471370f9806843c095c1db02b5a90c5f8b6 # v3
-        with:
-          file: containers/${{ matrix.os }}/Dockerfile
-          context: .
-          push: true
-          platforms: ${{ env.PLATFORMS }}
-          tags: localhost:5000/${{ matrix.os }}:latest
-          secrets: |
-            "GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}"
-          builder: ${{ steps.buildx.outputs.name }}
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,mode=max,dest=/tmp/.buildx-cache-new
-      - name: Run Tests amd64
-        run: docker run --rm --platform amd64 localhost:5000/${{ matrix.os }}:latest /home/devcontainer/.local/bin/check-dotfiles
-      - name: Run Tests arm64
-        run: docker run --rm --platform arm64 localhost:5000/${{ matrix.os }}:latest /home/devcontainer/.local/bin/check-dotfiles
-      - name: Generate Image Metadata
-        id: metadata
-        uses: docker/metadata-action@57396166ad8aefe6098280995947635806a0e6ea # v4
-        with:
-          images: |
-            ghcr.io/${{ github.repository }}
-            docker.io/${{ github.repository }}
-          tags: |
-            type=schedule,prefix=${{ matrix.os }}-,pattern={{date 'YYYYMMDD'}}
-            type=raw,value=${{ matrix.os }},enable={{is_default_branch}}
-          flavor: latest=${{ github.ref_name == 'main' && contains(matrix.os, 'ubuntu') }}
-      - name: Push Image
-        uses: docker/build-push-action@1104d471370f9806843c095c1db02b5a90c5f8b6 # v3
-        with:
-          file: containers/${{ matrix.os }}/Dockerfile
-          context: .
-          push: ${{ env.PUBLISH_IMAGE }}
-          platforms: ${{ env.PLATFORMS }}
-          tags: ${{ steps.metadata.outputs.tags }}
-          labels: ${{ steps.metadata.outputs.labels }}
-          secrets: |
-            "GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}"
-          builder: ${{ steps.buildx.outputs.name }}
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,mode=max,dest=/tmp/.buildx-cache-new
-      - name: Move Docker Cache
-        run: |
-          rm -rf /tmp/.buildx-cache
-          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+    - name: Checkout
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@49b3bc8e6bdd4a60e6116a5414239cba5943d3cf # v3
+    - name: Setup Docker Buildx
+      id: buildx
+      uses: docker/setup-buildx-action@c47758b77c9736f4b2ef4073d4d51994fabfe349 # v3
+      with:
+        driver-opts: network=host
+        install: true
+        platforms: ${{ env.PLATFORMS }}
+    - name: Cache Docker Layers
+      uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4
+      with:
+        path: /tmp/.buildx-cache
+        key: ${{ matrix.os }}-buildx-${{ github.sha }}
+        restore-keys: |
+          ${{ matrix.os }}-buildx
+    - name: Login to DockerHub
+      uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.repository_owner }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    - name: Build and Export to Local Docker Registry
+      uses: docker/build-push-action@4f58ea79222b3b9dc2c8bbdd6debcef730109a75 # v6
+      with:
+        file: containers/${{ matrix.os }}/Dockerfile
+        context: .
+        push: true
+        platforms: ${{ env.PLATFORMS }}
+        tags: localhost:5000/${{ matrix.os }}:latest
+        secrets: |
+          "GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}"
+        builder: ${{ steps.buildx.outputs.name }}
+        cache-from: type=local,src=/tmp/.buildx-cache
+        cache-to: type=local,mode=max,dest=/tmp/.buildx-cache-new
+    - name: Run Tests amd64
+      run: docker run --rm --platform amd64 localhost:5000/${{ matrix.os }}:latest /home/devcontainer/.local/bin/check-dotfiles
+    - name: Run Tests arm64
+      run: docker run --rm --platform arm64 localhost:5000/${{ matrix.os }}:latest /home/devcontainer/.local/bin/check-dotfiles
+    - name: Generate Image Metadata
+      id: metadata
+      uses: docker/metadata-action@8e5442c4ef9f78752691e2d8f8d19755c6f78e81   # v5
+      with:
+        images: |
+          ghcr.io/${{ github.repository }}
+          docker.io/${{ github.repository }}
+        tags: |
+          type=schedule,prefix=${{ matrix.os }}-,pattern={{date 'YYYYMMDD'}}
+          type=raw,value=${{ matrix.os }},enable={{is_default_branch}}
+        flavor: latest=${{ github.ref_name == 'main' && contains(matrix.os, 'ubuntu') }}
+    - name: Push Image
+      uses: docker/build-push-action@4f58ea79222b3b9dc2c8bbdd6debcef730109a75 # v6
+      with:
+        file: containers/${{ matrix.os }}/Dockerfile
+        context: .
+        push: ${{ env.PUBLISH_IMAGE }}
+        platforms: ${{ env.PLATFORMS }}
+        tags: ${{ steps.metadata.outputs.tags }}
+        labels: ${{ steps.metadata.outputs.labels }}
+        secrets: |
+          "GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}"
+        builder: ${{ steps.buildx.outputs.name }}
+        cache-from: type=local,src=/tmp/.buildx-cache
+        cache-to: type=local,mode=max,dest=/tmp/.buildx-cache-new
+    - name: Move Docker Cache
+      run: |
+        rm -rf /tmp/.buildx-cache
+        mv /tmp/.buildx-cache-new /tmp/.buildx-cache
