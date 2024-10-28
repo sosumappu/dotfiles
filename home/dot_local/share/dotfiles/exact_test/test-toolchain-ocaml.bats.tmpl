@@ -1,0 +1,25 @@
+{{- if .toolchains.ocaml }}
+#!./test/bats/bin/bats
+
+load 'common-helper'
+
+setup() {
+  common_setup
+}
+
+@test "ocaml" {
+  run ocaml --help
+  assert_success
+}
+
+@test "opam" {
+  run opam -v
+  assert_success
+}
+
+@test "utop" {
+  run utop --help
+  assert_success
+}
+
+{{- end -}}

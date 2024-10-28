@@ -5,7 +5,7 @@
 {{- $work := false -}}
 {{- $gpg := dict "sign" "" "encrypt" "" -}}
 {{- $secrets := dict "age" false "dashlane" false -}}
-{{- $toolchains := list "cloud" "docker" "golang" "iac" "java" "kubernetes" "node" "python" "rust" "extra" "go" "php" }}
+{{- $toolchains := list "cloud" "docker" "golang" "iac" "java" "kubernetes" "node" "python" "rust" "extra" "go" "php" "ocaml" "cpp" }}
 
 {{- $data := . }}
 {{- $_ := set $data "git" (default (dict) (get $data "git")) -}}
@@ -69,7 +69,7 @@
 {{- $username = promptStringOnce $data.git "username" "Your Git Username" $username -}}
 {{- if eq $username "sosumappu" -}}
   {{- $name = "Adel Arab" -}}
-  {{- $email = "adelarab.school@gmail.com" -}}
+  {{- $email = "adelarab.works@gmail.com" -}}
   {{- $_ := set $secrets "age" true -}}
   {{- if eq $work false -}}
     {{- $_ := set $gpg "sign" "0xAE12214C66692D90" -}}  # pragma: allowlist secret

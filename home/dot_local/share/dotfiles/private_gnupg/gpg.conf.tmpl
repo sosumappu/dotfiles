@@ -1,0 +1,125 @@
+##################################################################
+## Key creation and signatures
+##################################################################
+
+{{ if .gpg.sign -}}
+## Use name as the default key to sign with.
+default-key {{ .gpg.sign }}
+{{- end }}
+
+{{ if .gpg.encrypt -}}
+## Hidden encrypt-to-self
+hidden-encrypt-to {{ .gpg.encrypt }}
+
+## This option allows setting more keys to be used for trial decryption.
+try-secret-key {{ .gpg.encrypt }}
+{{- end }}
+
+## Use the default key as default recipient if option --recipient is not used and don't ask if this is a valid one.
+default-recipient-self
+
+## include an unambiguous indicator of which key made a signature:
+## (see http://thread.gmane.org/gmane.mail.notmuch.general/3721/focus=7234)
+sig-notation issuer-fpr@notations.openpgp.fifthhorseman.net=%g
+
+## Default algorithms for key generation
+default-new-key-algo "ed25519/cert"
+
+## List our Crypto preferences
+default-preference-list SHA512 SHA384 SHA256 AES256 AES192 AES BZIP2 ZLIB ZIP Uncompressed
+
+##################################################################
+## Keyserver
+##################################################################
+
+## When creating a key, individuals may designate a specific keyserver to use to pull their keys from.
+## The above option will disregard this designation and use the pool, which is useful because (1) it
+## prevents someone from designating an insecure method for pulling their key and (2) if the server
+## designated uses hkps, the refresh will fail because the ca-cert will not match, so the keys will
+## never be refreshed.
+keyserver-options include-subkeys no-honor-keyserver-url
+
+## Automatic retrieving of keys from a keyserver
+## when verifying signatures made by keys that are not on the local keyring
+auto-key-retrieve
+
+## GnuPG can automatically locate and retrieve keys as needed using this option.
+## This option takes any number of the mechanisms listed below, in the order they are to be tried.
+auto-key-locate local wkd dane cert keyserver
+
+##################################################################
+## Crypto
+##################################################################
+
+## list of personal digest preferences. When multiple digests are supported by
+## all recipients, choose the strongest one
+personal-cipher-preferences AES256 AES192 AES
+
+## Our preferences if SHA512 is not possible
+personal-digest-preferences SHA512 SHA384 SHA256
+
+## Turn up the compression level and prefer BZIP2 over ZIP and ZLIB.
+personal-compress-preferences BZIP2 ZLIB ZIP Uncompressed
+compress-level 9
+bzip2-compress-level 9
+
+## Use SHA512 as digest
+cert-digest-algo SHA512
+
+## SHA512 as digest for symmetric ops
+s2k-digest-algo SHA512
+
+## AES256 as cipher for symmetric ops
+s2k-cipher-algo AES256
+
+## Selects how passphrases for symmetric encryption are mangled.
+s2k-mode 3
+
+## Specify how many times the passphrases mangling for symmetric encryption is repeated.
+s2k-count 65011712
+
+## Disable the passphrase cache used for symmetrical en- and decryption.
+no-symkey-cache
+
+## Don't include keyids that may disclose the sender or any other non-obvious keyids
+## This may slow down decryption, as all private keys must be tried.
+throw-keyids
+
+##################################################################
+## Input and output options
+##################################################################
+
+## Suppress the initial copyright message
+no-greeting
+
+## Create ASCII armored output
+armor
+
+## We want to force UTF-8 everywhere
+display-charset utf-8
+
+## when outputting certificates, view user IDs distinctly from keys:
+fixed-list-mode
+
+## when listing certificates, also list fingerprint.
+with-fingerprint
+
+## long keyids are more collision-resistant than short keyids (it's trivial to make a key with any desired short keyid)
+keyid-format 0xlong
+
+##################################################################
+## Other options
+##################################################################
+
+## Refuse to run if GnuPG cannot get secure memory.
+require-secmem
+
+## When verifying a signature made from a subkey, ensure that the cross
+## certification "back signature" on the subkey is present and valid
+require-cross-certification
+
+## This experimental trust model combines TOFU with the Web of Trust.
+## This is done by computing the trust level for each model and then taking the maximum trust level
+## where the trust levels are ordered as follows: unknown < undefined < marginal < fully < ultimate < expired < never.
+trust-model tofu+pgp
+tofu-default-policy ask
