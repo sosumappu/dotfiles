@@ -18,8 +18,8 @@
 {{- $casks := list
   "font-jetbrains-mono"
   "font-fira-code-nerd-font"
-  "font-fantasque-sans-mono"
-  "font-fantasque-sans-mono-nerd-font"
+  "font-hack-nerd-font"
+  "font-iosevka-nerd-font"
   "font-caskaydia-cove-nerd-font"
   "suspicious-package"
   "arc"
@@ -41,6 +41,7 @@
   "tradingview"
   "slack"
   "termius"
+  "wez/wezterm/wezterm-nightly"
   "telegram"
   "eset-cyber-security-pro"
 -}}
