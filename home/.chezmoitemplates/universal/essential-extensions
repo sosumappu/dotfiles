@@ -1,5 +1,5 @@
 {{- $ext := list
-  	"alexdima.copy-relative-path"
+  "alexdima.copy-relative-path"
 	"alexkrechik.cucumberautocomplete"
 	"aaron-bond.better-comments"
 	"esbenp.prettier-vscode"
@@ -10,7 +10,6 @@
 	"teabyii.ayu"
 	"oderwat.indent-rainbow"
 	"mhutchie.git-graph"
-
 	"redhat.vscode-yaml"
 	"nrwl.angular-console"
 -}}

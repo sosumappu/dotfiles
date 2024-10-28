@@ -6,11 +6,8 @@ set -eufo pipefail
 if [ ! "$(command -v dcli)" ]; then
   echo "Dashlane CLI command was not found"
   exit 1
-elif ! dcli --nointeraction --quiet login --check; then
-  echo "Please login to Dashlane and set the DCLI_SESSION environment variable"
-  exit 1
-elif ! dcli --nointeraction --quiet unlock --check; then
-  echo "Please unlock Dashlane and set the BW_SESSION environment variable"
+elif ! dcli a whoami &> /dev/null; then
+  echo "Please login to Dashlane"
   exit 1
 fi
 
