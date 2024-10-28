@@ -51,7 +51,7 @@ return {
 				harfbuzz_features = {
 					"zero",
 				},
-				weight = "Medium",
+				weight = "Regular",
 			}),
 		},
 		{
@@ -111,8 +111,8 @@ return {
 	hide_tab_bar_if_only_one_tab = true,
 	selection_word_boundary = " \t\n{}[]()\"'`,;:@",
 	-- disable_default_key_bindings = true,
-	line_height = 1.25,
-	font_size = 13,
+	line_height = 1.15,
+	font_size = 17,
 	window_background_opacity = 0.95,
 	bold_brightens_ansi_colors = false,
 	-- swap_backspace_and_delete = false,
