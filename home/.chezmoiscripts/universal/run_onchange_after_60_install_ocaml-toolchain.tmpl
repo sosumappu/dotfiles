@@ -1,0 +1,25 @@
+{{- if .toolchains.ocaml }}
+#!/usr/bin/env bash
+
+source "$HOME/.config/shell/exports.sh"
+
+# Vérifier si OCaml et opam sont déjà installés
+if ! command -v ocaml &> /dev/null || ! command -v opam &> /dev/null; then
+    echo "Installing OCaml and opam..."
+    sudo apt update && sudo apt install -y ocaml opam
+fi
+
+# Initialiser opam si ce n'est pas déjà fait
+if ! opam var root &> /dev/null; then
+    echo "Initializing opam..."
+    opam init -y --disable-sandboxing
+    echo 'eval $(opam env)' >> "$XDG_CONFIG_HOME/zsh/.zshrc.local"  # Ajouter opam au PATH de manière permanente
+fi
+
+if ! opam list -i | grep -q "^utop"; then
+    echo "Installing utop..."
+    opam install -y utop
+fi
+
+{{ end }}
+

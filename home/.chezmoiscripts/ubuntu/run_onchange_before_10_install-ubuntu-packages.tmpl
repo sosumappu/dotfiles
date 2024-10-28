@@ -29,8 +29,9 @@
 {{- $cDependencies := list
     "gcc"
     "gdb"
+    "clangd"
 }}
-{{- if .toolchains.c }}
+{{- if .toolchains.cpp }}
 {{- $packages = concat $packages $pyenvDependencies -}}
 {{- end }}
 

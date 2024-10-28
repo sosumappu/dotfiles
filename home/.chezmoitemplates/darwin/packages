@@ -16,7 +16,7 @@
     {{- end -}}
 {{- end -}}
 {{- if .toolchains.docker -}}
-    {{- $packages = concat $packages (list "colima") -}}
+    {{- $packages = concat $packages (list "colima" "docker-buildx") -}}
 {{- end -}}
 {{- if .toolchains.python }}
     {{- $pyenvDependencies := list "openssl" "readline" "sqlite3" "xz" "zlib" "tcl-tk" -}}
