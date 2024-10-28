@@ -41,7 +41,7 @@
   "tradingview"
   "slack"
   "termius"
-  "wez/wezterm/wezterm-nightly"
+  "wezterm@nightly"
   "telegram"
   "eset-cyber-security-pro"
 -}}
