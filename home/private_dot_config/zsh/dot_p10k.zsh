@@ -15,48 +15,7 @@
 # Apart from the differences listed above, the replication of Pure prompt is exact. This includes
 # even the questionable parts. For example, just like in Pure, there is no indication of Git status
 # being stale; promp
-{{- $refreshPeriod := "168h" }}
-
-[_chezmoi]
-    type = "file"
-    url = 'https://raw.githubusercontent.com/twpayne/chezmoi/master/completions/chezmoi.zsh'
-    refreshPeriod = "{{ $refreshPeriod }}"
-[_exa]
-    type = "file"
-    url = 'https://raw.githubusercontent.com/eza-community/eza/master/completions/zsh/_exa'
-    refreshPeriod = "{{ $refreshPeriod }}"
-
-[_fd]
-    type = "file"
-    url = 'https://raw.githubusercontent.com/sharkdp/fd/master/contrib/completion/_fd'
-    refreshPeriod = "{{ $refreshPeriod }}"
-{{- if .toolchains.docker }}
-[_docker]
-    type = "file"
-    url = 'https://raw.githubusercontent.com/docker/cli/master/contrib/completion/zsh/_docker'
-    refreshPeriod = "{{ $refreshPeriod }}"
-{{- end }}
-{{- if .toolchains.kubernetes }}
-[_kubectx]
-    type = "file"
-    url = 'https://raw.githubusercontent.com/ahmetb/kubectx/master/completion/_kubectx.zsh'
-    refreshPeriod = "{{ $refreshPeriod }}"
-
-[_kubens]
-    type = "file"
-    url = 'https://raw.githubusercontent.com/ahmetb/kubectx/master/completion/_kubens.zsh'
-    refreshPeriod = "{{ $refreshPeriod }}"
-{{- end }}
-[_rg]
-    type = "file"
-    url = 'https://raw.githubusercontent.com/BurntSushi/ripgrep/master/crates/core/flags/complete/rg.zsh'
-    refreshPeriod = "{{ $refreshPeriod }}"
-{{- if .toolchains.iac }}
-[_terragrunt]
-    type = "file"
-    url = 'https://raw.githubusercontent.com/thuandt/zsh-terraform/master/_terragrunt'
-    refreshPeriod = "{{ $refreshPeriod }}"
-{{- end }}t symbol is the same in command, visual and overwrite vi modes; when prompt
+# symbol is the same in command, visual and overwrite vi modes; when prompt
 # doesn't fit on one line, it wraps around with no attempt to shorten it.
 #
 # If you like the general style of Pure but not particularly attached to all its quirks, type
