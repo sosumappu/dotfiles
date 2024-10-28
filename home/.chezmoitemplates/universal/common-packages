@@ -42,5 +42,9 @@
   "tmux"
   "tokei"
   "shellcheck"
+
+  "glab"
+  "gsed"
+  "bc"
 -}}
 {{- $packages | join " " -}}

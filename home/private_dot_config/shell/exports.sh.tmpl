@@ -91,7 +91,7 @@ export ZSH_EVALCACHE_DIR="$XDG_CACHE_HOME/zsh-evalcache"
 
 # Editor
 {{- if not .host.headless }}
-export EDITOR="code --wait"
+export EDITOR="lvim"
 {{- end -}}
 
 {{- if eq .host.type "wsl" }}
