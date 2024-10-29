@@ -13,12 +13,11 @@ rm -Rf "$OPAMROOT"
 
 opam init --root="$OPAMROOT" --dot-profile="$XDG_CONFIG_HOME/zsh/.zshrc.local" -y --shell-setup
 
-opam env >> $XDG_CONFIG_HOME/zsh/.zshrc.local
 opam update
 opam upgrade -y
 opam install ocaml.5.2.0 -y
 opam install utop -y
 
-
+opam env >> $XDG_CONFIG_HOME/zsh/.zshrc.local
 
 {{- end -}}
