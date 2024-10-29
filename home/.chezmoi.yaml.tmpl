@@ -72,8 +72,8 @@
   {{- $email = "adelarab.works@gmail.com" -}}
   {{- $_ := set $secrets "age" true -}}
   {{- if eq $work false -}}
-    {{- $_ := set $gpg "sign" "0xAE12214C66692D90" -}}  # pragma: allowlist secret
-    {{- $_ := set $gpg "encrypt" "0xE770F55D35040480" -}}  # pragma: allowlist secret
+    {{- $_ := set $gpg "sign" "0xB2D360DE121B96DB" -}}  # pragma: allowlist secret
+    {{- $_ := set $gpg "encrypt" "0x602FE951FFDB2F73" -}}  # pragma: allowlist secret
     {{- $_ := set $secrets "dashlane" true -}}
   {{- end -}}
 {{- end -}}
@@ -100,7 +100,7 @@
 encryption: age
 age:
   identity: "{{ $.chezmoi.homeDir }}/.config/age/key.txt"
-  recipient: "age174szp5f96jqwywelgzylexqfgs3n5vqtaj77373zczpjs4y5e4kq44s5kv" # pragma: allowlist secret
+  recipient: "age1n8ey6ayjstlkfk9veuk335jlwag0w0u3jg2dqagrqwavznepcyks4nqqpv" # pragma: allowlist secret
 {{- end }}
 
 diff:
