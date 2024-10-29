@@ -1,0 +1,6 @@
+OPAM_SWITCH_PREFIX	=	/Users/localhost/.local/share/chezmoi/home/.chezmoiscripts/universal/default	:	target	Prefix\ of\ the\ current\ opam\ switch
+CAML_LD_LIBRARY_PATH	=	/Users/localhost/.local/share/chezmoi/home/.chezmoiscripts/universal/default/lib/stublibs	:	target	Updated\ by\ package\ ocaml-base-compiler
+CAML_LD_LIBRARY_PATH	=	/Users/localhost/.local/share/chezmoi/home/.chezmoiscripts/universal/default/lib/ocaml/stublibs:/Users/localhost/.local/share/chezmoi/home/.chezmoiscripts/universal/default/lib/ocaml	:	target	Updated\ by\ package\ ocaml
+CAML_LD_LIBRARY_PATH	+=	/Users/localhost/.local/share/chezmoi/home/.chezmoiscripts/universal/default/lib/stublibs	:	target	Updated\ by\ package\ ocaml
+OCAML_TOPLEVEL_PATH	=	/Users/localhost/.local/share/chezmoi/home/.chezmoiscripts/universal/default/lib/toplevel	Updated\ by\ package\ ocaml
+PATH	=+=	/Users/localhost/.local/share/chezmoi/home/.chezmoiscripts/universal/default/bin	:	target	Binary\ dir\ for\ opam\ switch\ default

@@ -1,12 +1,16 @@
 ---
-# aqua Policy
+# aqua - Declarative CLI Version Manager
 # https://aquaproj.github.io/
+# checksum:
+#   # https://aquaproj.github.io/docs/reference/checksum/
+#   enabled: true
+#   require_checksum: true
 registries:
-  - type: standard
-    ref: semver(">= 3.0.0")
+  - name: standard
+    type: standard
+    ref: v4.238.0 # renovate: depName=aquaproj/aqua-registry
   - name: local
     type: local
     path: registry.yaml
 packages:
-  - registry: standard
-  - registry: local
+- import: toolchains/*.yaml

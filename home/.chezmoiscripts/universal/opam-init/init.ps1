@@ -1,0 +1,1 @@
+if Test-Path "/Users/localhost/.local/share/chezmoi/home/.chezmoiscripts/universal/opam-init/variables.ps1" { . "/Users/localhost/.local/share/chezmoi/home/.chezmoiscripts/universal/opam-init/variables.ps1" *> $null }

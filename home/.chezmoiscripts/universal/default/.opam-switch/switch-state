@@ -1,0 +1,28 @@
+opam-version: "2.0"
+compiler: [
+  "base-bigarray.base"
+  "base-domains.base"
+  "base-nnp.base"
+  "base-threads.base"
+  "base-unix.base"
+  "host-arch-x86_64.1"
+  "host-system-other.1"
+  "ocaml.5.2.0"
+  "ocaml-base-compiler.5.2.0"
+  "ocaml-config.3"
+  "ocaml-options-vanilla.1"
+]
+roots: ["ocaml.5.2.0" "ocaml-base-compiler.5.2.0"]
+installed: [
+  "base-bigarray.base"
+  "base-domains.base"
+  "base-nnp.base"
+  "base-threads.base"
+  "base-unix.base"
+  "host-arch-x86_64.1"
+  "host-system-other.1"
+  "ocaml.5.2.0"
+  "ocaml-base-compiler.5.2.0"
+  "ocaml-config.3"
+  "ocaml-options-vanilla.1"
+]
