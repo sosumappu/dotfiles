@@ -1,0 +1,23 @@
+{{- if .toolchains.ocaml -}}
+#!/usr/bin/env bash
+
+source $HOME/.config/shell/exports.sh
+
+# {{ includeTemplate "universal/next-update" . }}
+
+if ! command -v opam >/dev/null 2>&1; then
+  bash -c "sh <(curl -fsSL https://opam.ocaml.org/install.sh)"
+fi
+
+rm -Rf "$OPAMROOT"
+
+opam init --root="$OPAMROOT" --dot-profile="$XDG_CONFIG_HOME/zsh/.zshrc.local" -y --shell-setup
+
+opam update
+opam upgrade -y
+opam install ocaml.5.2.0 -y
+opam install utop -y
+
+
+
+{{- end -}}

@@ -1,0 +1,1 @@
+if exist "/Users/localhost/.local/share/chezmoi/home/.chezmoiscripts/universal/opam-init/variables.cmd" call "/Users/localhost/.local/share/chezmoi/home/.chezmoiscripts/universal/opam-init/variables.cmd" >NUL 2>NUL

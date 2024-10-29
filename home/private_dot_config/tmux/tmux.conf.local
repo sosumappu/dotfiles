@@ -266,12 +266,12 @@ tmux_conf_theme_status_left=" ❐ #S | ↑#{?uptime_y, #{uptime_y}y,}#{?uptime_d
 tmux_conf_theme_status_right=" #{prefix}#{mouse}#{pairing}#{synchronized}#{?battery_status,#{battery_status},}#{?battery_bar, #{battery_bar},}#{?battery_percentage, #{battery_percentage},} , %R , %d %b | #{username}#{root} | #{hostname} "
 
 # status left style
-tmux_conf_theme_status_left_fg="$tmux_conf_theme_colour_6,$tmux_conf_theme_colour_7,$tmux_conf_theme_colour_8"
+tmux_conf_theme_status_left_fg="$tmux_conf_theme_colour_6,$tmux_conf_theme_colour_8,$tmux_conf_theme_colour_8"
 tmux_conf_theme_status_left_bg="$tmux_conf_theme_colour_9,$tmux_conf_theme_colour_10,$tmux_conf_theme_colour_11"
 tmux_conf_theme_status_left_attr="bold,none,none"
 
 # status right style
-tmux_conf_theme_status_right_fg="$tmux_conf_theme_colour_12,$tmux_conf_theme_colour_13,$tmux_conf_theme_colour_14"
+tmux_conf_theme_status_right_fg="$tmux_conf_theme_colour_12,$tmux_conf_theme_colour_8,$tmux_conf_theme_colour_14"
 tmux_conf_theme_status_right_bg="$tmux_conf_theme_colour_15,$tmux_conf_theme_colour_16,$tmux_conf_theme_colour_17"
 tmux_conf_theme_status_right_attr="none,none,bold"
 
@@ -396,7 +396,6 @@ bind -n M-ч kill-session          # Alt + x = close tmux, cyrillic
 
 bind -n M-t new-window            # Alt + t = new window
 bind -n M-е new-window            # Alt + t = new window, cyrillic
-bind -n M-n new-window            # Alt + n = new window
 bind -n M-т new-window            # Alt + n = new window, cyrillic
 
 bind -n M-1 select-window -t 1    # Alt + 1 = go to window 1
@@ -411,6 +410,9 @@ bind -n M-9 select-window -t 9    # Alt + 9 = go to window 9
 
 bind a set-window-option synchronize-panes
 bind m set-window-option main-pane-height 60\; select-layout main-horizontal
+
+unbind -n M-n
+bind -n M-n send-keys ~
 
 # -- tpm -----------------------------------------------------------------------
 
@@ -485,3 +487,4 @@ set -g @plugin 'tmux-plugins/tmux-yank'
 #
 # "$@"
 # # /!\ do not remove the previous line
+
