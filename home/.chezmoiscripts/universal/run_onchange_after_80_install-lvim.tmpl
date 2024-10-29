@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+if ! command -v lvim &> /dev/null; then
 bash <(curl -s https://raw.githubusercontent.com/LunarVim/LunarVim/master/utils/installer/install.sh) --no-install-dependencies
-
+fi
 
