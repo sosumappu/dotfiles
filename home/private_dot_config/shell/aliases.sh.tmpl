@@ -29,9 +29,9 @@ if command -v rg &> /dev/null; then
   alias grep='rg'
 fi
 
-# vim => neovim
-if command -v nvim &> /dev/null; then
-  alias vim='nvim'
+# vim => lunarvim
+if command -v lvim &> /dev/null; then
+  alias vim='lvim'
 fi
 
 # npm packages
@@ -42,6 +42,10 @@ if command -v colima &> /dev/null; then
   alias k8s-start="colima start k8s --kubernetes --runtime containerd --cpu 4 --memory 8 --disk 40"
   alias k8s-stop="colima stop k8s"
 fi
+
+#obsidian
+alias oo="cd \"$OBSIDIAN_VAULT\""
+alias or="vim \"$OBSIDIAN_VAULT/inbox/*.md\""
 
 # wget
 alias wget="wget --hsts-file=\"$XDG_CACHE_HOME/wget-hsts\""

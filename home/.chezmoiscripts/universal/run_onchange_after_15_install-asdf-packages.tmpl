@@ -30,9 +30,7 @@ asdf plugin-add python
 {{- if .toolchains.kubernetes }}
 asdf plugin-add k3d
 {{- end }}
-{{- if .toolchains.php }}
 asdf plugin-add php
-{{- end -}}
 asdf update
 asdf plugin-update --all
 asdf install || true
