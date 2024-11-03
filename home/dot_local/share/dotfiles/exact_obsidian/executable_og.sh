@@ -3,7 +3,7 @@
 # Directory containing markdown files
 VAULT_DIR="$OBSIDIAN_VAULT"
 SOURCE_DIR="_archive"
-DEST_DIR="notes"
+DEST_DIR="permanent"
 
 
 # Iterate through all markdown files in the source directory
