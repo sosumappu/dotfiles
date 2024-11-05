@@ -412,7 +412,7 @@ bind a set-window-option synchronize-panes
 bind m set-window-option main-pane-height 60\; select-layout main-horizontal
 
 unbind -n M-n
-bind -n M-n send-keys ~
+bind -n M-n send-keys '\~'
 
 # -- tpm -----------------------------------------------------------------------
 
