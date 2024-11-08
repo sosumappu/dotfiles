@@ -72,7 +72,7 @@ lvim.builtin.bigfile.active = true
 lvim.builtin.indentlines.active = false
 lvim.builtin.indentlines.mine = true -- NOTE: using v3 till fixed upstream in lunarvim
 lvim.builtin.mind = { active = false, root_path = "~/.mind" } -- enable/disable mind.nvim
-lvim.builtin.obsidian = { active = true, vault_path = "~/Library/Mobile Documents/iCloud~md~obsidian/Documents/Notes"} -- enable/disable obsidian.nvim
+lvim.builtin.obsidian = { active = true, vault_path = os.getenv("OBSIDIAN_VAULT") } -- enable/disable obsidian.nvim
 lvim.builtin.symbols_usage = { active = false } -- enable/disable symbols-usage.nvim
 lvim.builtin.trouble = { active = false } -- enable/disable trouble.nvim
 lvim.builtin.markdown = { active = true } -- enable/disable markdown.nvim
