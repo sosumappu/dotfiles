@@ -7,16 +7,20 @@ source $HOME/.config/shell/exports.sh
 
 if ! command -v opam >/dev/null 2>&1; then
   bash -c "sh <(curl -fsSL https://opam.ocaml.org/install.sh)"
+  rm -Rf "$OPAMROOT"
+  opam init --root="$OPAMROOT" --dot-profile="$XDG_CONFIG_HOME/zsh/.zshrc.local" -y --shell-setup
+  opam update
+  opam upgrade -y
 fi
 
-rm -Rf "$OPAMROOT"
 
-opam init --root="$OPAMROOT" --dot-profile="$XDG_CONFIG_HOME/zsh/.zshrc.local" -y --shell-setup
+if ! command -v ocaml >/dev/null 2>&1; then
+  opam install ocaml.5.2.0 -y
+fi
 
-opam update
-opam upgrade -y
-opam install ocaml.5.2.0 -y
-opam install utop -y
+if ! command -v utop >/dev/null 2>&1; then
+  opam install utop -y
+fi
 
 opam env >> $XDG_CONFIG_HOME/zsh/.zshrc.local
 
