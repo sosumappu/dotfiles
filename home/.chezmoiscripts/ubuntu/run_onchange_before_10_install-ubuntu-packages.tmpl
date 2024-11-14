@@ -1,63 +1,7 @@
 #!/usr/bin/env bash
 
-{{- $packages := splitList " " (includeTemplate "universal/common-packages" .) -}}
-{{- $packages :=  concat (without $packages "fd") (list "fd-find") -}}
-{{- $packages :=  without $packages "git-delta" -}}
-{{- $pyenvDependencies := list
-"make"
-"build-essential"
-"libssl-dev"
-"zlib1g-dev"
-"libbz2-dev"
-"libreadline-dev"
-"libsqlite3-dev"
-"wget"
-"curl"
-"llvm"
-"libncursesw5-dev"
-"xz-utils"
-"tk-dev"
-"libxml2-dev"
-"libxmlsec1-dev"
-"libffi-dev"
-"liblzma-dev"
--}}
-{{- if .toolchains.python }}
-{{- $packages = concat $packages $pyenvDependencies -}}
-{{- end }}
-{{- $phpDependencies := list
-  "build-essential"
-  "libxml2-dev"
-  "libjpeg-dev"
-  "libpng-dev"
-  "libfreetype6-dev"
-  "libgmp-dev"
-  "libmcrypt-dev"
-  "libreadline-dev"
-  "libxslt1-dev"
-  "libzip-dev"
-  "libonig-dev"
-  "libssl-dev"
-  "libgd-dev"
-  "libpq-dev"
-  "libsqlite3-dev"
-  "libcurl4-gnutls-dev"
-  "pkg-config"
-  "autoconf"
-  "libtool"
-  "zlib1g-dev"
-}}
-{{- if .toolchains.php }}
-{{- $packages = concat $packages $phpDependencies }}
-{{- end -}}
-{{- $cDependencies := list
-    "gcc"
-    "gdb"
-    "clangd"
-}}
-{{- if .toolchains.cpp }}
-{{- $packages = concat $packages $pyenvDependencies -}}
-{{- end }}
+{{- $packages := splitList " " (includeTemplate "ubuntu/packages" .) -}}
 
 sudo apt-get update
 sudo apt-get install -y --no-install-recommends {{ $packages | sortAlpha | uniq | join " " -}}
+
