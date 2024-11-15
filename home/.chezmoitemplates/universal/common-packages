@@ -1,6 +1,8 @@
 {{- $packages := list
   "gh"
   "git"
+  "unzip"
+  "bubblewrap"
   "git-delta"
   "broot"
   "dust"
