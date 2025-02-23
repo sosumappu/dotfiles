@@ -11,6 +11,7 @@ M.config = function()
     go = true,
     rust = true,
     html = true,
+    cs = true,
     c = true,
     cpp = true,
     java = true,
