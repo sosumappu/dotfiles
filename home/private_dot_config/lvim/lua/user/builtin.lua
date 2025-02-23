@@ -379,12 +379,12 @@ M.config = function()
       { "json", "jsonc", "julia", "kotlin", "latex", "ledger", "lua", "make" },
       { "markdown", "markdown_inline", "nix", "ocaml", "perl", "php", "python" },
       { "query", "r", "regex", "rego", "ruby", "rust", "scala", "scss", "solidity" },
-      { "teal", "toml", "tsx", "typescript", "vim", "vue", "yaml", "zig" },
+      { "swift", "teal", "toml", "tsx", "typescript", "vim", "vue", "yaml", "zig" },
     })
     :flatten()
     :totable()
   lvim.builtin.treesitter.ensure_installed = languages
-  lvim.builtin.treesitter.highlight.disable = { "org" }
+  lvim.builtin.treesitter.highlight.disable = { "org"  }
   lvim.builtin.treesitter.highlight.aditional_vim_regex_highlighting = { "org" }
   lvim.builtin.treesitter.ignore_install = { "haskell", "norg" }
   lvim.builtin.treesitter.incremental_selection = {

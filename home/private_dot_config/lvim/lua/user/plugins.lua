@@ -160,6 +160,13 @@ M.config = function()
       end,
     },
     {
+      "seblyng/roslyn.nvim",
+      ft = "cs",
+      opts = {
+        -- your configuration comes here; leave empty for default settings
+      },
+    },
+    {
       "nvim-pack/nvim-spectre",
       lazy = true,
       config = function()
@@ -749,14 +756,14 @@ M.config = function()
       enabled = lvim.builtin.obsidian.active,
     },
 
-      {
-    'jakewvincent/mkdnflow.nvim',
-    enabled = false,
-    config = function()
-      local mkdnflow = require 'mkdnflow'
-      mkdnflow.setup {}
-    end,
-  },
+    {
+      "jakewvincent/mkdnflow.nvim",
+      enabled = false,
+      config = function()
+        local mkdnflow = require("mkdnflow")
+        mkdnflow.setup({})
+      end,
+    },
 
     {
       "Selyss/mind.nvim",

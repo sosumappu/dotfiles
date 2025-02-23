@@ -22,8 +22,8 @@ M.config = function()
   -- NOTE: custom icons doesn't work with nerd font v3 yet
   lvim.builtin.custom_web_devicons = false
   lvim.use_icons = true -- only set to false if you know what are you doing
-  lvim.builtin.sell_your_soul_to_devil.active = false
-  lvim.builtin.sell_your_soul_to_devil.prada = false
+  lvim.builtin.sell_your_soul_to_devil.active = true
+  lvim.builtin.sell_your_soul_to_devil.prada = true
   -- lvim.builtin.sell_your_soul_to_devil.openai = true -- NOTE: requires valid OPENAI_API_KEY environment variable
   lvim.lsp.document_highlight = false
   lvim.builtin.task_runner = "async_tasks"
