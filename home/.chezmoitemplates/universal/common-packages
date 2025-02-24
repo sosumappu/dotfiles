@@ -7,7 +7,6 @@
   "broot"
   "dust"
   "procs"
-  "zlib"
   "age"
   "bash"
   "bat"
@@ -44,7 +43,6 @@
   "rclone"
   "unison"
   "glab"
-  "gsed"
   "bc"
 -}}
 {{- $packages | join " " -}}
