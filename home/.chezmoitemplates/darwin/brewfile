@@ -27,10 +27,12 @@
   "tableplus"
   "visual-studio-code"
   "zoomus"
+  "obsidian"
+  "calibre"
   "superhuman"
   "raycast"
   "discord"
-  "docker"
+  "orbstack"
   "flux"
   "google-drive"
   "keycastr"
@@ -38,7 +40,6 @@
   "notion"
   "figma"
   "loom"
-  "tradingview"
   "slack"
   "termius"
   "wezterm@nightly"
@@ -89,9 +90,6 @@ cask "{{ . }}"
 {{- end }}
 
 mas "Keka", id: 470158793
-mas "Keynote", id: 409183694
-mas "Numbers", id: 409203825
-mas "Pages", id: 409201541
 mas "Notability", id: 360593530
 mas "Dashlane", id: 517914548
 mas "iStat Menus", id: 1319778037
