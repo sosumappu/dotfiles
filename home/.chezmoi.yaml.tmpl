@@ -4,8 +4,8 @@
 {{- $restricted := false -}}
 {{- $work := false -}}
 {{- $gpg := dict "sign" "" "encrypt" "" -}}
-{{- $secrets := dict "age" false "dashlane" false -}}
-{{- $toolchains := list "cloud" "docker" "golang" "iac" "java" "kubernetes" "node" "python" "rust" "extra" "go" "php" "ocaml" "cpp" "dotnet" }}
+{{- $secrets := dict "age" false "bitwarden" false -}}
+{{- $toolchains := list "cloud" "docker" "golang" "iac" "java" "kubernetes" "node" "python" "rust" "extra" "php" "ocaml" "cpp" "dotnet" }}
 
 
 {{- $data := . }}
@@ -75,7 +75,7 @@
   {{- if eq $work false -}}
     {{- $_ := set $gpg "sign" "0xB2D360DE121B96DB" -}}  # pragma: allowlist secret
     {{- $_ := set $gpg "encrypt" "0x602FE951FFDB2F73" -}}  # pragma: allowlist secret
-    {{- $_ := set $secrets "dashlane" true -}}
+    {{- $_ := set $secrets "bitwarden" true -}}
   {{- end -}}
 {{- end -}}
 {{- $name = promptStringOnce $data.git "name" "Your Git Name" $name -}}
@@ -133,7 +133,7 @@ data:
       headless: {{ $headless }}
     secrets:
       age: {{ $secrets.age }}
-      dashlane: {{ $secrets.dashlane }}
+      bitwarden: {{ $secrets.bitwarden }}
     toolchains:
     {{- range $toolchain, $enabled := $toolchainsEnabled }}
       {{ $toolchain}}: {{ $enabled }}
