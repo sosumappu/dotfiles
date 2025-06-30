@@ -34,3 +34,10 @@ fi
 if [ "$(command -v yq)" ]; then
   yq shell-completion zsh > "{{ $compDir }}/_yq"
 fi
+
+if [ "$(command -v stripe)" ]; then
+  stripe completion > "{{ $compDir }}/_stripe"fi
+
+if [ "$(command -v supabase)" ]; then
+  supabase completion zsh > "{{ $compDir }}/_supabase"
+fi

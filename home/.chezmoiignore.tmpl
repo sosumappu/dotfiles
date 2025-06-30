@@ -4,6 +4,6 @@ install.sh
 .chezmoiscripts/*/**
 !.chezmoiscripts/{{ .host.distro.id }}/**
 !.chezmoiscripts/universal/**
-{{ if .host.headless }}
+{{- if not .secrets.age }}
 **/*.age
-{{ end }}
+{{- end }}m

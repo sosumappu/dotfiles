@@ -12,87 +12,61 @@
 -}}
 
 
-{{- $brews := splitList " " (includeTemplate "universal/common-packages" .) }}
-{{- $brews :=  concat (without $brews "encfs" "gocryptfs") (list "mas") -}}
+{{- $brews := splitList " " (includeTemplate "darwin/packages" .) }}
 
 {{- $casks := list
-  "font-jetbrains-mono"
   "font-fira-code-nerd-font"
-  "font-hack-nerd-font"
   "font-iosevka-nerd-font"
   "font-caskaydia-cove-nerd-font"
-  "suspicious-package"
+  "rectangle"
+  "superhuman"
+  "figma"
+  "loom"
+  "flux"
   "arc"
+-}}
+
+{{- if not .host.work -}}
+{{- $casks = concat $casks (list
+  "suspicious-package"
   "rectangle"
   "tableplus"
   "visual-studio-code"
-  "zoomus"
+  "zoom"
   "obsidian"
   "calibre"
-  "superhuman"
   "raycast"
   "discord"
-  "orbstack"
-  "flux"
   "google-drive"
   "keycastr"
   "local"
-  "notion"
-  "figma"
-  "loom"
-  "slack"
   "termius"
   "wezterm@nightly"
-  "telegram"
+  "telegram-desktop"
   "eset-cyber-security-pro"
--}}
-
-{{- if .toolchains.cloud -}}
-    {{- $brews = concat $brews (list "azure-cli" "Azure/kubelogin/kubelogin") -}}
-    {{- if not .host.headless -}}
-        {{- $brews = concat $brews (list "awscli") -}}
-    {{- end -}}
-        {{- $casks = concat $casks (list "google-cloud-sdk") -}}
+) -}}
 {{- end -}}
-
-{{- if .toolchains.docker -}}
-    {{- $brews = concat $brews (list "colima") -}}
-{{- end -}}
-
-{{- if .toolchains.kubernetes -}}
-    {{- $casks = concat $casks (list "lens") -}}
-{{- end -}}
-
-{{- if .toolchains.python }}
-{{- $pyenvDependencies := list "openssl" "readline" "sqlite3" "xz" "zlib" "tcl-tk" -}}
-{{- $brews = concat $brews $pyenvDependencies -}}
-{{- end }}
 
 {{- range ($taps | sortAlpha | uniq) }}
 tap "{{ . }}"
 {{- end }}
-
-{{- if not .host.restricted }}
-tap "gromgit/fuse"
-
+{{- if and (not .host.headless) (not .host.restricted) }}
 cask "macfuse"
-brew "encfs-mac"
-brew "gocryptfs-mac"
+brew "gromgit/fuse/gocryptfs-mac"
 {{- end }}
-
 {{ range ($brews | sortAlpha | uniq) }}
 brew "{{ . }}"
 {{- end }}
-
 {{- if not .host.headless -}}
 {{- range ($casks | sortAlpha | uniq) }}
 cask "{{ . }}"
 {{- end }}
-
+{{ if not .host.work }}
+mas "Bitwarden", id: 1352778147
 mas "Keka", id: 470158793
 mas "Notability", id: 360593530
 mas "Dashlane", id: 517914548
 mas "iStat Menus", id: 1319778037
 mas "Slack", id: 803453959
-
+{{- end -}}
 {{- end -}}
