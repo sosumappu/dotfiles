@@ -36,7 +36,8 @@ if [ "$(command -v yq)" ]; then
 fi
 
 if [ "$(command -v stripe)" ]; then
-  stripe completion > "{{ $compDir }}/_stripe"fi
+  stripe completion > "{{ $compDir }}/_stripe"
+fi
 
 if [ "$(command -v supabase)" ]; then
   supabase completion zsh > "{{ $compDir }}/_supabase"
