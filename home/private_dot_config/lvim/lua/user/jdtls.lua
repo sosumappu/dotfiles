@@ -111,8 +111,6 @@ M.setup = function()
         workspace_dir,
     }
 
-    print(launcher)
-
     -- Configure settings in the JDTLS server
     local settings = {
         java = {
