@@ -1,0 +1,115 @@
+#!/usr/bin/env sh
+# https://wiki.archlinux.org/index.php/XDG_Base_Directory
+export XDG_CONFIG_HOME="$HOME/.config"
+export XDG_CACHE_HOME="$HOME/.cache"
+export XDG_DATA_HOME="$HOME/.local/share"
+export XDG_STATE_HOME="$HOME/.local/state"
+export XDG_RUNTIME_DIR=
+{{- if eq .host.distro.family "darwin" -}}
+  "$TMPDIR"
+{{- else if not .host.headless -}}
+  "/run/user/$(id -u)"
+{{- else -}}
+  "/tmp"
+{{- end }}
+{{- if not .host.headless }}
+export XDG_MUSIC_DIR="$HOME/Music"
+export XDG_VIDEOS_DIR="$HOME/Videos"
+export XDG_DESKTOP_DIR="$HOME/Desktop"
+export XDG_PICTURES_DIR="$HOME/Pictures"
+export XDG_DOWNLOAD_DIR="$HOME/Downloads"
+export XDG_DOCUMENTS_DIR="$HOME/Documents"
+export XDG_TEMPLATES_DIR="$HOME/Templates"
+export XDG_PUBLICSHARE_DIR="$HOME/Public"
+{{- end }}
+
+# Language
+export LANG="en_US.UTF-8"
+export LC_ALL="en_US.UTF-8"
+
+# Change default folders
+
+# android
+export ANDROID_HOME="$XDG_DATA_HOME/android"
+# aqua
+export AQUA_ROOT_DIR="$XDG_DATA_HOME/aqua"
+export AQUA_GLOBAL_CONFIG="$XDG_CONFIG_HOME/aqua/aqua.yaml"
+export AQUA_POLICY_CONFIG="$XDG_CONFIG_HOME/aqua/aqua-policy.yaml"
+# asdf
+export ASDF_DIR="$XDG_DATA_HOME/asdf"
+export ASDF_DATA_DIR="$ASDF_DIR"
+export ASDF_CONFIG_FILE="$XDG_CONFIG_HOME/asdf/asdfrc"
+# azure
+export AZURE_CONFIG_DIR="$XDG_DATA_HOME/azure"
+# cargo
+export CARGO_HOME="$XDG_DATA_HOME/cargo"
+# colima
+export COLIMA_HOME="$XDG_CONFIG_HOME/colima"
+# docker
+export DOCKER_CONFIG="$XDG_CONFIG_HOME/docker"
+# gnupg
+export GNUPGHOME="$XDG_DATA_HOME/gnupg"
+# go
+export GOPATH="$XDG_DATA_HOME/go"
+# gradle
+export GRADLE_USER_HOME="$XDG_DATA_HOME/gradle"
+# homebrew
+export HOMEBREW_BUNDLE_FILE="$XDG_CONFIG_HOME/brew/Brewfile"
+# httpie
+export HTTPIE_CONFIG_DIR="$XDG_CONFIG_HOME/httpie"
+# krew
+export KREW_ROOT="$XDG_DATA_HOME/krew"
+# less
+export LESSKEY="$XDG_CONFIG_HOME/less/lesskey"
+export LESSHISTFILE="$XDG_CACHE_HOME/less/history"
+# maven
+export MAVEN_USER_HOME="$XDG_DATA_HOME/maven" # For maven-wrapper
+export MAVEN_CONFIG="-gs $XDG_CONFIG_HOME/maven/settings.xml" # For maven-wrapper
+export MAVEN_ARGS="$MAVEN_CONFIG" # For Maven >= 3.9.0
+# minikube
+export MINIKUBE_HOME="$XDG_DATA_HOME/minikube"
+# mise
+export MISE_NODE_DEFAULT_PACKAGES_FILE="$XDG_CONFIG_HOME/npm/default-npm-packages"
+export MISE_NODE_COREPACK="true"
+export MISE_PYTHON_DEFAULT_PACKAGES_FILE="$XDG_CONFIG_HOME/pip/default-python-packages"
+# node
+export NPM_CONFIG_USERCONFIG="$XDG_CONFIG_HOME/npm/npmrc"
+export NODE_REPL_HISTORY="$XDG_CACHE_HOME/node_repl_history"
+# pass
+export PASSWORD_STORE_DIR="$XDG_DATA_HOME/pass"
+# python
+export PYTHON_HISTORY="${XDG_STATE_HOME}/python/history"
+# rustup
+export RUSTUP_HOME="$XDG_DATA_HOME/rustup"
+export MISE_RUSTUP_HOME="$RUSTUP_HOME"
+# terminfo
+export TERMINFO="$XDG_DATA_HOME/terminfo"
+export TERMINFO_DIRS="${XDG_DATA_HOME}/terminfo:/usr/share/terminfo"
+# ssh
+export SSH_CONFIG_HOME="$XDG_CONFIG_HOME/ssh"
+export SSH_DATA_HOME="$XDG_DATA_HOME/ssh"
+# unison
+export UNISON="$XDG_DATA_HOME/unison"
+# wget
+export WGETRC="$XDG_CONFIG_HOME/wget/wgetrc"
+#zsh-evalcache
+export ZSH_EVALCACHE_DIR="$XDG_CACHE_HOME/zsh-evalcache"
+#opam
+export OPAMROOT="$XDG_DATA_HOME/opam"
+
+# Editor
+{{- if not .host.headless }}
+export EDITOR="lvim"
+{{- end -}}
+
+EXPORTS_D_DIR="$XDG_CONFIG_HOME/shell/exports.d"
+if [ -d "$EXPORTS_D_DIR" ]; then
+  for EXPORTS_FILE in "$EXPORTS_D_DIR"/*; do
+    [ -r "$EXPORTS_FILE" ] || continue
+    # shellcheck source=/dev/null
+    . "$EXPORTS_FILE"
+  done
+  unset EXPORTS_FILE
+fi
+unset EXPORTS_D_DIR
+

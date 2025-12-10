@@ -1,51 +1,47 @@
-{{- if .toolchains.extra -}}
+{{- if .toolchains.kubernetes -}}
 #!/usr/bin/env bash
 
-source $HOME/.config/shell/exports.sh
+# {{ includeTemplate "universal/next-update" . -}}
 
-# {{ includeTemplate "universal/next-update" . }}
+# shellcheck disable=SC1091
+source "$HOME"/.config/shell/exports.sh
 
 if [[ ! -e $KREW_ROOT/bin/kubectl-krew ]]; then
+    echo "🔧 Installing krew (kubectl plugin manager)…"
     (
-    set -x; cd "$(mktemp -d)" &&
+    cd "$(mktemp -d)" &&
     OS="$(uname | tr '[:upper:]' '[:lower:]')" &&
     ARCH="$(uname -m | sed -e 's/x86_64/amd64/' -e 's/\(arm\)\(64\)\?.*/\1\2/' -e 's/aarch64$/arm64/')" &&
     KREW="krew-${OS}_${ARCH}" &&
     curl -fsSLO "https://github.com/kubernetes-sigs/krew/releases/latest/download/${KREW}.tar.gz" &&
     tar zxvf "${KREW}.tar.gz" &&
-    ./"${KREW}" install krew
+    ./"${KREW}" install krew >/dev/null 2>&1
     )
+    echo "✅ krew installed."
 fi
 
-krew_plugins=(
-  access-matrix
-  blame
-  cost
-  datree
-  deprecations
-  get-all
-  images
-  konfig
-  kubescape
-  kyverno
-  modify-secret
-  neat
-  node-shell
-  outdated
-  rbac-tool
-  resource-capacity
-  score
-  slice
-  sniff
-  tree
-  tunnel
-  view-allocations
-  who-can
+KREW_PLUGINS=(
+{{- $packages := splitList " " (includeTemplate "universal/packages" (dict "root" . "packageManager" "krew")) -}}
+{{- range $pkg := $packages -}}
+{{- if ne $pkg "" }}
+  "{{ $pkg }}"
+{{- end -}}
+{{- end }}
 )
 
-for plugin in "${krew_plugins[@]}"
-do
-    echo Installing Krew plugin \"$plugin\"
-    $KREW_ROOT/bin/kubectl-krew install $plugin 2>/dev/null || true
+$KREW_ROOT/bin/kubectl-krew version >/dev/null 2>&1 || true
+echo "🔄 Updating krew indexes…"
+$KREW_ROOT/bin/kubectl-krew update 2>/dev/null
+$KREW_ROOT/bin/kubectl-krew upgrade 2>/dev/null
+
+echo "🔌 Ensuring krew plugins…"
+for plugin in "${KREW_PLUGINS[@]}"; do
+    if ! $KREW_ROOT/bin/kubectl-krew list | grep -q "^$plugin$"; then
+        echo "➕ Installing krew plugin: $plugin"
+        $KREW_ROOT/bin/kubectl-krew install "$plugin" >/dev/null 2>&1
+    else
+        echo "✅ krew plugin already installed: $plugin"
+    fi
 done
-{{- end -}}
+echo "✅ krew plugins up to date."
+{{- end -}}a

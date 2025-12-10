@@ -1,11 +1,21 @@
-#!/usr/bin/env bash
+{{- includeTemplate "universal/common-after-template-header" . -}}
 
-set -x
+echo "🍎 Configuring macOS settings..."
+
+if ls "$HOME"/Library/Safari &>/dev/null; then
+    echo "✅ Terminal has Full Disk Access."
+else
+    echo "❌ Terminal does NOT have Full Disk Access."
+    echo "To grant access, go to: System Settings → Privacy & Security → Full Disk Access"
+    echo "Then add Terminal to the list and restart it."
+    exit 0
+fi
 
 # Close any open System Preferences panes, to prevent them from overriding
 # settings we’re about to change
 osascript -e 'tell application "System Preferences" to quit'
 
+set -x
 ###############################################################################
 # General UI/UX                                                               #
 ###############################################################################
@@ -115,9 +125,9 @@ defaults write com.apple.finder FXPreferredViewStyle -string "Nlsv"
 # Expand the following File Info panes:
 # “General”, “Open with”, and “Sharing & Permissions”
 defaults write com.apple.finder FXInfoPanesExpanded -dict \
-	General -bool true \
-	OpenWith -bool true \
-	Privileges -bool true
+  General -bool true \
+  OpenWith -bool true \
+  Privileges -bool true
 
 ###############################################################################
 # Dock, Dashboard, and hot corners                                            #
@@ -330,8 +340,13 @@ defaults write com.apple.terminal SecureKeyboardEntry -bool true
 # Disable the annoying line marks
 defaults write com.apple.Terminal ShowLineMarks -int 0
 
-# Don’t display the annoying prompt when quitting iTerm
+# Don’t display the annoying prompt when quitting iTerm2
 defaults write com.googlecode.iterm2 PromptOnQuit -bool false
+
+# Specify the preferences directory
+defaults write com.googlecode.iterm2.plist PrefsCustomFolder -string "~/.config/iterm2"
+# Tell iTerm2 to use the custom preferences in the directory
+defaults write com.googlecode.iterm2.plist LoadPrefsFromCustomFolder -bool true
 
 ###############################################################################
 # Time Machine                                                                #
@@ -432,22 +447,22 @@ defaults write com.google.Chrome.canary AppleEnableSwipeNavigateWithScrolls -boo
 # Disable the all too sensitive backswipe on Magic Mouse
 defaults write com.google.Chrome AppleEnableMouseSwipeNavigateWithScrolls -bool false
 defaults write com.google.Chrome.canary AppleEnableMouseSwipeNavigateWithScrolls -bool false
+set +x
 {{ if not .host.restricted }}
 ###############################################################################
 # Settings that require administrator permissions                             #
 ###############################################################################
 
 # Ask for the administrator password upfront
-sudo -v
-
-# Keep-alive: update existing `sudo` time stamp until `.macos` has finished
-while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
+{{- includeTemplate "universal/sudo-keep-alive" . }}
 
 # Show language menu in the top right corner of the boot screen
 sudo defaults write /Library/Preferences/com.apple.loginwindow showInputMenu -bool true
 
 # Set the timezone; see `sudo systemsetup -listtimezones` for other values
-sudo systemsetup -settimezone "America/New_York" > /dev/null
+target_timezone="America/New_York"
+current_timezone="$(sudo systemsetup -gettimezone 2>/dev/null | awk -F': ' 'NR==1 { gsub(/^[[:space:]]+|[[:space:]]+$/, "", $2); print $2 }')"
+[ "$current_timezone" = "$target_timezone" ] || sudo systemsetup -settimezone "$target_timezone" >/dev/null 2>&1 || true
 
 # Enable lid wakeup
 sudo pmset -a lidwake 1
@@ -469,4 +484,4 @@ sudo chflags nohidden ~/Library
 
 # Show the /Volumes folder
 sudo chflags nohidden /Volumes
-{{- end -}}
+{{- end }}

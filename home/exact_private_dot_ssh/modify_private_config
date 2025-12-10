@@ -1,0 +1,8 @@
+{{- /* chezmoi:modify-template */ -}}
+Include {{ .host.home }}/.config/ssh/config
+
+{{- if regexMatch "(?m)^#### dotfiles:unmodified" .chezmoi.stdin }}
+{{ regexFind "(?s)#### dotfiles:unmodified.*" .chezmoi.stdin }}
+{{- else }}
+{{ print "#### dotfiles:unmodified\n" }}
+{{- end -}}

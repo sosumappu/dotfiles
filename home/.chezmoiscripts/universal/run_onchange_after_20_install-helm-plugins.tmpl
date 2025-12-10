@@ -1,18 +1,31 @@
-{{- if .toolchains.extra -}}
+{{- if .toolchains.kubernetes -}}
 #!/usr/bin/env bash
 
-source $HOME/.config/shell/exports.sh
+# {{ includeTemplate "universal/next-update" . -}}
 
-# {{ includeTemplate "universal/next-update" . }}
+# shellcheck disable=SC1091
+source "$HOME"/.config/shell/exports.sh
 
-helm_plugins=(
-  https://github.com/databus23/helm-diff
-  https://github.com/jkroepke/helm-secrets
+declare -A HELM_PLUGINS=(
+{{- $packages := splitList " " (includeTemplate "universal/packages" (dict "root" . "packageManager" "helm")) -}}
+{{- range $pkg := $packages -}}
+{{- if ne $pkg "" }}
+  {{- $basename := regexReplaceAll ".*\\/([^/]+?)(\\.git)?$" $pkg "${1}" }}
+  {{- $name := regexReplaceAll "^helm-" $basename "" }}
+  ["{{ $name }}"]="{{ $pkg }}"
+{{- end -}}
+{{- end }}
 )
 
-for plugin in "${helm_plugins[@]}"
-do
-    echo Installing Helm plugin \"$plugin\"
-    helm plugin install $plugin 2>/dev/null|| true
+echo "🔌 Ensuring Helm plugins…"
+for name in "${!HELM_PLUGINS[@]}"; do
+    url=${HELM_PLUGINS[$name]}
+    if ! helm plugin list | awk '{print $1}' | grep -qx "$name"; then
+        echo "➕ Installing Helm plugin: $name"
+        helm plugin install "$url" --verify=false
+    else
+        echo "✅ Helm plugin already installed: $name"
+    fi
 done
+echo "✅ Helm plugins up to date."
 {{- end -}}
