@@ -1,0 +1,10 @@
+# obsidian vault path
+{{- if (eq .host.distro.family "darwin") }}
+export OBSIDIAN_VAULT="$HOME/Library/Mobile Documents/iCloud~md~obsidian/Documents/Notes/"
+{{- end -}}
+
+{{- if (eq .host.distro.id "ubuntu") }}
+export OBSIDIAN_VAULT="$HOME/vault/notes"
+{{- end -}}
+
+

@@ -1,25 +1,7 @@
-#!/usr/bin/env bash
+{{- includeTemplate "universal/common-before-template-header" . -}}
 
-xcode-select -p >/dev/null 2>&1 || xcode-select --install
-
-if ! command -v brew >/dev/null 2>&1; then
-  echo "Installing Homebrew..."
-  /bin/sh -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-fi
-
-{{ if eq .host.arch "arm64" -}}
-eval $(/opt/homebrew/bin/brew shellenv)
-{{- else }}
-eval $(/usr/local/bin/brew shellenv)
-{{- end }}
-
-# {{ includeTemplate "universal/next-update" . }}
-brew update
+echo "📦 Ensuring Homebrew bundle packages…"
 brew bundle --verbose --file=/dev/stdin <<EOF
 {{ includeTemplate "darwin/brewfile" . }}
 EOF
-{{- if .host.interactive }}
-brew upgrade
-brew upgrade --cask --greedy
-brew cleanup
-{{- end -}}
+echo "✅ Homebrew bundle applied."

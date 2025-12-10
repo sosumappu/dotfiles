@@ -1,140 +1,244 @@
-{{- $username := "sosumappu" -}}
-{{- $name := "" -}}
-{{- $email := "" -}}
+{{- /* -------------------- Basic User / Environment -------------------- */ -}}
+{{- $personalUsername := "sosumappu" -}}
+{{- $personalName := "" -}}
+{{- $personalEmail := "" -}}
 {{- $restricted := false -}}
 {{- $work := false -}}
 {{- $gpg := dict "sign" "" "encrypt" "" -}}
-{{- $secrets := dict "age" false "bitwarden" false -}}
-{{- $toolchains := list "cloud" "docker" "golang" "iac" "java" "kubernetes" "node" "python" "rust" "extra" "php" "ocaml" "cpp" "dotnet" }}
+{{- $secrets := dict "age" stdinIsATTY "bitwarden" false -}}
+{{- $toolchains := list "cloud" "docker" "golang" "iac" "java" "kubernetes" "node" "python" "rust" "extra" "dotnet" "cpp" -}}
 
+{{- $data := . -}}
+{{- range $k := list "personal" "gpg" "host" "toolchains" -}}
+  {{- $_ := set $data $k (default (dict) (get $data $k)) -}}
+{{- end -}}
 
-{{- $data := . }}
-{{- $_ := set $data "git" (default (dict) (get $data "git")) -}}
-{{- $_ := set $data "gpg" (default (dict) (get $data "gpg")) -}}
-{{- $_ := set $data "host" (default (dict) (get $data "host")) -}}
-{{- $_ := set $data "toolchains" (default (dict) (get $data "toolchains")) -}}
-
-
-{{- $headless := false -}}
+{{- /* -------------------- Ephemeral Environment -------------------- */ -}}
 {{- $ephemeral := false -}}
-{{/* detect GitHub codespaces, VSCode remote containers, Docker containers, Multipass VMs, and Vagrant boxes */}}
-{{- $ephemeralEnvOrUsername := or (env "CODESPACES") (env "REMOTE_CONTAINERS_IPC") (env "GITPOD_WORKSPACE_ID") (eq .chezmoi.username "root" "ubuntu" "vagrant" "vscode" "devcontainer") -}}
-{{- $ephemeralCgroup := and (stat "/proc/1/cgroup") (output "cat" "/proc/1/cgroup" | regexMatch "(docker|lxc)") -}}
-{{- if or $ephemeralEnvOrUsername $ephemeralCgroup -}}
-{{-   $headless = true -}}
-{{-   $ephemeral = true -}}
-{{-   writeToStdout "Chezmoi is running in a container.\n" -}}
+{{- $ephemeralReasons := list -}}
+
+{{- if stat "/.dockerenv" -}}
+  {{- $ephemeral = true -}}
+  {{- $ephemeralReasons = append $ephemeralReasons "Detected /.dockerenv" -}}
+{{- end -}}
+{{- if stat "/run/.containerenv" -}}
+  {{- $ephemeral = true -}}
+  {{- $ephemeralReasons = append $ephemeralReasons "Detected /run/.containerenv" -}}
 {{- end -}}
 
-{{- $distro := dict "family" .chezmoi.os "id" (get .chezmoi.osRelease "id" | default .chezmoi.os) -}}
-{{- if or (eq $distro.id "arch") (eq $distro.id "archarm") -}}
-{{- $_ := set $distro "id" "archlinux" -}}
-{{- end -}}
-
-{{- $chassisType := "desktop" }}
-{{- if $ephemeral -}}
-{{-   $chassisType = "ephemeral" }}
-{{- else if eq .chezmoi.os "linux" }}
-{{-   if (.chezmoi.kernel.osrelease | lower | contains "microsoft") -}}
-{{-     $chassisType = "wsl" }}
-{{-   else -}}
-{{-     $chassisType = (output "hostnamectl" "--json=short" | mustFromJson).Chassis }}
-{{-   end -}}
-{{- else if eq .chezmoi.os "darwin" }}
-{{-   if contains "MacBook" (output "sysctl" "-n" "hw.model") }}
-{{-     $chassisType = "laptop" }}
-{{-   else }}
-{{-     $chassisType = "desktop" }}
-{{-   end }}
-{{- else if eq .chezmoi.os "windows" }}
-{{-   $chassisType = (output "powershell.exe" "-noprofile" "-command" "if (Get-WmiObject -Class win32_battery -ComputerName localhost) { echo laptop } else { echo desktop }") }}
-{{- end }}
-
-{{- $toolchainsEnabled := dict }}
-{{- range $toolchain := $toolchains }}
-    {{- $withoutToolchains := env "WITHOUT_TOOLCHAINS" -}}
-    {{- $withoutToolchain := env (list "WITHOUT" (upper $toolchain) | join "_") -}}
-    {{- $withToolchain := env (list "WITH" (upper $toolchain) | join "_") -}}
-    {{- if and (or $withoutToolchains $withoutToolchain) (not $withToolchain) -}}
-      {{- writeToStdout (list "Disabled" $toolchain "toolchain.\n" | join " ")  -}}
-      {{- $_ := set $toolchainsEnabled $toolchain false }}
-    {{- else }}
-      {{- $_ := set $toolchainsEnabled $toolchain true }}
-    {{- end}}
-{{- end }}
-
-{{- if stdinIsATTY -}}
-
-{{- $work = promptBoolOnce $data.host "work" "Work Environment" $work -}}
-{{- $restricted = promptBoolOnce $data.host "restricted" "Restricted Environment (no sudo access)" $restricted -}}
-{{- $username = promptStringOnce $data.git "username" "Your Git Username" $username -}}
-{{- if eq $username "sosumappu" -}}
-  {{- $name = "Adel Arab" -}}
-  {{- $email = "adelarab.works@gmail.com" -}}
-  {{- $_ := set $secrets "age" true -}}
-  {{- if eq $work false -}}
-    {{- $_ := set $gpg "sign" "0xB2D360DE121B96DB" -}}  # pragma: allowlist secret
-    {{- $_ := set $gpg "encrypt" "0x602FE951FFDB2F73" -}}  # pragma: allowlist secret
-    {{- $_ := set $secrets "bitwarden" true -}}
+{{- if stat "/proc/1/cgroup" -}}
+  {{- $cgroup := output "cat" "/proc/1/cgroup" -}}
+  {{- $match := regexFind "(docker|lxc|podman|kubepods|containerd)" $cgroup -}}
+  {{- if $match -}}
+    {{- $ephemeral = true -}}
+    {{- $ephemeralReasons = append $ephemeralReasons (printf "/proc/1/cgroup matched %s" $match) -}}
   {{- end -}}
 {{- end -}}
-{{- $name = promptStringOnce $data.git "name" "Your Git Name" $name -}}
-{{- $email = promptStringOnce $data.git "email" "Your Git Email" $email -}}
 
-{{- range $toolchain := $toolchains }}
-    {{- $enabled := promptBoolOnce $data.toolchains $toolchain (list "Enable" $toolchain "toolchain" | join " ") (get $toolchainsEnabled $toolchain) -}}
-    {{- if and (eq $toolchain "kubernetes") $enabled (not $toolchainsEnabled.docker)  -}}
-    {{- $_ := set $toolchainsEnabled "docker" $enabled }}
-    {{-   writeToStdout "Enabled Docker toolchain to support Kubernetes.\n" -}}
-    {{- end -}}
-    {{- $_ := set $toolchainsEnabled $toolchain $enabled }}
-{{- end }}
-
-{{- writeToStdout "💡 Tip: you can re-enter your name and email with `chezmoi init --data=false`.\n" -}}
-
-{{- else -}}
-{{-   $headless = true -}}
-{{-   writeToStdout "Chezmoi is running in headless environment.\n" -}}
+{{- if stat "/proc/1/mountinfo" -}}
+  {{- $mountinfo := output "cat" "/proc/1/mountinfo" -}}
+  {{- $match := regexFind "(overlay|containers)" $mountinfo -}}
+  {{- if $match -}}
+    {{- $ephemeral = true -}}
+    {{- $ephemeralReasons = append $ephemeralReasons (printf "/proc/1/mountinfo matched %s" $match) -}}
+  {{- end -}}
 {{- end -}}
 
-{{ if $secrets.age -}}
+{{- $isWSL := or (env "WSL_DISTRO_NAME") (env "WSL_INTEROP") (and (eq .chezmoi.os "linux") (contains (lower (output "uname" "-r")) "microsoft")) -}}
+{{- if and $ephemeral $isWSL -}}
+  {{- $ephemeral = false -}}
+  {{- $ephemeralReasons = list -}}
+{{- end -}}
+
+{{- if $ephemeral -}}
+  {{- writeToStdout "🛳️ Running in a containerized (ephemeral) environment.\n" -}}
+  {{- range $reason := $ephemeralReasons -}}
+    {{- writeToStdout (printf "   • %s\n" $reason) -}}
+  {{- end -}}
+{{- end -}}
+
+{{- /* -------------------- OS / Distro -------------------- */ -}}
+{{- $distro := dict "family" .chezmoi.os "id" (get .chezmoi.osRelease "id" | default .chezmoi.os) -}}
+{{- if or (eq $distro.id "arch") (eq $distro.id "archarm") -}}{{- $_ := set $distro "id" "archlinux" -}}{{- end -}}
+{{- $supported := list "darwin" "ubuntu" "archlinux" "fedora" -}}
+{{- $isSupported := false -}}
+{{- range $supported -}}{{- if eq . $distro.id -}}{{- $isSupported = true -}}{{- end -}}{{- end -}}
+{{- if not $isSupported -}}
+  {{- writeToStdout (printf "⚠️ Unsupported distribution: %s\n" $distro.id) -}}
+  {{- exit 1 -}}
+{{- end -}}
+
+{{- /* -------------------- Brew Path -------------------- */ -}}
+{{- $brewPath := "" -}}
+{{- if eq .chezmoi.os "darwin" -}}
+  {{- $brewPath = "/usr/local/bin/brew" -}}
+  {{- if eq .chezmoi.arch "arm64" -}}
+    {{- $brewPath = "/opt/homebrew/bin/brew" -}}
+  {{- end -}}
+{{- else -}}
+  {{- $brewPath = "/home/linuxbrew/.linuxbrew/bin/brew" -}}
+{{- end -}}
+
+{{- /* -------------------- Chassis / Host Type -------------------- */ -}}
+{{- $chassisType := "desktop" -}}
+{{- if $ephemeral -}}
+  {{- $chassisType = "ephemeral" -}}
+{{- else if eq .chezmoi.os "linux" -}}
+  {{- if $isWSL -}}
+    {{- $chassisType = "wsl" -}}
+  {{- else -}}
+    {{- $hostnamectl := output "hostnamectl" "--json=short" -}}
+    {{- $parsed := mustFromJson $hostnamectl -}}
+    {{- $chassis := $parsed.Chassis | default "desktop" -}}
+    {{- $chassisType = $chassis -}}
+  {{- end -}}
+{{- else if eq .chezmoi.os "darwin" -}}
+  {{- $hwModel := output "sysctl" "-n" "hw.model" -}}
+  {{- if contains "MacBook" $hwModel -}}
+    {{- $chassisType = "laptop" -}}
+  {{- else -}}
+    {{- $chassisType = "desktop" -}}
+  {{- end -}}
+{{- else if eq .chezmoi.os "windows" -}}
+  {{- $psCmd := "if (Get-WmiObject -Class win32_battery) { 'laptop' } elseif ((Get-WmiObject -Class Win32_SystemEnclosure).ChassisTypes -contains 8) { 'laptop' } else { 'desktop' }" -}}
+  {{- $chassisType = output "powershell.exe" "-noprofile" "-command" $psCmd -}}
+{{- end -}}
+
+{{- /* -------------------- Toolchain Defaults -------------------- */ -}}
+{{- $toolchainsEnabled := dict -}}
+{{- $toolchainsSelected := list -}}
+{{- range $t := $toolchains -}}
+  {{- $with := (or (eq (env (printf "WITH_%s" (upper $t)) | lower) "1")
+                   (eq (env (printf "WITH_%s" (upper $t)) | lower) "true")) -}}
+
+  {{- $withoutAll := (or (eq (env "WITHOUT_TOOLCHAINS" | lower) "1")
+                         (eq (env "WITHOUT_TOOLCHAINS" | lower) "true")) -}}
+
+  {{- $without := (or (eq (env (printf "WITHOUT_%s" (upper $t)) | lower) "1")
+                      (eq (env (printf "WITHOUT_%s" (upper $t)) | lower) "true")) -}}
+
+  {{- $_ := set $toolchainsEnabled $t (or $with (and (not (or $withoutAll $without)) true)) -}}
+{{- end -}}
+
+{{- /* -------------------- Interactive Prompts -------------------- */ -}}
+{{- $interactive := true -}}
+{{- if stdinIsATTY -}}
+  {{- $work = promptBoolOnce $data.host "work" "🏢 Work Environment" $work -}}
+  {{- $restricted = promptBoolOnce $data.host "restricted" "🔒 Restricted Environment" $restricted -}}
+  {{- $personalUsername = promptStringOnce $data.personal "username" "👤 Personal Git Username" $personalUsername -}}
+
+  {{- if eq $personalUsername "adyranov" -}}
+    {{- $personalName = "Sosumappu" -}}
+    {{- $personalEmail = "1038141+adyranov@users.noreply.github.com" -}}
+    {{- if not $work -}}
+      {{- $_ := set $gpg "sign" "0xB2D360DE121B96DB" -}}
+      {{- $_ := set $gpg "encrypt" "0x602FE951FFDB2F73" -}}
+    {{- end -}}
+  {{- end -}}
+
+  {{- $personalName = promptStringOnce $data.personal "name" "📝 Personal Git Name" $personalName -}}
+  {{- $personalEmail = promptStringOnce $data.personal "email" "📧 Personal Git Email" $personalEmail -}}
+
+  {{- $toolchainIcons := dict
+      "cloud"       "☁️"
+      "docker"      "🐳"
+      "golang"      "🐹"
+      "cpp"         "+"
+      "iac"         "🏗️"
+      "java"        "☕"
+      "dotnet"      "🛜"
+      "kubernetes"  "☸️"
+      "node"        "🟢"
+      "python"      "🐍"
+      "rust"        "🦀"
+      "extra"       "✨"
+  -}}
+
+  {{- /* Build display names */ -}}
+  {{- $toolchainsDisplay := list -}}
+  {{- range $t := $toolchains -}}
+    {{- $toolchainsDisplay = append $toolchainsDisplay (printf "%s %s" (get $toolchainIcons $t) $t) -}}
+  {{- end -}}
+
+  {{- $toolchainsSelected = promptMultichoiceOnce
+      $data
+      "toolchainsSelected"
+      "⚙️ Select toolchains to enable"
+      $toolchainsDisplay
+  -}}
+
+  {{- range $t := $toolchains -}}
+    {{- $_ := set $toolchainsEnabled $t false -}}
+  {{- end -}}
+  {{- range $s := $toolchainsSelected -}}
+    {{- range $t := $toolchains -}}
+      {{- if eq $s (printf "%s %s" (get $toolchainIcons $t) $t) -}}
+        {{- $_ := set $toolchainsEnabled $t true -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+
+  {{- if and (get $toolchainsEnabled "kubernetes") (not (get $toolchainsEnabled "docker")) -}}
+    {{- $_ := set $toolchainsEnabled "docker" true -}}
+    {{- writeToStdout "🐳 Enabled Docker for Kubernetes.\n" -}}
+  {{- end -}}
+
+{{- writeToStdout "💡 Tip: You can re-enter your name and email with `chezmoi init --data=false`.\n" -}}
+{{- else -}}
+  {{- $interactive = false -}}
+  {{- writeToStdout "🤖 Running in a non-interactive environment.\n" -}}
+{{- end -}}
+
+hooks:
+  read-source-state:
+    pre:
+      command: /usr/bin/env
+      args:
+        - -S
+        - bash
+        - -euo
+        - pipefail
+        - {{ joinPath .chezmoi.sourceDir (printf ".chezmoiscripts/%s/.init.sh" $distro.id) | toToml }}
+
+{{- if $secrets.age }}
 encryption: age
 age:
-  identity: "{{ $.chezmoi.homeDir }}/.config/age/key.txt"
+  command: "rage"
+  identity: "{{ $.chezmoi.homeDir }}/.config/age/chezmoi.txt"
   recipient: "age1zm2ws7rvj5kculfv6c7lrvzn2rfjqjnrhde0jh4qqcp9ry9a6e5s5rppjr" # pragma: allowlist secret
 {{- end }}
-
 diff:
   pager: "delta"
 status:
   exclude: ["always"]
 data:
-    cache:
-      secrets:
-        dir: "{{ joinPath .chezmoi.cacheDir "user" .chezmoi.username "secrets" }}"
-    git:
-      email: "{{ $email }}"
-      name: "{{ $name }}"
-      username: {{ $username }}
-    gpg:
-      sign: "{{ $gpg.sign }}"
-      encrypt: "{{ $gpg.encrypt }}"
-    host:
-      arch: "{{ .chezmoi.arch }}"
-      distro:
-        family: "{{ $distro.family }}"
-        id: "{{ $distro.id }}"
-      home: "{{ .chezmoi.homeDir }}"
-      source: "{{ .chezmoi.sourceDir }}"
-      type: "{{ $chassisType }}"
-      work: {{ $work }}
-      interactive: {{ stdinIsATTY }}
-      restricted: {{ $restricted }}
-      headless: {{ $headless }}
-    secrets:
-      age: {{ $secrets.age }}
-      bitwarden: {{ $secrets.bitwarden }}
-    toolchains:
-    {{- range $toolchain, $enabled := $toolchainsEnabled }}
-      {{ $toolchain}}: {{ $enabled }}
-    {{- end }}
+  brew:
+    path: "{{ $brewPath }}"
+  personal:
+    email: "{{ $personalEmail }}"
+    name: "{{ $personalName }}"
+    username: {{ $personalUsername }}
+  gpg:
+    sign: "{{ $gpg.sign }}"
+    encrypt: "{{ $gpg.encrypt }}"
+  host:
+    arch: "{{ .chezmoi.arch }}"
+    distro:
+      family: "{{ $distro.family }}"
+      id: "{{ $distro.id }}"
+    home: "{{ .chezmoi.homeDir }}"
+    source: "{{ .chezmoi.sourceDir }}"
+    type: "{{ $chassisType }}"
+    work: {{ $work }}
+    interactive: {{ $interactive }}
+    restricted: {{ $restricted }}
+  secrets:
+    age: {{ $secrets.age }}
+  toolchains:
+  {{- range $t, $enabled := $toolchainsEnabled }}
+    {{ $t}}: {{ $enabled }}
+  {{- end }}
+  toolchainsSelected:
+  {{- range $i, $t := $toolchainsSelected }}
+    - "{{ $t }}"
+  {{- end }}

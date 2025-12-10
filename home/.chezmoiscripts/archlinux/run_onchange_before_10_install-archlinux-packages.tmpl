@@ -1,6 +1,5 @@
-#!/usr/bin/env bash
+{{- includeTemplate "universal/common-before-template-header" . -}}
 
-{{- $packages := splitList " " (includeTemplate "archlinux/packages" .) }}
-
-# {{ includeTemplate "universal/next-update" . }}
-sudo pacman -Sy --noconfirm --needed {{ $packages | sortAlpha | uniq | join " " -}}
+echo "🛠️ Updating pacman DB and installing packages…"
+sudo pacman -Syu --noconfirm --needed {{ includeTemplate "universal/packages" (dict "root" .) }}
+echo "✅ pacman packages ensured."

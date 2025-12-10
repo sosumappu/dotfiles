@@ -1,6 +1,5 @@
-#!/usr/bin/env bash
+{{- includeTemplate "universal/common-after-template-header" . -}}
 
 if ! command -v lvim &> /dev/null; then
 bash <(curl -s https://raw.githubusercontent.com/LunarVim/LunarVim/master/utils/installer/install.sh) --no-install-dependencies
 fi
-

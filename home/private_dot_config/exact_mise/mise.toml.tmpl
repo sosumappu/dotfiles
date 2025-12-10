@@ -1,0 +1,7 @@
+[tools]
+'usage' = 'latest'
+{{- includeTemplate "universal/packages" (dict "root" . "packageManager" "mise" "render" "mise") }}
+
+[settings]
+gpg_verify = true
+paranoid = true

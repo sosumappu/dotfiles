@@ -1,69 +1,47 @@
+{{- $darwin := .darwin -}}
+{{- $host := .host -}}
+
 {{- $taps := list -}}
-{{- $brews := list -}}
+{{- $brews := splitList " " (includeTemplate "universal/packages" (dict "root" .)) }}
 {{- $casks := list -}}
+{{- $mas := list -}}
 
+{{- with $darwin.common }}
+  {{- $taps = concat $taps (index . "taps" | default list) -}}
+  {{- $brews = concat $brews (index . "brews" | default list) -}}
+  {{- $casks = concat $casks (index . "casks" | default list) -}}
+  {{- $mas = concat $mas (index . "mas" | default list) -}}
+{{- end }}
 
-{{- $taps := list
-"homebrew/autoupdate"
-"homebrew/command-not-found"
--}}
+{{- if not $host.work }}
+  {{- with $darwin.personal }}
+    {{- $taps = concat $taps (index . "taps" | default list) -}}
+    {{- $brews = concat $brews (index . "brews" | default list) -}}
+    {{- $casks = concat $casks (index . "casks" | default list) -}}
+    {{- $mas = concat $mas (index . "mas" | default list) -}}
+  {{- end }}
+{{- end }}
 
-
-{{- $brews := splitList " " (includeTemplate "darwin/packages" .) }}
-
-{{- $casks := list
-  "font-fira-code-nerd-font"
-  "font-iosevka-nerd-font"
-  "font-caskaydia-cove-nerd-font"
-  "rectangle"
-  "superhuman"
-  "figma"
-  "loom"
-  "flux"
-  "arc"
--}}
-
-{{- if not .host.work -}}
-{{- $casks = concat $casks (list
-  "suspicious-package"
-  "rectangle"
-  "tableplus"
-  "visual-studio-code"
-  "zoom"
-  "obsidian"
-  "calibre"
-  "raycast"
-  "discord"
-  "google-drive"
-  "keycastr"
-  "local"
-  "termius"
-  "wezterm@nightly"
-  "telegram-desktop"
-  "eset-cyber-security-pro"
-) -}}
-{{- end -}}
+{{- if $host.work }}
+  {{- with $darwin.work }}
+    {{- $taps = concat $taps (index . "taps" | default list) -}}
+    {{- $brews = concat $brews (index . "brews" | default list) -}}
+    {{- $casks = concat $casks (index . "casks" | default list) -}}
+    {{- $mas = concat $mas (index . "mas" | default list) -}}
+  {{- end }}
+{{- end }}
 
 {{- range ($taps | sortAlpha | uniq) }}
 tap "{{ . }}"
 {{- end }}
-{{- if and (not .host.headless) (not .host.restricted) }}
-cask "macfuse"
-brew "gromgit/fuse/gocryptfs-mac"
-{{- end }}
 {{ range ($brews | sortAlpha | uniq) }}
 brew "{{ . }}"
 {{- end }}
-{{- if not .host.headless -}}
-{{- range ($casks | sortAlpha | uniq) }}
+{{- if .host.interactive -}}
+{{ range ($casks | sortAlpha | uniq) }}
 cask "{{ . }}"
 {{- end }}
-{{ if not .host.work }}
-mas "Bitwarden", id: 1352778147
-mas "Keka", id: 470158793
-mas "Notability", id: 360593530
-mas "Dashlane", id: 517914548
-mas "iStat Menus", id: 1319778037
-mas "Slack", id: 803453959
-{{- end -}}
-{{- end -}}
+{{ range ($mas | uniq) }}
+mas "{{ .name }}", id: {{ .id }}
+{{- end }}
+{{- end }}

@@ -1,7 +1,5 @@
-#!/usr/bin/env bash
+{{- includeTemplate "universal/common-before-template-header" . -}}
 
-{{- $packages := splitList " " (includeTemplate "ubuntu/packages" .) }}
-
-sudo apt-get update
-sudo apt-get install -y --no-install-recommends {{ $packages | sortAlpha | uniq | join " " -}}
-
+echo "🛠️ Updating APT cache and installing packages…"
+sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get install -y --no-install-recommends {{ includeTemplate "universal/packages" (dict "root" .) }}
+echo "✅ APT packages ensured."
