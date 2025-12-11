@@ -1,0 +1,21 @@
+{{- includeTemplate "universal/common-before-template-header" . -}}
+
+# Disable exit on error for this script to prevent breaking chezmoi apply
+set +e
+
+echo "🚀 Checking LunarVim installation..."
+
+if ! command -v lvim &> /dev/null; then
+  echo "📦 LunarVim not found, installing..."
+
+  if bash <(curl -s https://raw.githubusercontent.com/LunarVim/LunarVim/master/utils/installer/install.sh) --no-install-dependencies; then
+    echo "✅ LunarVim installed successfully!"
+  else
+    echo "⚠️  LunarVim installation failed, but continuing anyway..."
+  fi
+else
+  echo "✅ LunarVim is already installed"
+fi
+
+# Re-enable exit on error
+set -e

@@ -6,7 +6,7 @@ M.config = function()
   -- when you opening the associated file-type,
   -- then you can use filetype plugins for this purpose.
   -- https://www.lunarvim.org/languages/#lazy-loading-the-formatter-setup
-  local status_ok, nls = pcall(require, "null-ls")
+  local status_ok, nls = pcall(require, "none-ls")
   if not status_ok then
     return
   end

@@ -45,7 +45,7 @@ M.config = function()
     lvim.builtin.tree_provider = "neo-tree"
     lvim.builtin.noice.active = false
     lvim.builtin.go_programming.active = false
-    lvim.builtin.python_programming.active = true
+    lvim.builtin.python_programming = { active = true, jupyter= true}
     lvim.builtin.web_programming.active = true
     lvim.builtin.web_programming.extra = "typescript-tools.nvim"
     lvim.builtin.rust_programming.active = true
