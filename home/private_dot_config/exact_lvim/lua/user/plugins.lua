@@ -928,6 +928,39 @@ M.config = function()
             },
             enabled = lvim.builtin.markdown.active,
         },
+        {
+            "benlubas/molten-nvim",
+            build = ":UpdateRemotePlugins",
+            -- ft = { "markdown", "python" },
+            dependencies = {
+                "3rd/image.nvim",
+            },
+            config = function()
+                require("user.molten").config()
+            end,
+            enabled = lvim.builtin.python_programming.jupyter,
+        },
+        {
+            "quarto-dev/quarto-nvim",
+            -- ft = { "markdown", "quarto" },
+            dependencies = {
+                "jmbuhr/otter.nvim",
+                "nvim-treesitter/nvim-treesitter",
+                "nvimtools/hydra.nvim",
+            },
+            config = function()
+                require("user.quarto").config()
+            end,
+            enabled = lvim.builtin.python_programming.jupyter,
+        },
+        {
+            "GCBallesteros/jupytext.nvim",
+            -- ft = { "markdown", "python", "ipynb" },
+            config = function()
+                require("user.jupytext").config()
+            end,
+            enabled = lvim.builtin.python_programming.jupyter,
+        },
     }
 end
 

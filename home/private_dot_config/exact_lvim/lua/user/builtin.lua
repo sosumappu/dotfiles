@@ -441,11 +441,12 @@ M.config = function()
     },
     move = {
       enable = true,
-      set_jumps = true, -- whether to set jumps in the jumplist
+      set_jumps = false, -- set to false as recommended for code block navigation
       goto_next_start = {
         ["]p"] = "@parameter.inner",
         ["]f"] = "@function.outer",
         ["]]"] = "@class.outer",
+        ["]b"] = { query = "@block.inner", desc = "next code block" },
       },
       goto_next_end = {
         ["]F"] = "@function.outer",
@@ -455,6 +456,7 @@ M.config = function()
         ["[p"] = "@parameter.inner",
         ["[f"] = "@function.outer",
         ["[["] = "@class.outer",
+        ["[b"] = { query = "@block.inner", desc = "previous code block" },
       },
       goto_previous_end = {
         ["[F"] = "@function.outer",

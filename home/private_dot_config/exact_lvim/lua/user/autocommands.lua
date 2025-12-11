@@ -77,8 +77,7 @@ M.config = function()
         pattern = "*",
         desc = "Highlight text on yank",
         callback = function()
-            require("vim.highlight").on_yank({ higroup = "Search", timeout = 40 })
-        end,
+            vim.highlight.on_yank({ higroup = "Search", timeout = 40 })        end,
     })
     create_aucmd("BufWritePre", {
         group = "_lvim_user",
