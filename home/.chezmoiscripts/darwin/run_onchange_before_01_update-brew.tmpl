@@ -8,7 +8,7 @@ brew update
 echo "📦 Upgrading formulae…"
 brew upgrade
 echo "🧰 Upgrading casks…"
-brew upgrade --cask --greedy
+brew upgrade --cask --greedy || echo "⚠️  Some casks failed to upgrade"
 echo "🧹 Cleaning up…"
 brew cleanup
 echo "✅ Homebrew updated."

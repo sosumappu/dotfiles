@@ -28,7 +28,7 @@ hyperfine = {test = "hyperfine --version"}
 jq = {test = "jq --version"}
 mise = {test = "mise --version"}
 mkcert = {test = "mkcert -version"}
-neovim = {test = "nvim --version"}
+neovim = {manager = "mise", test = "nvim --version"}
 procs = {test = "procs --version"}
 rage = {test = "rage --version"}
 rclone = {test = "rclone --version"}
@@ -39,6 +39,7 @@ tokei = {test = "tokei --version"}
 vivid = {test = "vivid --version"}
 wget = {test = "wget --version"}
 zsh = {test = "zsh --version"}
+lazygit = {manager = "mise", test = "lazygit --version"}
 
 [packages.universal.docker]
 docker = {test = "docker -v"}
@@ -65,7 +66,7 @@ shellcheck = {manager = "mise", test = "shellcheck --version"}
 [packages.universal.java]
 ant = {manager = "mise", test = "ant -version"}
 maven = {manager = "mise", test = "mvn -v"}
-java = {manager = "mise", test = "java -version", version = "25"}
+java = {manager = "mise", test = "java -version", version = "temurin-21.0.8+9.0.LTS"}
 
 [packages.universal.kubernetes]
 datree = {manager = "mise", test = "datree version"}
