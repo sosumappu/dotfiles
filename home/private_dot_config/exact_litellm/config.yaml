@@ -1,0 +1,33 @@
+model_list:
+  - model_name: openrouter-claude-opus-4.5
+    litellm_params:
+      model: openrouter/anthropic/claude-opus-4.5
+      api_base: https://openrouter.ai/api/v1/
+      api_key: "os.environ/OPENROUTER_API_KEY"
+      rpm: 5
+  - model_name: openrouter-openai-gpt-5-codex
+    litellm_params:
+      model: openai/gpt-5-codex
+      api_base: https://openrouter.ai/api/v1/
+      api_key: "os.environ/OPENROUTER_API_KEY"
+      rpm: 5
+      allowed_openai_params: ["tools"]
+  - model_name: openrouter-moonshot-kimi-k2-thinking
+    litellm_params:
+      model: openrouter/moonshotai/kimi-k2-thinking
+      api_base: https://openrouter.ai/api/v1/
+      api_key: "os.environ/OPENROUTER_API_KEY"
+      rpm: 5
+  - model_name: openrouter-mistral-devstral-2-2512
+    litellm_params:
+      model: openrouter/mistralai/devstral-2512:free
+      api_base: https://openrouter.ai/api/v1/
+      api_key: "os.environ/OPENROUTER_API_KEY"
+      rpm: 5
+      drop_params: true
+
+
+
+
+
+
