@@ -28,7 +28,7 @@ hyperfine = { test = "hyperfine --version" }
 jq = { test = "jq --version" }
 mise = { test = "mise --version" }
 mkcert = { test = "mkcert -version" }
-neovim = { manager = "mise", test = "nvim --version", version= "0.11.1"}
+neovim = { manager = "mise", test = "nvim --version", version = "0.11.4" }
 procs = { test = "procs --version" }
 rage = { test = "rage --version" }
 rclone = { test = "rclone --version" }
@@ -41,7 +41,8 @@ wget = { test = "wget --version" }
 zsh = { test = "zsh --version" }
 lazygit = { manager = "mise", test = "lazygit --version" }
 claude-code = { manager = "mise", test = "claude --version" }
-gemini-cli= { manager = "mise", test = "gemini --version" }
+gemini-cli = { manager = "mise", test = "gemini --version" }
+opencode = { manager = "mise", test = "opencode --version" }
 
 [packages.universal.docker]
 docker = { test = "docker -v" }

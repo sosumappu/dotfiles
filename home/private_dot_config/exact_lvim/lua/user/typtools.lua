@@ -27,7 +27,6 @@ M.config = function()
             }
             return util.root_pattern(unpack(root_files))(fname)
                 or util.root_pattern(".git")(fname)
-                or util.path.dirname(fname)
         end,
 
         on_attach = function(client, bufnr)

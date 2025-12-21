@@ -92,7 +92,7 @@ export ZSH_EVALCACHE_DIR="$XDG_CACHE_HOME/zsh-evalcache"
 
 # Editor
 {{- if .host.interactive }}
-export EDITOR="lvim"
+export EDITOR="nvim"
 {{- end }}
 
 EXPORTS_D_DIR="$XDG_CONFIG_HOME/shell/exports.d"
@@ -105,4 +105,3 @@ if [ -d "$EXPORTS_D_DIR" ]; then
   unset EXPORTS_FILE
 fi
 unset EXPORTS_D_DIR
-
