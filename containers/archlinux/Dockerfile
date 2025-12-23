@@ -4,7 +4,7 @@ ARG CACHE_BUST=1
 ARG USER=devcontainer
 ARG UID=54321
 
-FROM sosumappu/archlinux@sha256:4c5b62c5248dd92e882ac354b81976ec330dec0cee1ef6337d5279661cb969b5 AS base
+FROM sosumappu/archlinux@sha256:ac51540f151b87ba37e61bc277fdb5f68134bdfc68aac7b2670151b11166e7dd AS base
 ARG USER
 ARG UID
 

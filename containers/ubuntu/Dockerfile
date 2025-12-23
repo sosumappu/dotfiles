@@ -29,6 +29,7 @@ RUN --mount=type=secret,id=CUSTOM_CA,dst=/run/secrets/custom_ca.pem,required=fal
         ca-certificates \
         curl \
         gnupg \
+        bat \
         locales \
         lsb-release \
         sudo \

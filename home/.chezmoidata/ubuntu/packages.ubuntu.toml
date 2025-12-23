@@ -15,6 +15,7 @@ rage = {manager = "mise", name = "ubi:str4d/rage"}
 sd = {manager = "mise"}
 tokei = {disabled = true}
 vivid = {manager = "mise"}
+bat = { test = "batcat --version"}
 
 [packages.ubuntu.docker]
 docker = {name = "docker-ce"}
