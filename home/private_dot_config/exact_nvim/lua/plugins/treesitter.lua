@@ -28,6 +28,7 @@ return {
       "jsdoc",
       "json",
       "lua",
+      "latex",
       "luadoc",
       "luap",
       "markdown",
