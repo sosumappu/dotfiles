@@ -192,7 +192,7 @@ local reference_definitions = {
 
 return {
   "OXY2DEV/markview.nvim",
-  ft = { "markdown", "Avante" },
+  ft = { "markdown", "Avante", "quarto" },
   dependencies = {
     "nvim-treesitter/nvim-treesitter",
   },
