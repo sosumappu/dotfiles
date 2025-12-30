@@ -81,6 +81,7 @@ All workflow infrastructure has been tested and verified working:
 1. **Application dependencies**: Some builds may fail due to external dependencies (e.g., GitHub API rate limits, package availability)
 2. **Secrets required**: Workflows requiring authentication need valid secrets in `.envrc`
 3. **macOS compatibility**: Some Linux-specific features may not work on macOS
+4. **Docker on GitHub Actions macOS runners**: Docker Desktop is not available on GitHub Actions macOS runners (including macOS-15). Docker runtime tests are automatically disabled in ephemeral macOS environments to prevent CI failures. See: https://github.com/sosumappu/dotfiles/actions/runs/20580139909/job/59105700534
 
 ## Troubleshooting
 
