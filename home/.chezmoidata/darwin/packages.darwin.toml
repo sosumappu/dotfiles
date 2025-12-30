@@ -14,6 +14,11 @@ copilot-cli = { test = "copilot --version"}
 colima = {test = "colima version"}
 dive = {manager = "system", name = "dive"}
 qemu = {test = "qemu-system-x86_64 --version"}
+# Docker runtime tests disabled on macOS because Docker Desktop is not available
+# on GitHub Actions runners (known issue with macOS-15 and other macOS versions)
+docker = {disabled = "ephemeral", test = "docker -v"}
+docker-compose = {disabled = "ephemeral", test = "docker compose version"}
+docker-buildx = {disabled = "ephemeral", test = "docker buildx version"}
 
 [packages.darwin.extra]
 gocryptfs = {name = "gromgit/fuse/gocryptfs-mac"}
@@ -26,7 +31,7 @@ tflint = {manager = "system"}
 
 [packages.darwin.kubernetes]
 helm = {manager = "system"}
-k3d = {manager = "system"}
+k3d = {disabled = "ephemeral", manager = "system"}  # k3d requires Docker
 k9s = {manager = "system"}
 kubecolor = {manager = "system"}
 kubectl = {manager = "system", name = "kubernetes-cli"}
