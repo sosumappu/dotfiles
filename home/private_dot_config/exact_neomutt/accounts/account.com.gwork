@@ -1,0 +1,27 @@
+unalternates *
+unmailboxes *
+unmy_hdr *
+
+# set smtp and imap stuff
+set imap_user = "$my_gwork_mail"
+set from      = "$my_gwork_mail"
+set imap_pass = "$my_gwork_pass"
+set smtp_pass = "$my_gwork_pass"
+set folder    = "imaps://imap.gmail.com:993"
+set smtp_url  = "smtps://$my_gwork_mail@smtp.gmail.com:465/"
+unset smtp_authenticators
+
+# specify some special mailboxes
+set spoolfile = "+Inbox"
+set postponed = "+[Gmail]/Drafts"
+set record    = "+[Gmail]/Sent Mail"
+set trash     = "+[Gmail]/Bin"
+
+# recognize googlemail domain
+alternates '^'$my_gwork_user'@googlemail\.com$'
+
+# check these mailboxes for new messages periodically & display them in sidebar
+mailboxes +Inbox "+[Gmail]/Spam" "+[Gmail]/Drafts" \
+  "+[Gmail]/Sent Mail" "+[Gmail]/All Mail" "+[Gmail]/Bin"
+
+# vim: filetype=muttrc

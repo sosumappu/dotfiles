@@ -8,7 +8,16 @@ openssh = {test = "$HOMEBREW_PREFIX/bin/ssh -V"}
 "pinentry-mac" = {test = "pinentry-mac --version"}
 "reattach-to-user-namespace" = {test = "reattach-to-user-namespace --version"}
 zsh = {disabled = true}
-copilot-cli = { test = "copilot --version"}
+newsboat = { manager = "system", test = "newsboat --version" }
+
+switchaudio-osx = { manager = "system" }
+media-control = { manager = "system" }
+imagemagick = { manager = "system" }
+skhd = { manager = "system", test = "skhd --version" }
+borders = { manager = "system" , test = "borders --version" }
+yabai = { manager = "system", test = "yabai --version" }
+sketchybar = { test = "sketchybar --version" }
+stats_provider = { manager = "mise" , name = "github:joncrangle/sketchybar-system-stats", test = "stats_provider --version"}
 
 [packages.darwin.docker]
 colima = {test = "colima version"}

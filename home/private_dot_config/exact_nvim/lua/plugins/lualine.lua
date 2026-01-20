@@ -59,38 +59,40 @@ local mode = function()
 end
 
 local colors = {
-  bg = "#161617",
-  fg = "#c9c7cd",
-  subtext1 = "#b4b1ba",
-  subtext2 = "#9f9ca6",
-  subtext3 = "#8b8693",
-  subtext4 = "#6c6874",
-  -- bg_dark = "#1A1B26",
-  bg_dark = "#1e1e2e",
-  black = "#27272a",
-  red = "#ea83a5",
-  green = "#90b99f",
-  yellow = "#e6b99d",
-  purple = "#aca1cf",
-  magenta = "#e29eca",
-  orange = "#f5a191",
-  blue = "#92a2d5",
-  cyan = "#85b5ba",
-  bright_black = "#353539",
-  bright_red = "#f591b2",
-  bright_green = "#9dc6ac",
-  bright_yellow = "#f0c5a9",
-  bright_purple = "#b9aeda",
-  bright_magenta = "#ecaad6",
-  bright_orange = "#ffae9f",
-  bright_blue = "#a6b6e9",
-  bright_cyan = "#99c9ce",
-  gray0 = "#18181a",
-  gray1 = "#1b1b1c",
-  gray2 = "#2a2a2c",
-  gray3 = "#313134",
-  gray4 = "#3b3b3e",
-  none = "NONE",
+  bg             = "#C2C2C2",
+  bg_dark        = "#CCCCCC",
+  gray2          = "#B8B8B8",
+  fg             = "#333333",
+  black          = "#333333",
+  red            = "#474747",
+  green          = "#545454",
+  yellow         = "#5E5E5E",
+  blue           = "#4A4A4A",
+  magenta        = "#545454",
+  cyan           = "#5E5E5E",
+  white          = "#CCCCCC",
+  orange         = "#5E5E5E",
+  purple         = "#474747",
+  subtext1       = "#4A4A4A",
+  subtext2       = "#5E5E5E",
+  subtext3       = "#727272",
+  subtext4       = "#868686",
+
+  bright_red     = "#474747",
+  bright_green   = "#545454",
+  bright_yellow  = "#5E5E5E",
+  bright_blue    = "#4A4A4A",
+  bright_magenta = "#545454",
+  bright_cyan    = "#5E5E5E",
+  bright_white   = "#CCCCCC",
+  bright_black   = "#333333",
+  bright_orange  = "#5E5E5E",
+  bright_purple  = "#474747",
+  gray0          = "#333333",
+  gray1          = "#4A4A4A",
+  gray3          = "#A4A4A4",
+  gray4          = "#CCCCCC",
+  none           = "NONE",
 }
 
 local modecolor = {
@@ -472,12 +474,12 @@ return {
 
             -- Show either the spinner or the number of active servers
             local count_or_spinner = (
-              vim.g.mcphub_tool_active
-              or vim.g.mcphub_resource_active
-              or vim.g.mcphub_prompt_active
-            )
+                  vim.g.mcphub_tool_active
+                  or vim.g.mcphub_resource_active
+                  or vim.g.mcphub_prompt_active
+                )
                 and "⠋"
-              or tostring(vim.g.mcphub_active_servers or 0)
+                or tostring(vim.g.mcphub_active_servers or 0)
             return status_icon .. " " .. count_or_spinner
           end,
           color = { bg = colors.gray2, fg = colors.blue, gui = "bold" },

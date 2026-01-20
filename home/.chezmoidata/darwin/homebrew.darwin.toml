@@ -1,11 +1,17 @@
 [darwin.common]
-taps = ["homebrew/autoupdate"]
+taps = ["homebrew/autoupdate", "FelixKratz/formulae", "asmvik/formulae"]
 
 [darwin.personal]
 casks = [
   "font-fira-code-nerd-font",
   "font-iosevka-nerd-font",
   "font-caskaydia-cove-nerd-font",
+  "font-sketchybar-app-font",
+  "font-maple-mono-nf-cn",
+  "sf-symbols",
+  "font-sf-pro",
+  "font-sf-mono",
+
 
   "keepassxc",
   "cursor",
@@ -14,12 +20,10 @@ casks = [
   "keka",
   "localsend",
   "pearcleaner",
-  "rectangle",
   "rustdesk",
   "onyx",
   "signal",
   "telegram-desktop",
-  "tor-browser",
   "transmission",
   "veracrypt",
   "visual-studio-code",
@@ -41,6 +45,8 @@ casks = [
   "tableplus",
   "local",
   "termius",
+
+  "karabiner-elements"
 ]
 mas = [
   { name = "Keynote", id = 409183694 },
@@ -48,9 +54,7 @@ mas = [
   { name = "Pages", id = 409201541 },
   { name = "Slack", id = 803453959 },
   { name = "Tailscale", id = 1475387142 },
-  { name = "iStat Menus", id = 1319778037 },
   { name = "WhatsApp", id = 310633997 },
-  { name = "Notability", id = 360593530 },
   { name = "Dashlane", id = 517914548 },
 ]
 

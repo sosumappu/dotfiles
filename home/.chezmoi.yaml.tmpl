@@ -127,9 +127,9 @@
   {{- $restricted = promptBoolOnce $data.host "restricted" "🔒 Restricted Environment" $restricted -}}
   {{- $personalUsername = promptStringOnce $data.personal "username" "👤 Personal Git Username" $personalUsername -}}
 
-  {{- if eq $personalUsername "adyranov" -}}
+  {{- if eq $personalUsername "sosumappu" -}}
     {{- $personalName = "Sosumappu" -}}
-    {{- $personalEmail = "1038141+adyranov@users.noreply.github.com" -}}
+    {{- $personalEmail = "96128854+sosumappu@users.noreply.github.com" -}}
     {{- if not $work -}}
       {{- $_ := set $gpg "sign" "0xB2D360DE121B96DB" -}}
       {{- $_ := set $gpg "encrypt" "0x602FE951FFDB2F73" -}}

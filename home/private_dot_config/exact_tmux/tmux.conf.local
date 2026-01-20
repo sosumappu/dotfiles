@@ -76,25 +76,45 @@ tmux_conf_theme=enabled
 # tmux_conf_theme_colour_15="#080808"   # dark gray
 # tmux_conf_theme_colour_16="#d70000"   # red
 # tmux_conf_theme_colour_17="#e4e4e4"   # white
-
-# Tokyo Night theme for tmux
-tmux_conf_theme_colour_1="#1A1B26"    # background
-tmux_conf_theme_colour_2="#2A2F41"    # darker gray background
-tmux_conf_theme_colour_3="#414868"    # black (Tokyo Night Dark Gray)
-tmux_conf_theme_colour_4="#7aa2f7"    # blue
-tmux_conf_theme_colour_5="#e0af68"    # yellow
-tmux_conf_theme_colour_6="#1A1B26"    # background (reused)
-tmux_conf_theme_colour_7="#a9b1d6"    # foreground (Tokyo Night White/Foreground)
+#
+# # Tokyo Night theme for tmux
+# tmux_conf_theme_colour_1="#1A1B26"    # background
+# tmux_conf_theme_colour_2="#2A2F41"    # darker gray background
+# tmux_conf_theme_colour_3="#414868"    # black (Tokyo Night Dark Gray)
+# tmux_conf_theme_colour_4="#7aa2f7"    # blue
+# tmux_conf_theme_colour_5="#e0af68"    # yellow
+# tmux_conf_theme_colour_6="#1A1B26"    # background (reused)
+# tmux_conf_theme_colour_7="#a9b1d6"    # foreground (Tokyo Night White/Foreground)
+# tmux_conf_theme_colour_8="#2A2F41"    # black (Tokyo Night Dark Gray)
+# tmux_conf_theme_colour_9="#e0af68"    # yellow (Tokyo Night Yellow)
+# tmux_conf_theme_colour_10="#bb9af7"   # magenta
+# tmux_conf_theme_colour_11="#73daca"   # green
+# tmux_conf_theme_colour_12="#414868"   # black (Tokyo Night Dark Gray)
+# tmux_conf_theme_colour_13="#a9b1d6"   # foreground (Tokyo Night White/Foreground)
+# tmux_conf_theme_colour_14="#2A2F41"   # black (Tokyo Night Dark Gray)
+# tmux_conf_theme_colour_15="#1A1B26"   # background
+# tmux_conf_theme_colour_16="#f7768e"   # red
+# tmux_conf_theme_colour_17="#a9b1d6"   # white
+#
+# Eink theme for tmux
+tmux_conf_theme_colour_1="#CCCCCC"    # background
+tmux_conf_theme_colour_2="#C2C2C2"    # darker gray background
+tmux_conf_theme_colour_3="#545454"    # black (Tokyo Night Dark Gray)
+tmux_conf_theme_colour_4="#474747"    # blue
+tmux_conf_theme_colour_5="#9A9A9A"    # yellow
+tmux_conf_theme_colour_6="#868686"    # background (reused)
+tmux_conf_theme_colour_7="#727272"    # foreground (Tokyo Night White/Foreground)
 tmux_conf_theme_colour_8="#2A2F41"    # black (Tokyo Night Dark Gray)
-tmux_conf_theme_colour_9="#e0af68"    # yellow (Tokyo Night Yellow)
-tmux_conf_theme_colour_10="#bb9af7"   # magenta
-tmux_conf_theme_colour_11="#73daca"   # green
-tmux_conf_theme_colour_12="#414868"   # black (Tokyo Night Dark Gray)
-tmux_conf_theme_colour_13="#a9b1d6"   # foreground (Tokyo Night White/Foreground)
-tmux_conf_theme_colour_14="#2A2F41"   # black (Tokyo Night Dark Gray)
-tmux_conf_theme_colour_15="#1A1B26"   # background
-tmux_conf_theme_colour_16="#f7768e"   # red
-tmux_conf_theme_colour_17="#a9b1d6"   # white
+tmux_conf_theme_colour_9="#9A9A9A"    # yellow (Tokyo Night Yellow)
+tmux_conf_theme_colour_10="#AEAEAE"   # magenta
+tmux_conf_theme_colour_11="#9A9A9A"   # green
+tmux_conf_theme_colour_12="#5E5E5E"   # black (Tokyo Night Dark Gray)
+tmux_conf_theme_colour_13="#474747"   # foreground (Tokyo Night White/Foreground)
+tmux_conf_theme_colour_14="#7C7C7C"   # black (Tokyo Night Dark Gray)
+tmux_conf_theme_colour_15="#CCCCCC"   # background
+tmux_conf_theme_colour_16="#333333"   # red
+tmux_conf_theme_colour_17="#474747"   # white
+
 
 # default theme (ansi)
 #tmux_conf_theme_colour_1="colour0"
@@ -391,28 +411,30 @@ bind -n M-Right select-pane -R    # Alt + Right = select right panel
 bind -n M-Up select-pane -U       # Alt + Up    = select top panel
 bind -n M-Down select-pane -D     # Alt + Down  = select bottom panel
 
-bind -n M-x kill-session          # Alt + x = close tmux
-bind -n M-ч kill-session          # Alt + x = close tmux, cyrillic
-
-bind -n M-t new-window            # Alt + t = new window
-bind -n M-е new-window            # Alt + t = new window, cyrillic
-bind -n M-т new-window            # Alt + n = new window, cyrillic
-
-bind -n M-1 select-window -t 1    # Alt + 1 = go to window 1
-bind -n M-2 select-window -t 2    # Alt + 2 = go to window 2
-bind -n M-3 select-window -t 3    # Alt + 3 = go to window 3
-bind -n M-4 select-window -t 4    # Alt + 4 = go to window 4
-bind -n M-5 select-window -t 5    # Alt + 5 = go to window 5
-bind -n M-6 select-window -t 6    # Alt + 6 = go to window 6
-bind -n M-7 select-window -t 7    # Alt + 7 = go to window 7
-bind -n M-8 select-window -t 8    # Alt + 8 = go to window 8
-bind -n M-9 select-window -t 9    # Alt + 9 = go to window 9
+# disable to work with yabai
+# bind -n M-x kill-session          # Alt + x = close tmux
+# bind -n M-ч kill-session          # Alt + x = close tmux, cyrillic
+#
+# bind -n M-t new-window            # Alt + t = new window
+# bind -n M-е new-window            # Alt + t = new window, cyrillic
+# bind -n M-т new-window            # Alt + n = new window, cyrillic
+#
+# bind -n M-1 select-window -t 1    # Alt + 1 = go to window 1
+# bind -n M-2 select-window -t 2    # Alt + 2 = go to window 2
+# bind -n M-3 select-window -t 3    # Alt + 3 = go to window 3
+# bind -n M-4 select-window -t 4    # Alt + 4 = go to window 4
+# bind -n M-5 select-window -t 5    # Alt + 5 = go to window 5
+# bind -n M-6 select-window -t 6    # Alt + 6 = go to window 6
+# bind -n M-7 select-window -t 7    # Alt + 7 = go to window 7
+# bind -n M-8 select-window -t 8    # Alt + 8 = go to window 8
+# bind -n M-9 select-window -t 9    # Alt + 9 = go to window 9
 
 bind a set-window-option synchronize-panes
 bind m set-window-option main-pane-height 60\; select-layout main-horizontal
 
+#might bug on termius
 unbind -n M-n
-bind -n M-n send-keys '\~'
+bind -n M-n send-keys '~'
 
 # -- tpm -----------------------------------------------------------------------
 

@@ -7,8 +7,8 @@ local opts = { noremap = true, silent = true }
 map("n", "<leader>ol", "<cmd>OverseerRestartLast<cr>", { desc = "Overseer Run Last" })
 
 -- comment line
-map("n", "<leader>/", "<cmd>normal gcc<cr>", { desc = "Comment" })
-map("v", "<leader>/", "<cmd>normal gcc<cr>", { desc = "Comment" })
+map("n", "<leader>/", "<cmd>normal gcc<cr>", { desc = "Comment", noremap = true})
+map("v", "<leader>/", "<cmd>normal gcc<cr>", { desc = "Comment", noremap = true })
 
 -- quick clear highlighting
 map("n", "<C-[>", "<cmd>nohlsearch<cr>", opts)

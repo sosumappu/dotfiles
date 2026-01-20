@@ -36,7 +36,7 @@ end
 return {
 	bidi_enabled = true,
 	bidi_direction = "LeftToRight",
-	color_scheme = get_theme(),
+	color_scheme = "e_ink",
 	font = font_with_fallback({
 		family = "CaskaydiaCove Nerd Font",
 		harfbuzz_features = {
@@ -113,7 +113,7 @@ return {
 	-- disable_default_key_bindings = true,
 	line_height = 1.15,
 	font_size = 17,
-	window_background_opacity = 0.95,
+	window_background_opacity = 0.98,
 	bold_brightens_ansi_colors = false,
 	-- swap_backspace_and_delete = false,
   use_fancy_tab_bar=true,

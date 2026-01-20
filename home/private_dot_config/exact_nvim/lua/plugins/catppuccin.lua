@@ -2,8 +2,39 @@ return {
   "catppuccin",
   optional = true,
   opts = {
-    flavour = "mocha",
+    flavour = "latte",
     background = { light = "latte", dark = "mocha" },
+    color_overrides = {
+      latte = {
+        -- Darkened Catpuccin latte colors to help constrast with the base and mantle
+        rosewater = "#bf6a6a",
+        flamingo = "#bf5c5c",
+        pink = "#c946a6",
+        mauve = "#7a2fd9",
+        red = "#b50d31",
+        maroon = "#c2303d",
+        peach = "#d65d0e",
+        yellow = "#ad6c16",
+        green = "#358524",
+        teal = "#127378",
+        sky = "#037ca1",
+        sapphire = "#187c8d",
+        blue = "#1850bf",
+        lavender = "#5a68d6",
+        text = "#24273a",
+        subtext1 = "#363a4f",
+        subtext0 = "#494d64",
+        overlay2 = "#5b6078",
+        overlay1 = "#6e738d",
+        overlay0 = "#8087a2",
+        surface2 = "#9399b2",
+        surface1 = "#a5adcb",
+        surface0 = "#b8c0e0",
+        base = "#cccccc",
+        mantle = "#c2c2c2",
+        crust = "#b8b8b8",
+      }
+    },
     integrations = {
       blink_cmp = true,
       dap = {
@@ -48,8 +79,8 @@ return {
       percentage = 0.15,
     },
     custom_highlights = function(c)
-      local bg_alt = "#242438"
-      local bg = "#161621"
+      local bg_alt = "#A8A8A8"
+      local bg = "#B8B8B8"
       return {
         BlinkCmpDocBorder = { fg = c.blue },
         BlinkCmpKind = { fg = c.blue },
