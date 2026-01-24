@@ -1,6 +1,19 @@
 -- Load theme from themes directory
-local theme_name = THEME or "eink"
-local theme_path = "themes/" .. theme_name
+local light_theme = LIGHT_THEME or "aquarium_light"
+local dark_theme = DARK_THEME or "plain"
+local theme_path = ""
+
+-- Query the apple AppleInterfaceStyle to know which colorscheme to use
+local handle = io.popen("defaults read -g AppleInterfaceStyle 2>/dev/null")
+local appleInterfaceStyle = handle:read("*l")
+handle:close()
+
+if appleInterfaceStyle and not appleInterfaceStyle:find("Dark") then
+  theme_path = "themes/" .. light_theme
+else
+  theme_path = "themes/" .. dark_theme
+end
+
 local success, colors = pcall(require, theme_path)
 
 -- Fallback to catppuccin_mocha if theme not found

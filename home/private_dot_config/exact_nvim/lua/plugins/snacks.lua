@@ -1,270 +1,293 @@
-local get_random_header = function()
-  math.randomseed(os.time())
-  local headers = {
-    [[
-⠀⠀⣀⣀⣤⣤⣶⣶⣶⣶⣿⣿⣿⣿⣿⣿⣿⣷⣶⣶⡄⠀⠀⠀⠀⠀
-⠀⠀⣿⣿⣿⠿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⠛⠛⢿⣿⡇⠀⠀⠀⠀⠀
-⠀⠀⣿⡟⠡⠂⠀⢹⣿⣿⣿⣿⣿⣿⡇⠘⠁⠀⠀⣿⡇⠀⢠⣄⠀⠀
-⠀⠀⢸⣗⢴⣶⣷⣷⣿⣿⣿⣿⣿⣿⣷⣤⣤⣤⣴⣿⣗⣄⣼⣷⣶⡄
-⠀⢀⣾⣿⡅⠐⣶⣦⣶⠀⢰⣶⣴⣦⣦⣶⠴⠀⢠⣿⣿⣿⣿⣿⣿⡇
-⢀⣾⣿⣿⣷⣬⡛⠷⣿⣿⣿⣿⣿⣿⣿⠿⠿⣠⣿⣿⣿⣿⣿⠿⠛⠀
-⢸⣿⣿⣿⣿⣿⣿⣿⣶⣦⣭⣭⣥⣭⣵⣶⣿⣿⣿⣿⡟⠉⠀⠀⠀⠀
-⠀⠙⠇⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡇⠀⠀⠀⠀⠀
-⠀⠀⠀⣿⣿⣿⣿⣿⣛⠛⠛⠛⠛⠛⢛⣿⣿⣿⣿⣿⡇⠀⠀⠀⠀⠀
-⠀⠀⠀⠿⣿⣿⣿⠿⠿⠀⠀⠀⠀⠀⠸⣿⣿⣿⣿⠿⠇⠀  ⠀⠀
-
-There is no place like ~/
-]],
-    [[
-            ██████
-        ████▒▒▒▒▒▒████
-      ██▒▒▒▒▒▒▒▒▒▒▒▒▒▒██
-    ██▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒██
-  ██▒▒▒▒▒▒▒▒    ▒▒▒▒▒▒▒▒
-  ██▒▒▒▒▒▒  ▒▒▓▓▒▒▒▒▒▒  ▓▓▓▓
-  ██▒▒▒▒▒▒  ▒▒▓▓▒▒▒▒▒▒  ▒▒▓▓
-██▒▒▒▒▒▒▒▒▒▒    ▒▒▒▒▒▒▒▒    ██
-██▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒██
-██▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒██
-██▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒██
-██▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒██
-██▒▒██▒▒▒▒▒▒██▒▒▒▒▒▒▒▒██▒▒▒▒██
-████  ██▒▒██  ██▒▒▒▒██  ██▒▒██
-██      ██      ████      ████
-]],
-    [[
-
-⠀⠀⠀⠀⠀⠀⣀⣤⣴⣶⣾⣿⣿⣿⣶⣶⣦⣄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣤⣶⣶⣿⣿⣿⣿⣶⣶⣤⣄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⣤⣶⣶⣿⣿⣿⣷⣶⣶⣤⣀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⢀⣴⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣤⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣴⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣶⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣶⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣦⡀⠀⠀⠀⠀
-⠀⠀⣴⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣦⡀⠀⠀
-⠀⣼⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣧⠀⠀⠀⠀⠀⠀⠀⠀⢠⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡄⠀⠀⠀⠀⠀⠀⠀⣰⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⡀⠀
-⣸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡀⠀⠀⠀⠀⠀⢠⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⠀
-⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠿⢿⣿⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⢸⣿⣿⣿⡿⠿⠛⠻⠿⣿⣿⣿⣿⣿⣿⣿⣿⠿⠟⠛⠿⢿⣿⣿⣿⡇⠀⠀⠀⠀⠀⢸⣿⣿⣿⣿⣿⠿⠿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡆
-⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣻⣿⣿⣿⡟⠁⠀⠀⠀⠈⢻⣿⣿⣿⠀⠀⠀⠀⠀⠀⢸⣿⣿⠏⣠⣤⡄⣠⣤⡌⢿⣿⣿⣿⣿⡿⢁⣤⣄⢀⣤⣄⠹⣿⣿⡇⠀⠀⠀⠀⠀⢺⣿⣿⡿⠋⠀⠀⠀⠀⠙⣿⣿⣿⣿⣿⣿⣿⣿⡿⠟⠛⣿⣿⣿⣿⡇
-⣿⣿⣿⠛⠛⠛⠛⠛⠛⢛⣿⣮⣿⣿⣿⠀⠀⠀⠀⠀⠀⢈⣿⣿⡟⠀⠀⠀⠀⠀⠀⠸⣿⣿⠀⢿⣿⣿⣿⣿⡟⢸⣿⣿⣿⣿⡇⠸⣿⣿⣿⣿⡿⠀⣿⣿⠇⠀⠀⠀⠀⠀⢸⣿⣿⡇⠀⠀⠀⠀⠀⠀⣿⣿⣿⣿⣿⣿⠋⠁⠠⢴⣾⣿⣿⣿⣿⠃
-⠸⣿⣿⣧⡀⠀⠀⠀⢀⣼⣿⣿⣿⣿⣿⣧⡀⠀⠀⠀⢀⣼⣿⣿⠃⠀⠀⠀⠀⠀⠀⠀⢻⣿⣆⠀⠙⠿⠟⠋⢀⣾⣿⣿⣿⣿⣷⡀⠈⠻⡿⠋⠁⣰⣿⡟⠀⠀⠀⠀⠀⠀⠀⢿⣿⣷⣄⠀⠀⠀⢀⣰⣿⣿⣿⣿⣿⣿⣷⣶⣦⣤⣄⣼⣿⣿⡏⠀
-⠀⣿⣿⣿⣿⣿⣶⣿⣿⣿⣿⠟⠉⠻⣿⣿⣿⣿⣶⣿⣿⣿⣿⣷⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⣿⣶⣶⣶⣾⣿⣿⡿⠋⠙⢿⣿⣿⣷⣶⣶⣶⣿⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⣿⣿⣷⣾⣿⣿⣿⡟⢻⠙⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡆⠀
-⠀⢿⣿⣿⣿⣿⣿⣿⣿⣿⡇⣠⣷⡀⢹⣿⣿⣿⣿⣿⣿⣿⣿⡿⠀⠀⠀⠀⠀⠀⠀⠀⠸⣿⣿⣿⣿⣿⣿⣿⣿⣿⢁⣴⣧⡀⣿⣿⣿⣿⣿⣿⣿⣿⣿⠇⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⢀⣼⣆⢘⣿⣿⣿⣿⣿⣿⣿⣿⣿⠃⠀
-⠀⠈⠻⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠟⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⠿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠿⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⠿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⠃⠀⠀
-⠀⠀⠀⠀⠀⠀⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠈⠛⠋⠛⠋⠛⠙⠛⠙⠛⠙⠛⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⠛⠙⠛⠙⠛⠛⠋⠛⠋⠛⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⠛⠙⠛⠛⠋⠛⠋⠛⠋⠛⠃⠀⠀⠀⠀⠀⠀⠀
-]],
-    [[
-  ▄████▄        ▒▒▒▒▒    ▒▒▒▒▒    ▒▒▒▒▒    ▒▒▒▒▒
- ███▄█▀        ▒ ▄▒ ▄▒  ▒ ▄▒ ▄▒  ▒ ▄▒ ▄▒  ▒ ▄▒ ▄▒
-▐████  █  █    ▒▒▒▒▒▒▒  ▒▒▒▒▒▒▒  ▒▒▒▒▒▒▒  ▒▒▒▒▒▒▒
- █████▄        ▒▒▒▒▒▒▒  ▒▒▒▒▒▒▒  ▒▒▒▒▒▒▒  ▒▒▒▒▒▒▒
-   ████▀       ▒ ▒ ▒ ▒  ▒ ▒ ▒ ▒  ▒ ▒ ▒ ▒  ▒ ▒ ▒ ▒
-]],
-    [[
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢰⣿⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡀⡀⡀⡀⡀⡀⡀⠀⡀⡀⣄⣴⣴⣷⣛⡛⣿⠅⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⣷⣄⡀⠀⠀⠀⠀⣱⣷⣿⣾⣿⣿⣿⣿⣿⣿⣾⣿⣾⣿⣿⣿⣿⣿⣿⣵⡟⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢨⣿⣿⣿⣿⣶⣄⣄⢦⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠏⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⣿⣿⣿⣿⣿⣿⡻⢿⣿⣿⣿⠟⠉⠉⠙⢿⣿⣿⣿⣿⣿⣿⣿⢋⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢬⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢐⣿⡿⠃⠀⠀⠀⠀⠀⠹⣿⣿⣿⣿⣿⣿⣿⣦⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢨⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢇⣿⡿⠁⠀⠀⠀⠀⠀⠀⠀⠘⣿⣿⣿⣿⣿⣿⣿⣿⣆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠹⣿⣿⣿⣟⢿⣿⣿⣿⣧⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠠⣄⠠⡈⠿⣿⡿⠿⣿⣿⣿⣿⣿⣿⣿⠇⠀⠀⠀⠀⣄⣼⣾⣮⣄⠀⠀⢻⣿⣿⣿⢸⣿⣿⣿⣿⡆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡀⣄⢆⣢⡀⠀⠀⢹⡆⣿⣶⣶⣾⣿⣿⣿⣿⣿⣿⣿⣟⠀⠀⠀⢠⣿⣿⣿⣿⣿⡿⣧⠀⠨⣿⣿⣿⣇⢻⣿⣿⣿⣗⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⢆⣷⣵⣿⢿⢿⣫⡄⠀⠀⣷⢹⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠃⠀⠀⠀⣿⣿⣿⣿⣿⣿⣿⡇⠀⠀⠸⣿⣿⣿⡄⢻⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⢀⢠⣼⣼⢾⣟⣯⠿⠚⠋⠋⠁⠂⠑⠀⣻⠌⢿⣿⣿⣿⣿⣿⣿⣿⣿⠏⠀⠀⠀⣰⣿⣿⡞⢮⣿⣿⣿⣷⡀⠀⠈⢿⣿⣿⣷⠀⠻⣿⡿⠀⠀⠀⠁⠑⠐⠐⠐⠐⠤⠠⠠⠠
-⠀⠀⠀⢀⣰⡾⣻⠽⠚⠋⠁⠀⠀⠐⠐⠘⠈⠈⠈⠀⠸⡇⣦⠹⢿⣿⣿⣿⣿⣿⠟⠀⠀⠀⢠⣜⣿⣿⣦⣾⣿⣟⣽⣿⡟⠀⠀⠸⣿⣿⣿⡃⠀⠉⠁⠀⠁⠉⠈⠈⠈⠈⠂⠂⠢⠠⢠⢀
-⠀⢀⢰⡾⠟⠊⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⣷⠘⠿⣮⣝⡿⣿⣿⣿⠀⠀⠀⠀⣾⡙⡟⣟⣟⣟⣟⢟⢹⡮⠀⡀⡀⡀⣿⣿⣿⠅⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⡀⡞⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣦⠶⢓⡁⠈⠙⠛⠻⠿⡿⣷⣴⣠⣀⠻⣧⣓⣇⡷⣗⣎⡎⣺⣵⣷⣿⣿⣿⡿⠟⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠨⣧⢘⣦⣄⠀⠀⠀⠀⠀⠀⠁⠉⢙⢑⡲⠢⡈⢀⢖⣚⣋⡉⠉⠁⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠫⣾⣿⣿⡮⣠⢀⠀⠀⢀⣄⣼⣾⣿⣿⡟⣼⣾⣿⣿⣿⣿⣦⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠨⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢟⡥⣿⣿⢸⣿⣿⣿⡟⣽⣿⣿⣇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⠻⣿⣿⣿⣿⢿⠿⢻⣿⣿⣯⣿⣿⢸⣿⣿⣿⣟⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⡿⣿⣿⣿⣿⡪⣿⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣢⡀⠀⠀⠀⠀⠀⢰⣿⣿⣿⣿⡇⣿⣿⣿⣿⡳⣿⣿⣎⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⢷⡀⠀⠀⠀⣼⣾⣿⢇⣿⣿⡇⣿⣿⣿⡿⣸⣿⣿⣿⡄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⢧⠀⠐⠙⠈⠙⠁⣘⡻⠿⠣⣿⡿⠟⠁⡿⡟⠛⠋⠚⠚⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-]],
-    [[
-           ╔═█▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀█═╗
-           ║ █ ▓▒░NEOVIM░▒▓█ █ ║
-           ╚═█▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄█═╝
-             [ERROR 0x7E] ░▒▓
-           BOOTING... ████████] 99%
-
-        ▚▞ Your Digital Workshop ▞▚▞
-
-]],
-    [[
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣤⠇⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⡾⠋⠀⠀⠀⠀⠀⠀⠀⣠⡆⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⠰⠁⠀⢀⠀⠀⣿⣧⡔⠀⠀⠀⠀⠀⠀⣰⠟⠁⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣧⡀⠀⡀⢹⣄⣠⣿⣿⡧⣾⠀⣀⠀⡀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢹⡇⢀⣿⣿⣿⣿⣿⡏⡀⠋⣰⡇⠞⡀⠀⠀⠀⣠⠖
-⠀⠀⠀⠀⠀⢦⡀⠀⠀⠐⣸⣴⣸⣿⣿⣿⣿⣿⢴⣧⣴⣿⠃⣰⡟⠀⡜⠀⠁⠀
-⢠⡀⠀⢄⢠⠈⢿⡄⣆⡇⢿⣿⣿⣿⡿⡇⢏⣴⢸⡿⠁⡇⣰⠋⡀⠀⡇⠀⠀⠀
-⠀⠻⡄⠸⣾⠧⡘⡇⠸⣿⣼⣧⡈⣮⣾⣷⣿⠣⣫⣷⣶⡇⡇⣦⡇⠐⠁⠀⠀⠀
-⡀⠀⠀⡀⢈⡼⠾⠾⠇⡿⣎⣿⣿⡿⡿⣿⣿⣴⡿⠟⠋⢷⢣⢟⠀⠀⠀⠀⠀⠀
-⠘⠀⢀⢹⡆⠦⢰⢋⢝⠁⠟⣵⢻⣇⢧⣿⣿⠟⡁⠀⠀⣾⢸⢸⠁⠀⠀⠀⠀⠀
-⠀⠀⠀⢋⣷⡉⢘⠤⠥⡶⠁⡶⢿⣿⣷⡦⢀⠈⠁⠀⣠⣧⡇⡎⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠘⢿⢘⡲⠬⠭⠶⢠⠐⣡⢹⣷⡿⡕⢝⣒⣫⠶⣻⠃⣄⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠑⢠⡁⠪⠉⠉⣴⢢⡗⠴⢟⣿⢳⠙⠶⣤⣤⠞⣡⡳⡜⡆⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠁⠀⠀⠘⡇⠾⠥⠃⢛⣋⣩⢞⣓⡺⡿⠘⢗⣕⡚⠁⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⣀⣤⣾⠇⡁⢁⠁⠈⠉⡁⢈⠛⠿⣿⣄⡀⠉⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠈⠉⠁⢲⣆⣛⡵⢛⣛⣛⢯⣛⣀⣶⠊⠉⠁⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠛⠱⠢⣿⡿⣿⡗⠎⠛⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-]],
-    [[
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⣤⣤⣤⣤⣤⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣴⣾⣿⣿⠿⠿⠿⠿⢿⣿⣿⣷⣤⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣰⣿⣿⠟⠋⠀⠀⠀⠀⠀⠀⠀⠙⢿⣿⣿⣆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣸⣿⣿⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠹⣿⣿⡆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⣠⣴⣶⣾⣿⣿⠀⣿⣿⡏⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢹⣿⣿⠀⣿⣿⣷⣶⣤⣀⠀⠀⠀⠀
-⠀⠀⣰⣾⣿⡿⠟⠛⠉⠉⠀⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⠀⠉⠉⠛⠻⢿⣿⣷⣄⠀⠀
-⠀⣼⣿⡿⠋⠀⠀⠀⠀⠀⠀⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⠀⠀⠀⠀⠀⠀⠙⣿⣿⣧⠀
-⢸⣿⣿⠃⠀⠀⣠⣶⣾⣿⠀⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⠀⣿⣷⣦⣄⠀⠀⠸⣿⣿⡆
-⢸⣿⣿⠀⢀⣾⣿⡿⠛⠉⠀⣿⣿⡇⠀⠀⣀⣀⠀⠀⠀⠀⠀⣀⣀⠀⠀⢸⣿⣿⠀⠉⠛⢿⣿⣷⡀⠀⣿⣿⡇
-⠘⣿⣿⣆⢸⣿⣿⠀⠀⠀⠀⣿⣿⡇⠀⢾⣿⣿⡇⠀⠀⠀⢾⣿⣿⡇⠀⢸⣿⣿⠀⠀⠀⠈⣿⣿⡇⣼⣿⣿⠁
-⠀⠙⣿⣿⣿⣿⣿⣄⠀⠀⠀⣿⣿⡇⠀⠈⠙⠋⠀⠀⠀⠀⠈⠙⠋⠀⠀⢸⣿⣿⠀⠀⠀⣰⣿⣿⣿⣿⡿⠃⠀
-⠀⠀⠈⠻⢿⣿⣿⣿⣷⣶⣶⣿⣿⣿⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣿⣿⣿⣶⣶⣿⣿⣿⣿⡿⠛⠁⠀⠀
-⠀⠀⠀⠀⠀⠈⠙⠛⠛⠛⠛⠛⠛⠛⠛⢻⣿⣿⠛⣿⣿⣿⢻⣿⣿⠛⠛⠛⠛⠛⠛⠛⠛⠛⠉⠁⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⢀⣴⣿⣿⣿⣿⣿⣿⣿⠀⢸⣿⣿⠀⣿⣿⣿⢸⣿⣿⠀⠀⣿⣿⣿⣿⣿⣿⣿⣦⠀⠀⠀⠀⠀⠀
-⠀⠀⢀⣀⣀⣈⣉⣉⣉⣉⡉⢹⣿⣿⠀⢸⣿⣿⠀⣿⣿⣿⢸⣿⣿⠀⠀⣿⣿⡏⢉⣉⣉⣉⣉⣁⣀⣀⡀⠀⠀
-⠀⣰⣿⣿⣿⣿⣿⣿⣿⣿⡇⢸⣿⣿⠀⢸⣿⣿⠀⣿⣿⣿⢸⣿⣿⠀⠀⣿⣿⡇⢸⣿⣿⣿⣿⣿⣿⣿⣿⣦⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⡇⢸⣿⣿⠀⢸⣿⣿⠀⣿⣿⣿⢸⣿⣿⠀⠀⣿⣿⡇⢸⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⡇⢸⣿⣿⠀⢸⣿⣿⠀⣿⣿⣿⢸⣿⣿⠀⠀⣿⣿⡇⢸⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⡇⢸⣿⣿⣄⣼⣿⣿⠀⣿⣿⣿⠸⣿⣿⣆⣠⣿⣿⡇⢸⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⢻⣿⣿⣄⠻⢿⣿⣿⠿⢋⣴⣿⣿⣿⣦⡙⠿⣿⣿⡿⠛⣠⣿⣿⡏⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⢿⣿⣷⣶⣤⣴⣶⣿⣿⠿⠙⢿⣿⣿⣶⣦⣴⣶⣿⣿⡿⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠛⠻⠿⠿⠛⠋⠁⠀⠀⠀⠈⠙⠛⠿⠿⠛⠛⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-]],
-  }
-  return headers[math.random(1, #headers)]
-end
+---@diagnostic disable: missing-fields
 
 return {
-  "folke/snacks.nvim",
-  opts = {
-    lazygit = {
-      theme = {
-        selectedLineBgColor = { bg = "CursorLine" },
-      },
-      win = {
-        width = 0,
-        height = 0,
-      },
-    },
-    picker = {
-      formatters = {
-        file = {
-          filename_first = true,
-        },
-      },
-      layout = {
-        -- layout = { backdrop = false },
-        -- layout = {
-        --   backdrop = false,
-        --   box = "vertical",
-        --   row = -1,
-        --   width = 0,
-        --   height = 0.7,
-        --   border = "top",
-        --   title = " {source} {live}",
-        --   title_pos = "left",
-        --   { win = "input", height = 1, border = "bottom" },
-        --   {
-        --     box = "horizontal",
-        --     { win = "list", border = "none" },
-        --     { win = "preview", width = 0.6, border = "left" },
-        --   },
-        -- },
-      },
-    },
-    scope = {
-      treesitter = {
-        blocks = {
-          "function_declaration",
-          "function_definition",
-          "method_declaration",
-          "method_definition",
-          "class_declaration",
-          "class_definition",
-          "do_statement",
-          "while_statement",
-          "repeat_statement",
-          "if_statement",
-          "for_statement",
-          "try_statement",
-          "with_statement",
-        },
-      },
-    },
-    indent = {
-      enabled = false,
-      animate = {
-        enabled = false,
-      },
-    },
-    terminal = {
-      shell = "/bin/zsh",
-    },
-    words = {
-      enabled = false,
-    },
-    dashboard = {
-      preset = {
-        pick = nil,
-        keys = {
-          { icon = " ", key = "f", desc = "Find File", action = ":lua Snacks.dashboard.pick('files')" },
-          { icon = " ", key = "n", desc = "New File", action = ":ene | startinsert" },
-          { icon = " ", key = "g", desc = "Find Text", action = ":lua Snacks.dashboard.pick('live_grep')" },
-          { icon = " ", key = "r", desc = "Recent Files", action = ":lua Snacks.dashboard.pick('oldfiles')" },
-          {
-            icon = " ",
-            key = "c",
-            desc = "Config",
-            action = ":lua Snacks.dashboard.pick('files', {cwd = vim.fn.stdpath('config')})",
-          },
-          { icon = " ", key = "s", desc = "Restore Session", section = "session" },
-          { icon = " ", key = "g", desc = "Git", action = ":lua Snacks.lazygit()" },
-          { icon = "󰒲 ", key = "L", desc = "Lazy", action = ":Lazy", enabled = package.loaded.lazy ~= nil },
-          { icon = " ", key = "q", desc = "Quit", action = ":qa" },
-        },
-        header = get_random_header(),
-      },
-      sections = {
-        { section = "header" },
-        { icon = " ", title = "Keymaps", section = "keys", indent = 2, padding = 1 },
-        {
-          icon = " ",
-          title = "Recent Files",
-          section = "recent_files",
-          cwd = true,
-          indent = 2,
-          padding = 1,
-        },
-        { section = "startup" },
-      },
-    },
-    zen = {
-      toggles = {
-        dim = true,
-        git_signs = false,
-        mini_diff_signs = false,
-        diagnostics = false,
-        inlay_hints = false,
-      },
-      win = {
-        enter = true,
-        fixbuf = false,
-        minimal = false,
-        width = 140,
-        height = 0,
-        backdrop = { transparent = true, blend = 11 },
-        keys = { q = false },
-        zindex = 40,
-        wo = {
-          winhighlight = "NormalFloat:Normal",
-        },
-        w = {
-          snacks_main = true,
-        },
-      },
-    },
-  },
+	'https://github.com/folke/snacks.nvim',
+	priority = 1000,
+	lazy = false,
+	keys = {
+		{
+			'<leader>.',
+			function()
+				vim.ui.input({
+					prompt = 'Enter filetype for the scratch buffer: ',
+					default = 'markdown',
+					completion = 'filetype',
+				}, function(ft)
+					require('snacks').scratch.open {
+						ft = ft,
+						win = {
+							width = 200,
+							height = 100,
+							title = 'Scratch Buffer',
+						},
+					}
+				end)
+			end,
+			{ desc = 'Toggle Scratch Buffer' },
+		},
+		{
+			'<leader>S',
+			function()
+				require('snacks').scratch.select()
+			end,
+			{ desc = 'Select Scratch Buffer' },
+		},
+		{
+			'<localleader>t',
+			function()
+				local git_root = vim.fs.root(0, '.git')
+				if git_root then
+					local file = git_root .. '/todo.md'
+					require('snacks').scratch.open {
+						ft = 'markdown',
+						file = file,
+					}
+				end
+			end,
+			desc = 'Toggle Scratch Todo',
+		},
+		{
+			'<Leader>-',
+			function()
+				require('snacks').picker.explorer {
+					hidden = true,
+					win = {
+						list = {
+							keys = {
+								['o'] = { { 'pick_win', 'jump' }, mode = { 'n', 'i' } },
+							},
+						},
+					},
+				}
+			end,
+			{ silent = true },
+			desc = 'Open file explorer',
+		},
+		{
+			'<leader>z',
+			function()
+				require('snacks').zen.zoom()
+			end,
+			{ silent = true },
+			desc = 'Toggle buffer [z]oom mode',
+		},
+	},
+	init = function()
+		vim.g.custom_explorer = true
+		-- disable all animations
+		vim.g.snacks_animate = false
+
+		vim.api.nvim_create_autocmd('User', {
+			pattern = 'VeryLazy',
+			callback = function()
+				-- Setup some globals for debugging (lazy-loaded)
+				-- selene: allow(global_usage)
+				_G.P = function(...)
+					Snacks.debug.inspect(...)
+				end
+				-- selene: allow(global_usage)
+				_G.bt = function()
+					Snacks.debug.backtrace()
+				end
+
+				-- Create some toggle mappings
+				Snacks.toggle.option('wrap', { name = 'Wrap' }):map '<leader>uw'
+				Snacks.toggle.diagnostics():map '<leader>ud'
+				Snacks.toggle.inlay_hints():map '<leader>uh'
+				Snacks.toggle.dim():map '<leader>uD'
+			end,
+		})
+
+		vim.api.nvim_create_user_command('Zen', function()
+			require('snacks').zen()
+		end, { desc = 'Toggle Zen Mode' })
+
+		vim.api.nvim_create_autocmd('User', {
+			pattern = 'OilActionsPost',
+			callback = function(event)
+				if event.data.actions.type == 'move' then
+					require('snacks').rename.on_rename_file(
+						event.data.actions.src_url,
+						event.data.actions.dest_url
+					)
+				end
+			end,
+		})
+	end,
+	opts = function(_, opts)
+		local function wrap_text(input_table, width)
+			local wrapped_lines = {}
+
+			for _, line in ipairs(input_table) do
+				if line == '' then
+					-- Retain empty strings as line breaks
+					table.insert(wrapped_lines, '')
+				else
+					local line_start = 1
+					while line_start <= #line do
+						-- Determine the end of the current segment
+						local line_end = math.min(line_start + width - 1, #line)
+
+						-- Adjust to break at the last space within the width limit
+						if line_end < #line then
+							local space_pos = line:sub(line_start, line_end):find ' [^ ]*$'
+							if space_pos then
+								line_end = line_start + space_pos - 1
+							end
+						end
+
+						-- Extract the substring and ensure it's valid
+						local segment = line:sub(line_start, line_end):gsub('^%s*', '')
+						if segment ~= '' then
+							table.insert(wrapped_lines, segment)
+						end
+
+						line_start = line_end + 1
+					end
+				end
+			end
+
+			return table.concat(wrapped_lines, '\n')
+		end
+
+		local function filter_common(file)
+			return file:match 'COMMIT_EDITMSG' == nil
+				and file:match '/tmp' == nil
+				-- vim help files
+				and file:match '/share/nvim/runtime/doc' == nil
+		end
+
+		return vim.tbl_deep_extend('force', opts or {}, {
+			quickfile = { enabled = false },
+			scroll = { enabled = false },
+			statuscolumn = { enabled = false },
+			indent = { enabled = false },
+			bigfile = {
+				enabled = true,
+				size = 1024 * 500, -- 500KB
+			},
+			image = {
+				doc = {
+					float = true,
+					inline = false,
+				},
+			},
+			input = {
+				win = {
+					style = {
+						relative = 'cursor',
+						width = 45,
+						row = -3,
+						col = 0,
+						wo = {
+							winhighlight = 'NormalFloat:SnacksInputNormal,FloatBorder:Comment,FloatTitle:Normal',
+						},
+					},
+				},
+			},
+			picker = {
+				layouts = {
+					select = {
+						layout = {
+							relative = 'cursor',
+						},
+					},
+				},
+				sources = {
+					explorer = {
+						layout = {
+							layout = { position = 'right' },
+							auto_hide = { 'input' },
+						},
+					},
+				},
+			},
+			dashboard = {
+				enabled = true,
+				pane_gap = 10,
+				preset = {
+					keys = {
+						{
+							key = 'e',
+							icon = ' ',
+							desc = 'New File',
+							action = ':ene',
+						},
+						{
+							desc = 'Sync',
+							icon = '󰒲 ',
+							action = ':Lazy sync',
+							key = 's',
+							enabled = package.loaded.lazy ~= nil,
+						},
+						{
+							desc = 'Clean',
+							icon = '󰒲 ',
+							action = ':Lazy clean',
+							key = 'c',
+							enabled = package.loaded.lazy ~= nil,
+						},
+						{
+							desc = 'Lazy',
+							icon = '󰒲 ',
+							action = ':Lazy',
+							key = 'l',
+							enabled = package.loaded.lazy ~= nil,
+						},
+						{
+							icon = ' ',
+							desc = 'Git Todo',
+							action = ':e .git/todo.md',
+							key = 't',
+						},
+						{ icon = ' ', key = 'q', desc = 'Quit', action = ':qa' },
+					},
+					header = table.concat({
+						-- https://github.com/NvChad/NvChad/discussions/2755#discussioncomment-8960250
+						'           ▄ ▄                   ',
+						'       ▄   ▄▄▄     ▄ ▄▄▄ ▄ ▄     ',
+						'       █ ▄ █▄█ ▄▄▄ █ █▄█ █ █     ',
+						'    ▄▄ █▄█▄▄▄█ █▄█▄█▄▄█▄▄█ █     ',
+						'  ▄ █▄▄█ ▄ ▄▄ ▄█ ▄▄▄▄▄▄▄▄▄▄▄▄▄▄  ',
+						'  █▄▄▄▄ ▄▄▄ █ ▄ ▄▄▄ ▄ ▄▄▄ ▄ ▄ █ ▄',
+						'▄ █ █▄█ █▄█ █ █ █▄█ █ █▄█ ▄▄▄ █ █',
+						'█▄█ ▄ █▄▄█▄▄█ █ ▄▄█ █ ▄ █ █▄█▄█ █',
+						'    █▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄█ █▄█▄▄▄█    ',
+					}, '\n'),
+				},
+				sections = {
+					{ section = 'header' },
+					vim.tbl_map(function(line)
+						return {
+							text = { wrap_text({ line }, 60), hl = 'Comment' },
+							gap = 1,
+						}
+					end, require('_.quotes').random_quote()),
+					{ text = '', padding = 1 },
+					{ title = 'Bookmarks', padding = 1 },
+					{ section = 'keys', padding = 1 },
+					{ title = 'MRU ', file = vim.fn.fnamemodify('.', ':~'), padding = 1 },
+					{
+						section = 'recent_files',
+						cwd = true,
+						limit = 8,
+						padding = 1,
+						filter = filter_common,
+					},
+					{ title = 'MRU', padding = 1 },
+					{
+						section = 'recent_files',
+						limit = 8,
+						padding = 1,
+						filter = function(file)
+							return file:match(vim.uv.cwd()) == nil and filter_common(file)
+						end,
+					},
+					{ title = 'Sessions', padding = 1 },
+					{ section = 'projects', padding = 1 },
+					{ section = 'startup' },
+				},
+			},
+		})
+	end,
 }

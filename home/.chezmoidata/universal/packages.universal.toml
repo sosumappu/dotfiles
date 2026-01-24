@@ -39,9 +39,12 @@ tokei = { test = "tokei --version" }
 vivid = { test = "vivid --version" }
 wget = { test = "wget --version" }
 zsh = { test = "zsh --version" }
+jj = { manager = "mise", test = "jj --version" }
 lazygit = { manager = "mise", test = "lazygit --version" }
 claude-code = { manager = "mise", test = "claude --version" }
 opencode = { manager = "mise", test = "opencode --version" }
+repomix = { manager = "mise", name = "npm:repomix", test = "repomix --version" }
+mpv = { manager = "system", test = "mpv --version" }
 
 [packages.universal.docker]
 docker = { test = "docker -v" }

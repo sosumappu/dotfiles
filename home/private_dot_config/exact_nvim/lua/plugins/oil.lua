@@ -1,38 +1,50 @@
 return {
-  {
-    "stevearc/oil.nvim",
-    keys = {
-      { "-", "<cmd>Oil<cr>", desc = "Open parent dir" },
-      { "_", "<cmd>lua require('oil').toggle_float()<cr>", desc = "Open dir float" }
-    },
-    config = function()
-      CustomOilBar = function()
-        local path = vim.fn.expand("%")
-        path = path:gsub("oil://", "")
+	{
+		'https://github.com/stevearc/oil.nvim',
+		-- avoid lazy loading oil in order to use it as a file explorer instead of netrw
+		lazy = false,
+		keys = {
+			{
+				'-',
+				function()
+					require('oil').open()
+				end,
+				noremap = true,
+				desc = 'Open parent directory',
+			},
+		},
+		opts = function(_, opts)
+			local detail = false
 
-        return "  " .. vim.fn.fnamemodify(path, ":.")
-      end
-
-      require("oil").setup({
-        columns = { "icon" },
-        keymaps = {
-          ["<C-h>"] = false,
-          ["<C-l>"] = false,
-          ["<C-k>"] = false,
-          ["<C-j>"] = false,
-          ["<M-h>"] = "actions.select_split",
-        },
-        win_options = {
-          winbar = "%{v:lua.CustomOilBar()}",
-        },
-        view_options = {
-          show_hidden = true,
-          is_always_hidden = function(name, _)
-            local folder_skip = { "dev-tools.locks", "dune.lock", "_build" }
-            return vim.tbl_contains(folder_skip, name)
-          end,
-        },
-      })
-    end,
-  },
+			return vim.tbl_deep_extend('force', opts or {}, {
+				-- Oil will take over directory buffers (e.g. `vim .` or `:e src/`)
+				-- Set to false if you still want to use netrw.
+				default_file_explorer = true,
+				watch_for_changes = true,
+				delete_to_trash = true,
+				skip_confirm_for_simple_edits = true,
+				view_options = { show_hidden = true },
+				keymaps = {
+					['q'] = { 'actions.close', mode = 'n' },
+					['?'] = 'actions.preview',
+					['gd'] = {
+						desc = 'Toggle file detail view',
+						callback = function()
+							detail = not detail
+							if detail then
+								require('oil').set_columns {
+									'icon',
+									'permissions',
+									'size',
+									'mtime',
+								}
+							else
+								require('oil').set_columns { 'icon' }
+							end
+						end,
+					},
+				},
+			})
+		end,
+	},
 }

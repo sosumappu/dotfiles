@@ -1,49 +1,52 @@
 [packages.darwin.cloud]
-"aws-cli" = {disabled = "headless", manager = "system", name = "awscli"}
+"aws-cli" = { disabled = "headless", manager = "system", name = "awscli" }
 
 [packages.darwin.common]
-chezmoi = {disabled = true}
-mas = {test = "mas version"}
-openssh = {test = "$HOMEBREW_PREFIX/bin/ssh -V"}
-"pinentry-mac" = {test = "pinentry-mac --version"}
-"reattach-to-user-namespace" = {test = "reattach-to-user-namespace --version"}
-zsh = {disabled = true}
+chezmoi = { disabled = true }
+mas = { test = "mas version" }
+openssh = { test = "$HOMEBREW_PREFIX/bin/ssh -V" }
+"pinentry-mac" = { test = "pinentry-mac --version" }
+"reattach-to-user-namespace" = { test = "reattach-to-user-namespace --version" }
+zsh = { disabled = true }
 newsboat = { manager = "system", test = "newsboat --version" }
 
 switchaudio-osx = { manager = "system" }
 media-control = { manager = "system" }
 imagemagick = { manager = "system" }
 skhd = { manager = "system", test = "skhd --version" }
-borders = { manager = "system" , test = "borders --version" }
+borders = { manager = "system", test = "borders --version" }
 yabai = { manager = "system", test = "yabai --version" }
 sketchybar = { test = "sketchybar --version" }
-stats_provider = { manager = "mise" , name = "github:joncrangle/sketchybar-system-stats", test = "stats_provider --version"}
+stats_provider = { manager = "mise", name = "github:joncrangle/sketchybar-system-stats", test = "stats_provider --version" }
+
+zathura = { test = "zathura --version" }
+zathura-pdf-mupdf = { test = "zathura --version" }
 
 [packages.darwin.docker]
-colima = {test = "colima version"}
-dive = {manager = "system", name = "dive"}
-qemu = {test = "qemu-system-x86_64 --version"}
+colima = { test = "colima version" }
+dive = { manager = "system", name = "dive" }
+qemu = { test = "qemu-system-x86_64 --version" }
 
 [packages.darwin.extra]
-gocryptfs = {name = "gromgit/fuse/gocryptfs-mac"}
+gocryptfs = { name = "gromgit/fuse/gocryptfs-mac" }
 
 [packages.darwin.iac]
-shellcheck = {manager = "system"}
-sops = {manager = "system"}
-terragrunt = {manager = "system"}
-tflint = {manager = "system"}
+shellcheck = { manager = "system" }
+sops = { manager = "system" }
+terragrunt = { manager = "system" }
+tflint = { manager = "system" }
 
 [packages.darwin.kubernetes]
-helm = {manager = "system"}
-k3d = {manager = "system"}
-k9s = {manager = "system"}
-kubecolor = {manager = "system"}
-kubectl = {manager = "system", name = "kubernetes-cli"}
-kubectx = {manager = "system"}
-kubens = {manager = "system", name = "kubectx"}
-kubesess = {manager = "system", name = "kubesess"}
-kustomize = {manager = "system"}
-oc = {manager = "system", name = "openshift-cli"}
-popeye = {manager = "system"}
-stern = {manager = "system"}
-yq = {manager = "system"}
+helm = { manager = "system" }
+k3d = { manager = "system" }
+k9s = { manager = "system" }
+kubecolor = { manager = "system" }
+kubectl = { manager = "system", name = "kubernetes-cli" }
+kubectx = { manager = "system" }
+kubens = { manager = "system", name = "kubectx" }
+kubesess = { manager = "system", name = "kubesess" }
+kustomize = { manager = "system" }
+oc = { manager = "system", name = "openshift-cli" }
+popeye = { manager = "system" }
+stern = { manager = "system" }
+yq = { manager = "system" }

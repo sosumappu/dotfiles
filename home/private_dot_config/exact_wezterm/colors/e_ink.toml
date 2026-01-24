@@ -1,83 +1,63 @@
 [colors]
+# Core Colors
+foreground = '#c5c8c6'
+background = '#111111'
+cursor_bg = '#20bbfc'
+cursor_border = '#20bbfc'
+cursor_fg = '#111111'
+selection_fg = '#000000'
+selection_bg = '#FFFACD'
+
+# ANSI (Normal) - Palettes 0-7
 ansi = [
-  '#CCCCCC',
-  '#333333',
-  '#9A9A9A',
-  '#868686',
-  '#727272',
-  '#AEAEAE',
-  '#4A4A4A',
-  '#5E5E5E',
+  '#1d1f21', # Black
+  '#cc6666', # Red
+  '#b5bd68', # Green
+  '#f0c674', # Yellow
+  '#81a2be', # Blue
+  '#b294bb', # Magenta
+  '#8abeb7', # Cyan
+  '#c5c8c6', # White
 ]
-background = '#cccccc'
+
+# Brights - Palettes 8-15
 brights = [
-  '#5E5E5E',
-  '#333333',
-  '#9A9A9A',
-  '#868686',
-  '#727272',
-  '#AEAEAE',
-  '#4A4A4A',
-  '#7C7C7C',
+  '#333333', # Bright Black
+  '#f2777a', # Bright Red
+  '#99cc99', # Bright Green
+  '#ffcc66', # Bright Yellow
+  '#6699cc', # Bright Blue
+  '#cc99cc', # Bright Magenta
+  '#66cccc', # Bright Cyan
+  '#dddddd', # Bright White
 ]
 
-compose_cursor = '#bf5c5c'
-cursor_bg = '#bf6a6a'
-cursor_border = '#bf6a6a'
-cursor_fg = '#474747'
-foreground = '#474747'
-scrollbar_thumb = '#A4A4A4'
-selection_bg = '#A4A4A4'
-selection_fg = '#333333'
-split = '#B8B8B8'
-visual_bell = '#B8B8B8'
-
-[colors.indexed]
-16 = '#727272'
-17 = '#5E5E5E'
-
+# Tab Bar - Adapted for Dark Mode
+# (I adjusted these to blend with the #111111 background)
 [colors.tab_bar]
-background = '#b8b8b8'
-inactive_tab_edge = '#474747'
+background = '#1d1f21' # Using the "Normal Black" for the bar
 
 [colors.tab_bar.active_tab]
-bg_color = '#AEAEAE'
-fg_color = '#333333'
-intensity = 'Normal'
-italic = false
-strikethrough = false
-underline = 'None'
+bg_color = '#111111'   # Matches window background
+fg_color = '#c5c8c6'   # Matches window foreground
+intensity = 'Bold'
 
 [colors.tab_bar.inactive_tab]
-bg_color = '#c2c2c2'
-fg_color = '#545454'
+bg_color = '#1d1f21'
+fg_color = '#868686'   # Dimmed text
 intensity = 'Normal'
-italic = false
-strikethrough = false
-underline = 'None'
 
 [colors.tab_bar.inactive_tab_hover]
-bg_color = '#cccccc'
-fg_color = '#545454'
+bg_color = '#333333'   # Slightly lighter on hover
+fg_color = '#c5c8c6'
 intensity = 'Normal'
-italic = true
-strikethrough = false
-underline = 'None'
 
 [colors.tab_bar.new_tab]
-bg_color = '#C2C2C2'
-fg_color = '#545454'
+bg_color = '#1d1f21'
+fg_color = '#868686'
 intensity = 'Normal'
-italic = false
-strikethrough = false
-underline = 'None'
 
 [colors.tab_bar.new_tab_hover]
-bg_color = '#CCCCCC'
-fg_color = '#545454'
+bg_color = '#333333'
+fg_color = '#c5c8c6'
 intensity = 'Normal'
-italic = false
-strikethrough = false
-underline = 'None'
-
-

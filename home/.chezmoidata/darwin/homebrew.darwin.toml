@@ -1,5 +1,10 @@
 [darwin.common]
-taps = ["homebrew/autoupdate", "FelixKratz/formulae", "asmvik/formulae"]
+taps = [
+  "homebrew/autoupdate",
+  "FelixKratz/formulae",
+  "asmvik/formulae",
+  "homebrew-zathura/zathura",
+]
 
 [darwin.personal]
 casks = [
@@ -46,7 +51,7 @@ casks = [
   "local",
   "termius",
 
-  "karabiner-elements"
+  "karabiner-elements",
 ]
 mas = [
   { name = "Keynote", id = 409183694 },

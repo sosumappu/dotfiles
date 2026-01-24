@@ -1,10 +1,5 @@
-tt.*
-.tests
-doc/tags
-debug
-.repro
-foo.*
-*.log
-data
+packer_compiled.vim
+packer_compiled.lua
+pack/*
+*-local.lua
 lazy-lock.json
-.DS_Store

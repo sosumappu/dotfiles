@@ -1,0 +1,5 @@
+set font "CaskaydiaCove Nerd Font 17"
+set selection-clipboard clipboard
+set guioptions ""
+
+source "~/.config/zathura/scripts/set_colorscheme"

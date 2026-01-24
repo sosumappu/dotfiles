@@ -1,5 +1,5 @@
 {{- if (lookPath "vivid") -}}
-export LS_COLORS={{ printf "%q" (trim (output "vivid" "generate" "one-light")) }}
+export LS_COLORS={{ printf "%q" (trim (output "vivid" "generate" (joinPath .chezmoi.sourceDir "private_dot_config/exact_vivid/theme.yml"))) }}
 {{- end }}
 
 # disable pre-commit colors for one-dark
