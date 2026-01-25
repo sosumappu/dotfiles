@@ -11,6 +11,10 @@ if [ "$(command -v mise)" ]; then
   mise completion zsh > "{{ $compDir }}/_mise"
 fi
 
+if [ "$(command -v jj)" ]; then
+  jj util completion zsh > "{{ $compDir }}/_jj"
+fi
+
 if [ "$(command -v bw)" ]; then
   bw completion --shell zsh > "{{ $compDir }}/_bw"
 fi
