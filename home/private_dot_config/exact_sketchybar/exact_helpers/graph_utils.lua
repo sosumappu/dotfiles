@@ -3,12 +3,12 @@ M = {}
 M.update_graph = function(percentage_str, sketchybar_item, label_string)
   local percentage_int = tonumber(percentage_str)
   sketchybar_item:push({ percentage_int / 100. })
-  local color = COLORS.blue
+  local color = COLORS.subtext1
   if percentage_int > 30 then
     if percentage_int < 60 then
       color = COLORS.yellow
     elseif percentage_int < 80 then
-      color = COLORS.peach
+      color = COLORS.maroon
     else
       color = COLORS.red
     end

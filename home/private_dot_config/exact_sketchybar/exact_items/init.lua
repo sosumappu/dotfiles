@@ -21,6 +21,15 @@ end
 if is_enabled("front_app") then
   safe_require("items.front_app.front_app")
 end
+if is_enabled("netspeed") then
+  safe_require("items.monitor.netspeed")
+end
+if is_enabled("mem") then
+  safe_require("items.monitor.mem")
+end
+if is_enabled("cpu") then
+  safe_require("items.monitor.cpu")
+end
 if is_enabled("calendar") then
   safe_require("items.calendar.calendar")
 end
@@ -42,15 +51,6 @@ end
 if is_enabled("toggle_stats") then
   safe_require("items.toggle_stats.toggle_stats")
 end
-if is_enabled("cpu") then
-  safe_require("items.monitor.cpu")
-end
-if is_enabled("mem") then
-  safe_require("items.monitor.mem")
-end
-if is_enabled("netspeed") then
-  safe_require("items.monitor.netspeed")
-end
 if is_enabled("music") then
   safe_require("items.music.music")
 end
@@ -62,13 +62,25 @@ if is_enabled("battery") and is_enabled("brew") then
     border_width = 0
   end
 
+  SBAR.add("bracket", "monitor_bracket", {
+    is_enabled("netspeed") and "widgets.download_speed" or nil,
+    is_enabled("cpu") and "widgets.cpu" or nil,
+  }, {
+    padding_left = 10,
+    background = {
+      color = COLORS.mantle,
+      border_color = COLORS.mantle,
+      border_width = border_width,
+    },
+  })
+
   SBAR.add("bracket", "stats_bracket", {
     is_enabled("battery") and "battery" or nil,
     is_enabled("brew") and "brew" or nil,
   }, {
     background = {
-      color = COLORS.base,
-      border_color = COLORS.surface0,
+      color = COLORS.mantle,
+      border_color = COLORS.mantle,
       border_width = border_width,
     },
   })

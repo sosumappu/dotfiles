@@ -49,7 +49,7 @@ end
 
 -- 渲染 bar item
 local function render_bar_item(count)
-  local color = COLORS.green
+  local color = COLORS.subtext1
   local label = ICONS.brew_check
 
   if count >= 30 then
@@ -59,7 +59,7 @@ local function render_bar_item(count)
     color = COLORS.yellow
     label = tostring(count)
   elseif count >= 1 then
-    color = COLORS.peach
+    color = COLORS.blue
     label = tostring(count)
   end
 

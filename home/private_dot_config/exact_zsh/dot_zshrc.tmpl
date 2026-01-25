@@ -194,9 +194,3 @@ fi
 
 # Load local configuration.
 z4h source $ZDOTDIR/.zshrc.local
-
-if (( $+functions[powerlevel10k_plugin_unload] )); then
-  powerlevel10k_plugin_unload
-fi
-
-eval "$(starship init zsh)"

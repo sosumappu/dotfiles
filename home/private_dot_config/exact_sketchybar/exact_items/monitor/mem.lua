@@ -1,13 +1,13 @@
 local ram = SBAR.add("graph", "widgets.ram", 42, {
-  position = "right",
-  graph = { color = COLORS.blue },
+  position = "left",
+  graph = { color = COLORS.subtext1 },
   background = {
     height = 22,
     color = { alpha = 0 },
     border_color = { alpha = 0 },
     drawing = true,
   },
-  icon = { string = ICONS.ram, color = COLORS.red },
+  icon = { string = ICONS.ram, color = COLORS.subtext1 },
   label = {
     string = "RAM ??%",
     font = { size = 9.0 },

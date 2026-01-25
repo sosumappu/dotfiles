@@ -8,5 +8,5 @@ local front_app = SBAR.add("item", "front_app", {
 })
 
 front_app:subscribe("front_app_switched", function(env)
-  front_app:set({ label = { string = env.INFO } })
+  front_app:set({ icon = { background = { image = "app." .. env.INFO } } })
 end)

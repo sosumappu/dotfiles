@@ -27,21 +27,21 @@ function space_api:add_space_item(space_id, idx)
       padding_left = SPACES.ITEM_PADDING,
       padding_right = 8,
       color = COLORS.text,
-      highlight_color = COLORS.mauve,
+      highlight_color = COLORS.yellow,
     },
     label = {
       padding_right = SPACES.ITEM_PADDING,
-      color = COLORS.subtext0,
-      highlight_color = COLORS.lavender,
+      color = COLORS.subtext1,
+      highlight_color = COLORS.blue,
       font = "sketchybar-app-font:Regular:16.0",
       y_offset = -1,
     },
     padding_right = GROUP_PADDINGS,
     padding_left = 1,
     background = {
-      color = COLORS.base,
+      color = COLORS.mantle,
       border_width = 2,
-      height = 26,
+      height = 28,
       border_color = COLORS.mantle,
     },
   })
@@ -56,7 +56,7 @@ function space_api:highlight_focused_space(space_item, is_selected)
   space_item:set({
     icon = { highlight = is_selected },
     label = { highlight = is_selected },
-    background = { border_color = is_selected and COLORS.lavender or COLORS.surface1 },
+    background = { border_color = is_selected and COLORS.blue or COLORS.mantle },
   })
 end
 

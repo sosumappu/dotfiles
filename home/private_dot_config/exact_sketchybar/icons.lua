@@ -10,6 +10,7 @@ local icons = {
   wechat = "󰘑",
   brew = "􀐛",
   brew_check = "􀆅",
+  calendar = "􀉉",
 
   switch = {
     on = "􁏮",

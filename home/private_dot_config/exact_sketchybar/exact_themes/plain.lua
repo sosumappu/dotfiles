@@ -14,7 +14,7 @@ return {
   teal = 0xff8abeb7,
   sky = 0xff66cccc,
   sapphire = 0xff81a2be,
-  blue = 0xff66cccc,
+  blue = 0xff6699cc,
   lavender = 0xffb294bb,
   text = 0xffc5c8c6,
   subtext1 = 0xffcccccc,
@@ -25,7 +25,7 @@ return {
   surface2 = 0xff585b70,
   surface1 = 0xff45475a,
   surface0 = 0xff313244,
-  base = 0x00000000,
+  base = 0x0ff111111,
   mantle = 0xff545454,
   crust = 0xff191919,
 }

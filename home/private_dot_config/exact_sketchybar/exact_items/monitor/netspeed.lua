@@ -1,31 +1,33 @@
 local upload_speed = SBAR.add("item", "widgets.upload_speed", {
-  position = "right",
+  position = "left",
   padding_left = -5,
   width = 0,
   icon = {
+    padding_left = 16,
     padding_right = 0,
     font = { size = 9.0 },
     string = ICONS.wifi.upload,
   },
   label = {
     font = { size = 9.0 },
-    color = COLORS.red,
+    color = COLORS.subtext1,
     string = "??? KB/s",
   },
   y_offset = 4,
 })
 
 local download_speed = SBAR.add("item", "widgets.download_speed", {
-  position = "right",
+  position = "left",
   padding_left = -5,
   icon = {
+    padding_left = 16,
     padding_right = 0,
     font = { size = 9.0 },
     string = ICONS.wifi.download,
   },
   label = {
     font = { size = 9.0 },
-    color = COLORS.blue,
+    color = COLORS.subtext1,
     string = "??? KB/s",
   },
   y_offset = -4,
@@ -34,7 +36,7 @@ local download_speed = SBAR.add("item", "widgets.download_speed", {
 local function format_speed(speed_str)
   local speed = tonumber(speed_str)
   if speed < 1024 then
-    return string.format("%d KB/s", speed)
+    return string.format("%03d KB/s", speed)
   elseif speed < 1024 * 1024 then
     return string.format("%.1f MB/s", speed / 1024)
   else
@@ -43,8 +45,8 @@ local function format_speed(speed_str)
 end
 
 upload_speed:subscribe("system_stats", function(env)
-  local up_color = (env.NETWORK_TX_en0 == "0") and COLORS.grey or COLORS.red
-  local down_color = (env.NETWORK_RX_en0 == "0") and COLORS.grey or COLORS.blue
+  local up_color = (env.NETWORK_TX_en0 == "0") and COLORS.subtext1 or COLORS.yellow
+  local down_color = (env.NETWORK_RX_en0 == "0") and COLORS.subtext1 or COLORS.yellow
 
   local tx = format_speed(env.NETWORK_TX_en0)
   local rx = format_speed(env.NETWORK_RX_en0)

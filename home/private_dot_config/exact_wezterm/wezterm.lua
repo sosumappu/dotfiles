@@ -20,12 +20,15 @@ local function font_with_fallback(name, params)
   return wezterm.font_with_fallback(names, params)
 end
 
-local function set_macos_colorscheme()
-  local handle = io.popen("defaults read -g AppleInterfaceStyle 2>/dev/null")
-  local appleInterfaceStyle = handle:read("*l") -- or '*a' for all
-  handle:close()
+function get_appearance()
+  if wezterm.gui then
+    return wezterm.gui.get_appearance()
+  end
+  return "Dark"
+end
 
-  if appleInterfaceStyle and not appleInterfaceStyle:find("Dark") then
+local function set_colorscheme(appearance)
+  if not appearance:find("Dark") then
     return "aquarium_light"
   else
     return "plain"
@@ -35,7 +38,7 @@ end
 return {
   bidi_enabled = true,
   bidi_direction = "LeftToRight",
-  color_scheme = set_macos_colorscheme(),
+  color_scheme = set_colorscheme(get_appearance()),
   font = font_with_fallback({
     family = "CaskaydiaCove Nerd Font",
     harfbuzz_features = {

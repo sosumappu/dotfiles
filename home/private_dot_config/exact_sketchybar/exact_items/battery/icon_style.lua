@@ -1,14 +1,14 @@
 -- 🔋 icon version (with popup)
 local battery = SBAR.add("item", "battery", {
   position = "right",
-  icon = { font = { size = 19.0 } },
+  icon = { font = { size = 19.0 }, padding_right = 5 },
   label = { drawing = false },
   update_freq = 180,
 })
 
 battery:subscribe({ "routine", "power_source_change", "system_woke" }, function()
   SBAR.exec("pmset -g batt", function(batt_info)
-    local icon, color = "!", COLORS.green
+    local icon, color = "!", COLORS.subtext1
     local _, _, charge = batt_info:find("(%d+)%%")
     if charge then
       charge = tonumber(charge)
@@ -27,7 +27,7 @@ battery:subscribe({ "routine", "power_source_change", "system_woke" }, function(
           icon = ICONS.battery._50
         elseif charge > 20 then
           icon = ICONS.battery._25
-          color = COLORS.peach
+          color = COLORS.yellow
         else
           icon = ICONS.battery._0
           color = COLORS.red

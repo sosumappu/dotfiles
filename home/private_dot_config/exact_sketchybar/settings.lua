@@ -37,12 +37,12 @@ PRESET_OPTIONS = {
     CORNER_RADIUS = 0,
   },
   mine = {
-    BOREDER_WIDTH = 2,
-    HEIGHT = 45,
+    BOREDER_WIDTH = 3,
+    HEIGHT = 32,
     SHADOW = false,
-    MARGIN = 2,
-    Y_OFFSET = 0,
-    CORNER_RADIUS = 0,
+    MARGIN = 6,
+    Y_OFFSET = 4,
+    CORNER_RADIUS = 30,
   },
 }
 
@@ -66,13 +66,13 @@ MODULES = {
   battery = { enable = true, style = "icon" },
   wifi = { enable = true },
   volume = { enable = true },
-  chat = { enable = true },
+  chat = { enable = false },
   brew = { enable = true },
-  toggle_stats = { enable = true },
+  toggle_stats = { enable = false },
   netspeed = { enable = true },
   cpu = { enable = true },
   mem = { enable = true },
-  music = { enable = true },
+  music = { enable = false },
 }
 
 SPACES = {

@@ -44,7 +44,8 @@ lazygit = { manager = "mise", test = "lazygit --version" }
 claude-code = { manager = "mise", test = "claude --version" }
 opencode = { manager = "mise", test = "opencode --version" }
 repomix = { manager = "mise", name = "npm:repomix", test = "repomix --version" }
-mpv = { disabled="headless", manager = "system", test = "mpv --version" }
+mpv = { disabled = "headless", manager = "system", test = "mpv --version" }
+zk = { manager = "system", test = "zk --version" }
 
 [packages.universal.docker]
 docker = { test = "docker -v" }

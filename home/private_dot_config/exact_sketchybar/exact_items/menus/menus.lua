@@ -1,3 +1,5 @@
+preset_conf = PRESET_OPTIONS[PRESET]
+
 local menu_watcher = SBAR.add("item", {
   drawing = false,
   updates = false,
@@ -27,7 +29,7 @@ for i = 1, max_items, 1 do
 end
 
 SBAR.add("bracket", { "/menu\\..*/" }, {
-  background = { color = COLORS.base },
+  background = { color = COLORS.mantle },
 })
 
 local menu_padding = SBAR.add("item", "menu.padding", {
@@ -38,7 +40,7 @@ local menu_padding = SBAR.add("item", "menu.padding", {
 local function update_menus(env)
   SBAR.exec("$CONFIG_DIR/helpers/menus/bin/menus -l", function(menus)
     SBAR.set("/menu\\..*/", { drawing = false })
-    menu_padding:set({ drawing = true })
+    background = { color = COLORS.mantle, height = preset_conf.HEIGHT }, menu_padding:set({ drawing = true })
     local id = 1
     for menu in string.gmatch(menus, "[^\r\n]+") do
       if id < max_items then

@@ -1,13 +1,13 @@
 local cpu = SBAR.add("graph", "widgets.cpu", 42, {
-  position = "right",
-  graph = { color = COLORS.blue },
+  position = "left",
+  graph = { color = COLORS.subtext1 },
   background = {
     height = 22,
     color = { alpha = 0 },
     border_color = { alpha = 0 },
     drawing = true,
   },
-  icon = { string = ICONS.cpu, color = COLORS.yellow },
+  icon = { string = ICONS.cpu, color = COLORS.subtext1 },
   label = {
     string = "CPU ??%",
     font = { size = 9.0 },
