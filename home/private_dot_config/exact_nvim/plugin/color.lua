@@ -4,6 +4,7 @@ local function set_macos_colorscheme()
 	if vim.loop.os_uname().sysname ~= 'Darwin' then
 		vim.o.background = 'dark'
 		print 'Not macOS, switch to Dark mode as default.'
+    return
 	end
 	local appleInterfaceStyle =
 		vim.fn.system { 'defaults', 'read', '-g', 'AppleInterfaceStyle' }
