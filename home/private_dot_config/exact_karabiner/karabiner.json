@@ -1,149 +1,70 @@
 {
-    "global": {
-        "enable_notification_window": false,
-        "show_in_menu_bar": false
-    },
-    "profiles": [
-        {
-            "complex_modifications": {
-                "rules": [
-                    {
-                        "description": "One stroke tilde symbol",
-                        "manipulators": [
-                            {
-                                "conditions": [
-                                    {
-                                        "input_sources": [{ "input_source_id": "^com\\.apple\\.keylayout\\.USInternational-PC$" }],
-                                        "type": "input_source_if"
-                                    }
-                                ],
-                                "from": {
-                                    "key_code": "non_us_backslash",
-                                    "modifiers": { "mandatory": ["left_shift"] }
-                                },
-                                "to": [
-                                    {
-                                        "key_code": "non_us_backslash",
-                                        "modifiers": ["left_shift"]
-                                    },
-                                    { "key_code": "spacebar" }
-                                ],
-                                "type": "basic"
-                            },
-                            {
-                                "conditions": [
-                                    {
-                                        "input_sources": [{ "input_source_id": "^com\\.apple\\.keylayout\\.USInternational-PC$" }],
-                                        "type": "input_source_if"
-                                    }
-                                ],
-                                "from": {
-                                    "key_code": "non_us_backslash",
-                                    "modifiers": { "mandatory": ["right_shift"] }
-                                },
-                                "to": [
-                                    {
-                                        "key_code": "non_us_backslash",
-                                        "modifiers": ["right_shift"]
-                                    },
-                                    { "key_code": "spacebar" }
-                                ],
-                                "type": "basic"
-                            }
-                        ]
-                    },
-                    {
-                        "description": "One stroke caret symbol",
-                        "manipulators": [
-                            {
-                                "conditions": [
-                                    {
-                                        "input_sources": [{ "input_source_id": "^com\\.apple\\.keylayout\\.USInternational-PC$" }],
-                                        "type": "input_source_if"
-                                    }
-                                ],
-                                "from": {
-                                    "key_code": "6",
-                                    "modifiers": { "mandatory": ["left_shift"] }
-                                },
-                                "to": [
-                                    {
-                                        "key_code": "6",
-                                        "modifiers": ["left_shift"]
-                                    },
-                                    { "key_code": "spacebar" }
-                                ],
-                                "type": "basic"
-                            }
-                        ]
-                    },
-                    {
-                        "description": "Vim Desktop Movement",
-                        "manipulators": [
-                            {
-                                "conditions": [
-                                    {
-                                        "input_sources": [{ "input_source_id": "^com\\.apple\\.keylayout\\.USInternational-PC$" }],
-                                        "type": "input_source_if"
-                                    }
-                                ],
-                                "from": {
-                                    "key_code": "l",
-                                    "modifiers": { "mandatory": ["left_control"] }
-                                },
-                                "to": [
-                                    {
-                                        "key_code": "right_arrow",
-                                        "modifiers": ["left_control"]
-                                    }
-                                ],
-                                "type": "basic"
-                            },
-                            {
-                                "conditions": [
-                                    {
-                                        "input_sources": [{ "input_source_id": "^com\\.apple\\.keylayout\\.USInternational-PC$" }],
-                                        "type": "input_source_if"
-                                    }
-                                ],
-                                "from": {
-                                    "key_code": "h",
-                                    "modifiers": { "mandatory": ["left_control"] }
-                                },
-                                "to": [
-                                    {
-                                        "key_code": "left_arrow",
-                                        "modifiers": ["left_control"]
-                                    }
-                                ],
-                                "type": "basic"
-                            }
-                        ]
-                    },
-                    {
-                        "description": "Caps Lock → Hyper Key (⌃⌥⇧⌘) (Caps Lock if alone)",
-                        "manipulators": [
-                            {
-                                "from": { "key_code": "caps_lock" },
-                                "to": [
-                                    {
-                                        "key_code": "left_shift",
-                                        "modifiers": ["left_command", "left_control", "left_option"]
-                                    }
-                                ],
-                                "to_if_alone": [{ "key_code": "caps_lock" }],
-                                "type": "basic"
-                            }
-                        ]
-                    }
-                ]
-            },
-            "name": "main",
-            "selected": true,
-            "virtual_hid_keyboard": {
-                "indicate_sticky_modifier_keys_state": false,
-                "keyboard_type_v2": "ansi"
-            }
-        }
-    ]
+  "global": {
+    "enable_notification_window": false,
+    "show_in_menu_bar": false
+  },
+  "profiles": [
+    {
+      "complex_modifications": {
+        "rules": [
+          {
+            "description": "One stroke backtick ` symbol",
+            "manipulators": [
+              {
+                "from": {
+                  "key_code": "backslash"
+                },
+                "to": [
+                  {
+                    "key_code": "backslash"
+                  },
+                  { "key_code": "spacebar" }
+                ],
+                "type": "basic"
+              }
+            ]
+          },
+          {
+            "description": "One stroke caret ^ symbol",
+            "manipulators": [
+              {
+                "from": {
+                  "key_code": "open_bracket"
+                },
+                "to": [
+                  {
+                    "key_code": "open_bracket"
+                  },
+                  { "key_code": "spacebar" }
+                ],
+                "type": "basic"
+              }
+            ]
+          },
+          {
+            "description": "Caps Lock → Hyper Key (⌃⌥⇧⌘) (Caps Lock if alone)",
+            "manipulators": [
+              {
+                "from": { "key_code": "caps_lock" },
+                "to": [
+                  {
+                    "key_code": "left_shift",
+                    "modifiers": ["left_command", "left_control", "left_option"]
+                  }
+                ],
+                "to_if_alone": [{ "key_code": "caps_lock" }],
+                "type": "basic"
+              }
+            ]
+          }
+        ]
+      },
+      "name": "main",
+      "selected": true,
+      "virtual_hid_keyboard": {
+        "indicate_sticky_modifier_keys_state": false,
+        "keyboard_type_v2": "ansi"
+      }
+    }
+  ]
 }
