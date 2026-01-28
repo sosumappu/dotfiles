@@ -146,7 +146,7 @@ multiword-tags = false
 
 # bat is a great tool to render Markdown document with syntax highlighting.
 #https://github.com/sharkdp/bat
-fzf-preview = "bat -p --color always {-1}"
+fzf-preview = "batcat -pp --color always {-1}"
 # fzf-preview = "zk list --quiet --format full --limit 1 {-1}"
 # fzf-line = "{{style 'blue' rel-path}}{{#each tags}} #{{this}}{{/each}} {{style 'black' body}}"
 
@@ -251,8 +251,10 @@ p = 'zk new --no-input personal --title "$*"'
 y = 'zk new --no-input personal --template year.md --title "$*"'
 d = 'zk new --no-input personal --template decade.md --title "$*"'
 
+
 # Uni
-u = 'zk new --template default.md --title "$*"'
+u = 'zk new uni --template lec.md --title "$*"'
+lec = 'zk new uni --template lec.md --title "$1" --extra=course="$2"'
 
 # TIL
 til = 'zk new --no-input til --title "$*"'

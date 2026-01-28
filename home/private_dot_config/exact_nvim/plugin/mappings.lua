@@ -145,17 +145,12 @@ local mode_keymaps = {
   },
 
   ["jk"] = {
-    {
-      modes = { "t" },
-      action = [[&filetype == 'fzf' ? "\<esc>" : "\<c-\>\<c-n>"]],
-      opts = { expr = true, desc = "Exit terminal mode" },
+      {
+      modes = { "i" },
+      action = "<Esc>",
+      opts = { noremap = true, silent=true , desc = "Exit terminal mode" },
+      },
     },
-    {
-      modes = { "n" },
-      action = vim.g.LoupeLoaded == 1 and "<Plug>(LoupeClearHighlight)" or "<cmd>nohlsearch<CR>",
-      opts = { remap = true, desc = "Clear Search highlight" },
-    },
-  },
 
   ["<M-h>"] = { { modes = { "t" }, action = "<c-><c-n><c-w>h" } },
   ["<M-j>"] = { { modes = { "t" }, action = "<c-><c-n><c-w>j" } },

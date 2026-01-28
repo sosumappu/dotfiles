@@ -21,6 +21,10 @@ local insert_lua_chunk = function()
   insert_code_chunk 'lua'
 end
 
+local insert_lua_chunk = function()
+  insert_code_chunk 'java'
+end
+
 local insert_julia_chunk = function()
   insert_code_chunk 'julia'
 end
@@ -123,8 +127,9 @@ return {
       vim.keymap.set('v', '<localleader>jr', send_region, { desc = "send [r]egion" })
       vim.keymap.set('n', '<localleader>jip', insert_py_chunk, { desc = "insert [p]ython code chunk" })
       vim.keymap.set('n', '<localleader>jir', insert_r_chunk, { desc = "insert [r] code chunk" })
-      vim.keymap.set('n', '<localleader>jij', insert_julia_chunk, { desc = "insert [j]ulia code chunk" })
+      vim.keymap.set('n', '<localleader>jiu', insert_julia_chunk, { desc = "insert j[u]lia code chunk" })
       vim.keymap.set('n', '<localleader>jib', insert_bash_chunk, { desc = "insert [b]ash code chunk" })
+      vim.keymap.set('n', '<localleader>jij', insert_bash_chunk, { desc = "insert [j]ava code chunk" })
     end,
   },
   { -- paste an image from the clipboard or drag-and-drop
