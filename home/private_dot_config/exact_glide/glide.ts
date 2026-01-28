@@ -6,11 +6,14 @@ glide.keymaps.set("normal", "<leader>r", "config_reload");
 
 glide.prefs.set("toolkit.legacyUserProfileCustomizations.stylesheets", true);
 glide.prefs.set("devtools.debugger.prompt-connection", false);
-glide.prefs.set("media.videocontrols.picture-in-picture.audio-toggle.enabled", true);
+glide.prefs.set(
+  "media.videocontrols.picture-in-picture.audio-toggle.enabled",
+  true,
+);
 glide.prefs.set("browser.uidensity", 1); // compact mode
 glide.prefs.set("browser.tabs.insertAfterCurrent", true);
 
-glide.keymaps.set("insert", "jj", "mode_change normal");
+glide.keymaps.set("insert", "jk", "mode_change normal");
 glide.keymaps.set("normal", ";", "commandline_show");
 
 glide.keymaps.set("normal", "<D-S-c>", "url_yank");
@@ -29,21 +32,41 @@ glide.keymaps.set(["normal", "insert"], "<C-t>", async ({ tab_id }) => {
 }, { description: "open a new tab from to the current one" });
 
 // tabs
-glide.keymaps.set("normal", "gm", () => go_to_tab("https://messages.google.com/web/*"), {
-  description: "[g]o to [m]essages.google.com",
-});
-glide.keymaps.set("normal", "gw", () => go_to_tab("https://vault.bitwarden.com/*"), {
-  description: "[g]o to vault.bit[w]arden.com",
-});
+glide.keymaps.set(
+  "normal",
+  "gm",
+  () => go_to_tab("https://messages.google.com/web/*"),
+  {
+    description: "[g]o to [m]essages.google.com",
+  },
+);
+glide.keymaps.set(
+  "normal",
+  "gw",
+  () => go_to_tab("https://vault.bitwarden.com/*"),
+  {
+    description: "[g]o to vault.bit[w]arden.com",
+  },
+);
 glide.keymaps.set("normal", "gl", () => go_to_tab("https://linear.app/*"), {
   description: "[g]o to [l]inear.app",
 });
-glide.keymaps.set("normal", "gcc", () => go_to_tab("https://calendar.google.com/*"), {
-  description: "[g]o to [c]alendar.google.com",
-});
-glide.keymaps.set("normal", "gz", () => go_to_tab("https://glide.zulipchat.com/*"), {
-  description: "[g]o to glide.[z]ulipchat.com",
-});
+glide.keymaps.set(
+  "normal",
+  "gcc",
+  () => go_to_tab("https://calendar.google.com/*"),
+  {
+    description: "[g]o to [c]alendar.google.com",
+  },
+);
+glide.keymaps.set(
+  "normal",
+  "gz",
+  () => go_to_tab("https://glide.zulipchat.com/*"),
+  {
+    description: "[g]o to glide.[z]ulipchat.com",
+  },
+);
 
 async function go_to_tab(url: string) {
   const tab = await glide.tabs.get_first({ url, currentWindow: true });
@@ -90,24 +113,38 @@ glide.keymaps.set("normal", "<leader>gr", async () => {
 });
 
 // excmds
-const surprise = glide.excmds.create({ name: "surprise", description: "" }, () => {
-  browser.tabs.create({ active: true, url: "https://wiby.me/surprise/" });
-});
+const surprise = glide.excmds.create(
+  { name: "surprise", description: "" },
+  () => {
+    browser.tabs.create({ active: true, url: "https://wiby.me/surprise/" });
+  },
+);
 /* dprint-ignore */
-declare global { interface ExcmdRegistry { surprise: typeof surprise; } }
-
-const shrug = glide.excmds.create({ name: "shrug", description: "" }, async () => {
-  const curr_mode = glide.ctx.mode;
-  if (curr_mode !== "insert") {
-    await glide.excmds.execute(`mode_change insert`);
+declare global {
+  interface ExcmdRegistry {
+    surprise: typeof surprise;
   }
+}
 
-  await glide.keys.send("¯\\_(ツ)_/¯");
+const shrug = glide.excmds.create(
+  { name: "shrug", description: "" },
+  async () => {
+    const curr_mode = glide.ctx.mode;
+    if (curr_mode !== "insert") {
+      await glide.excmds.execute(`mode_change insert`);
+    }
 
-  await glide.excmds.execute(`mode_change ${curr_mode}`);
-});
+    await glide.keys.send("¯\\_(ツ)_/¯");
+
+    await glide.excmds.execute(`mode_change ${curr_mode}`);
+  },
+);
 /* dprint-ignore */
-declare global { interface ExcmdRegistry { shrug: typeof shrug; } }
+declare global {
+  interface ExcmdRegistry {
+    shrug: typeof shrug;
+  }
+}
 
 glide.keymaps.set("normal", "<leader>ts", "shrug");
 glide.keymaps.set("normal", "<leader>\\", "surprise");
@@ -115,12 +152,18 @@ glide.keymaps.set("normal", "<leader>\\", "surprise");
 type GitHubRepoIndex = Record<string, number>;
 
 glide.autocmds.create("ConfigLoaded", async () => {
-  const index_path = glide.path.join(glide.path.home_dir, ".cache", "glide-github-repos.json");
+  const index_path = glide.path.join(
+    glide.path.home_dir,
+    ".cache",
+    "glide-github-repos.json",
+  );
   if (!(await glide.fs.exists(index_path))) {
     await glide.fs.write(index_path, "{}");
   }
 
-  const index = await glide.fs.read(index_path, "utf8").then((contents) => JSON.parse(contents) as GitHubRepoIndex);
+  const index = await glide.fs.read(index_path, "utf8").then((contents) =>
+    JSON.parse(contents) as GitHubRepoIndex
+  );
   let write_id: number | null = null;
 
   function add_to_index(item: Browser.History.HistoryItem) {
@@ -145,7 +188,13 @@ glide.autocmds.create("ConfigLoaded", async () => {
     write_id = setTimeout(() => {
       glide.fs.write(
         index_path,
-        JSON.stringify(Object.fromEntries(Object.entries(index).sort(([_, a], [__, b]) => b - a)), null, 2),
+        JSON.stringify(
+          Object.fromEntries(
+            Object.entries(index).sort(([_, a], [__, b]) => b - a),
+          ),
+          null,
+          2,
+        ),
       );
     }, 5000);
   }
@@ -168,11 +217,16 @@ glide.autocmds.create("ConfigLoaded", async () => {
   glide.keymaps.set("normal", "<leader>sg", () =>
     glide.commandline.show({
       title: "github repos",
-      options: Object.entries(index).sort(([_, a], [__, b]) => b - a).map(([repo]): glide.CommandLineCustomOption => ({
+      options: Object.entries(index).sort(([_, a], [__, b]) => b - a).map((
+        [repo],
+      ): glide.CommandLineCustomOption => ({
         label: repo,
         async execute() {
           const url = `https://github.com/${repo}`;
-          const tab = await glide.tabs.get_first({ url: `${url}*`, currentWindow: true });
+          const tab = await glide.tabs.get_first({
+            url: `${url}*`,
+            currentWindow: true,
+          });
           if (tab) {
             await browser.tabs.update(tab.id, { active: true });
           } else {
@@ -185,7 +239,9 @@ glide.autocmds.create("ConfigLoaded", async () => {
 
 // ---------------- stainless ----------------
 
-glide.unstable.include("~/.config/glide/plugins/stainless.glide/stainless.glide.ts");
+glide.unstable.include(
+  "~/.config/glide/plugins/stainless.glide/stainless.glide.ts",
+);
 glide.keymaps.set("normal", "<leader>ss", "stl_pick_studio");
 glide.keymaps.set("normal", "<leader>gs", "stl_go_to_studio");
 
