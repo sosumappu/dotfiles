@@ -1,4 +1,14 @@
 return {
+  {
+    "iurimateus/luasnip-latex-snippets.nvim",
+   config = function()
+		require("luasnip-latex-snippets").setup({
+			use_treesitter = false,
+			allow_on_markdown = true,
+    })
+    end
+  },
+  {
 	'https://github.com/L3MON4D3/LuaSnip',
 	lazy = true,
 	-- Build Step is needed for regex support in snippets
@@ -8,6 +18,7 @@ return {
 	},
 	config = function()
 		local ls = require 'luasnip'
+    local tex = require '_.tex.condition'
 
 		-- Setup toggle choice
 		vim.keymap.set({ 'i', 's' }, '<C-l>', function()
@@ -439,18 +450,19 @@ $0
 						'| Content Cell  | Content Cell  |',
 					},
 				}),
+        -- https://github.com/evesdropper/luasnip-latex-snippets.nvim/issues/1
+        s({ trig = "testmath", dscr = 'Testing if math condition is working'}, { t 'testmath ' }, { condition = tex.math_mode}),
 				ls.parser.parse_snippet(
 					{ trig = 'footer', dscr = 'Project footer' },
 					[[
-**${1:projectname}** © ${$CURRENT_YEAR}+, Ahmed El Gabri Released under the [MIT] License.<br>
-Authored and maintained by Ahmed El Gabri with help from contributors ([list][contributors]).
+**${1:projectname}** © ${$CURRENT_YEAR}+, Adel Arab Released under the [MIT] License.<br>
+Authored and maintained by Adel Arab with help from contributors ([list][contributors]).
 
-> [https://gabri.me](https://gabri.me) &nbsp;&middot;&nbsp;
-> GitHub [@ahmedelgabri](https://github.com/ahmedelgabri) &nbsp;&middot;&nbsp;
-> Twitter [@ahmedelgabri](https://twitter.com/ahmedelgabri)
+> [https://adelarab.me](https://adelarab.me) &nbsp;&middot;&nbsp;
+> GitHub [@sosumappu](https://github.com/sosumappu) &nbsp;&middot;&nbsp;
 
 [MIT]: http://mit-license.org/
-[contributors]: http://github.com/ahmedelgabri/$1/contributors
+[contributors]: http://github.com/sosumappu/$1/contributors
     ]]
 				),
 				ls.parser.parse_snippet(
@@ -520,4 +532,5 @@ SOFTWARE.
 			},
 		})
 	end,
+}
 }

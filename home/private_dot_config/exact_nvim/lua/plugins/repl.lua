@@ -163,10 +163,10 @@ return {
     end,
   },
 
-  { -- preview equations
-    'https://github.com/jbyuki/nabla.nvim',
-    keys = {
-      { '<localleader>je', ':lua require"nabla".toggle_virt()<cr>', desc = 'toggle math [e]quations' },
-    },
-  },
+  -- { -- preview equations
+  --   'https://github.com/jbyuki/nabla.nvim',
+  --   keys = {
+  --     { '<localleader>je', ':lua require"nabla".toggle_virt()<cr>', desc = 'toggle math [e]quations' },
+  --   },
+  -- },
 }
