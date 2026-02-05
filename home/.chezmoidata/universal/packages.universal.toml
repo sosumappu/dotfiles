@@ -41,26 +41,47 @@ wget = { test = "wget --version" }
 zsh = { test = "zsh --version" }
 jj = { manager = "mise", test = "jj --version" }
 lazygit = { manager = "mise", test = "lazygit --version" }
-claude-code = { manager = "mise", test = "claude --version" }
-opencode = { manager = "mise", test = "opencode --version" }
-repomix = { manager = "mise", name = "npm:repomix", test = "repomix --version" }
 mpv = { disabled = "headless", manager = "system", test = "mpv --version" }
 zk = { manager = "mise", name = "github:zk-org/zk", test = "zk --version" }
+
+# LSPs
+typos = { manager = "mise", name = "cargo:crate-ci/typos" }
+typos-lsp = { manager = "mise", name = "cargo:tekumara/typos-lsp" }
+bash-language-server = { manager = "mise", name = "npm:bash-language-server" }
+tree-sitter = { manager = "mise", name = "github:tree-sitter/tree-sitter" }
+mutt-ls = { manager = "mise", name = "pipx:mutt-language-server" }
+taplo = { manager = "mise", test = "taplo --version" }
+yamlls = { manager = "mise", name = "npm:yaml-language-server" }
+hado = { manager = "mise", name = "github:hadolint/hadolint" }
+
+# Formatters
+prettier = { manager = "mise", test = "prettier --version" }
+stylua = { manager = "mise", test = "stylua --version" }
+shfmt = { manager = "mise", name = "github:mvdan/sh", test = "shfmt --version" }
+clang-format = { manager = "mise", name = "pipx:clang-format", test = "clang-format --version" }
+
 
 [packages.universal.docker]
 docker = { test = "docker -v" }
 docker-compose = { test = "docker compose version" }
 docker-buildx = { test = "docker buildx version" }
 dive = { manager = "mise", name = "ubi:wagoodman/dive", test = "dive --version" }
+dockerfile-ls = { manager = "mise", name = "npm:dockerfile-language-server-nodejs", version = "latest" }
+docker-compose-ls = { manager = "mise", name = "npm:@microsoft/compose-language-service", version = "latest" }
 
 [packages.universal.extra]
 gocryptfs = { disabled = "headless,restricted", test = "gocryptfs -version" }
 qrencode = { test = "qrencode --version" }
 unison = { test = "unison -version" }
 zbar = { test = "zbarimg --version" }
+claude-code = { manager = "mise", test = "claude --version" }
+opencode = { manager = "mise", test = "opencode --version" }
+repomix = { manager = "mise", name = "npm:repomix", test = "repomix --version" }
 
 [packages.universal.golang]
 go = { manager = "mise", test = "go version" }
+goimports = { manager = "mise", test = "goimports version", name = "go:golang.org/x/tools/cmd/goimports" }
+gopls = { manager = "mise", name = "go:golang.org/x/tools/gopls", test = "gopls version" }
 
 [packages.universal.iac]
 terraform = { manager = "mise", test = "terraform version" }
@@ -73,6 +94,9 @@ shellcheck = { manager = "mise", test = "shellcheck --version" }
 ant = { manager = "mise", test = "ant -version" }
 maven = { manager = "mise", test = "mvn -v" }
 java = { manager = "mise", test = "java -version", version = "temurin-21.0.8+9.0.LTS" }
+"http:jdtls" = { manager = "mise", version = "1.56.0", test = "jdtls --version", url = "https://download.eclipse.org/jdtls/milestones/{{ version }}/jdt-language-server-{{ version }}-202601291528.tar.gz" }
+"http:lombok" = { manager = "mise", url = "https://projectlombok.org/downloads/lombok.jar" }
+
 
 [packages.universal.kubernetes]
 datree = { manager = "mise", test = "datree version" }
@@ -120,6 +144,26 @@ node = { manager = "mise", test = "node --version && npm --version && yarn --ver
 [packages.universal.python]
 python = { manager = "mise", test = "python3 --version && pip --version && pre-commit --version" }
 uv = { manager = "mise", name = "uv", test = "uv --version" }
+ruff = { manager = "mise", test = "ruff --version" }
+basedpyright = { manager = "mise", name = "pipx:DetachHead/basedpyright" }
 
 [packages.universal.rust]
 rust = { manager = "mise", test = "rustc --version" }
+rust-analyzer = { manager = "mise", name = "github:rust-lang/rust-analyzer", test = "rust-analyzer --version" }
+
+[packages.universal.cpp]
+clangd = { manager = "mise", name = "github:clangd/clangd@21.1.8" }
+
+[packages.universal.web]
+tailwindcss = { manager = "mise", name = "npm:tailwindcss-language-server" }
+deno = { manager = "mise", version = "latest", test = "deno --version" }
+vtsls = { manager = "mise", version = "latest", name = "npm:vtsls", test = "vstls --version" }
+tsgo = { manager = "mise", version = "latest", name = "npm:tsgo", test = "tsgo --version" }
+oxlint = { manager = "mise", version = "latest", name = "npm:oxlint", test = "oxlint --version" }
+oxfmt = { manager = "mise", version = "latest", name = "npm:oxfmt", test = "oxfmt --version" }
+stylelint_lsp = { manager = "mise", version = "latest", name = "npm:stylelint-lsp", test = "oxfmt --version" }
+vscode-langservers-extracted = { manager = "mise", version = "latest", name = "npm:vscode-langservers-extracted" }
+biome = { manager = "mise", version = "latest" }
+
+[packages.universal.lua]
+emmylua-ls = { manager = "mise", name = "github:CppCXY/emmylua-analyzer-rust" }

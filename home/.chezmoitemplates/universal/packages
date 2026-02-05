@@ -55,6 +55,7 @@
         {{- $pkgMgr := printf "%s" (index $override "manager" | default (index $pkg "manager" | default "system")) -}}
         {{- $pkgTest := printf "%s" (index $override "test" | default (index $pkg "test" | default "")) -}}
         {{- $pkgVersion := printf "%s" (index $override "version" | default (index $pkg "version" | default "")) -}}
+        {{- $pkgUrl := printf "%s" (index $override "url" | default (index $pkg "url" | default "" )) -}}
         {{- $pkgExcludeArch := index $override "exclude_arch" | default list -}}
 
         {{- $archExcluded := false -}}
@@ -70,6 +71,7 @@
                 "name" $pkgName
                 "version" $pkgVersion
                 "test" $pkgTest
+                "url" $pkgUrl
             ) -}}
         {{- end }}
     {{- end }}
@@ -96,7 +98,13 @@
     {{- $pkg := index $packages $id }}
     {{- $name := index $pkg "name" }}
     {{- $version := index $pkg "version" | default "latest" }}
-'{{ $name }}' = '{{ $version }}'
+    {{- $url := index $pkg "url" }}
+    {{- if $url }}
+      "{{ $name }}".version = "{{ $version }}"
+      "{{ $name }}".url = "{{ $url }}"
+    {{- else }}
+      '{{ $name }}' = '{{ $version }}'
+    {{- end }}
 {{- end }}
 {{- end -}}
 
