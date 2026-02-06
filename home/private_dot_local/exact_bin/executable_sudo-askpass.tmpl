@@ -29,9 +29,6 @@ EOF
       [ -z "$pw" ] && exit 1
       echo "$pw"
     else
-      if command -v wofi >/dev/null 2>&1; then
-        exec wofi --dmenu --password --prompt "sudo password:"
-      fi
       for cand in /usr/bin/ssh-askpass /usr/bin/ksshaskpass /usr/bin/x11-ssh-askpass; do
         if [ -x "$cand" ]; then
           exec "$cand" "Enter your sudo password:"
