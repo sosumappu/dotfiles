@@ -110,7 +110,7 @@ bindsym Print exec grim -g "$(slurp)" - \
 exec_always wl-paste --type text  --watch cliphist store
 exec_always wl-paste --type image --watch cliphist store
 
-bindsym $mod+v exec cliphist list \
+bindsym $mod+n exec cliphist list \
     | $menu --dmenu --config ~/.config/fuzzel/clip.ini \
     | cliphist decode \
     | wl-copy
