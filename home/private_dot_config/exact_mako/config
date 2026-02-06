@@ -1,0 +1,16 @@
+
+background-color=#111111ff
+text-color=#c5c8c6ff
+border-color=#81a2beff
+progress-color=over #6699ccff
+
+border-size=2
+border-radius=2
+default-timeout=5000
+font=CaskaydiaCove Nerd Font 12
+padding=10
+margin=10
+width=300
+
+[urgency=high]
+border-color=#f2777aff

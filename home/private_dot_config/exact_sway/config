@@ -1,0 +1,132 @@
+set $mod Mod4
+set $term wezterm
+set $menu fuzzel
+
+# Core
+exec_always xsettingsd
+exec mako
+
+
+# Waybar
+exec_always sh -c "pgreg -x waybar || waybar"
+
+# Gaps & borders
+smart_gaps off
+gaps inner 0
+gaps outer 8
+default_border pixel 2
+default_floating_border pixel 2
+
+# Input
+input type:keyboard {
+    xkb_layout "fr,fr"
+}
+
+# Keybindings
+bindsym $mod+Return exec $term
+bindsym $mod+q kill
+bindsym $mod+d exec $menu --config $XDG_CONFIG_DIR/fuzzel/apps.ini
+bindsym $mod+b exec glide
+bindsym $mod+o exec sh -c "pkill waybar; waybar &"
+bindsym $mod+p exec pkill waybar
+
+floating_modifier $mod normal
+bindsym $mod+Shift+c reload
+bindsym $mod+Shift+e exec swaynag -t warning \
+    -m 'Exit sway?' \
+    -B 'Yes' 'swaymsg exit'
+
+# Focus movement
+bindsym $mod+h        focus left
+bindsym $mod+j        focus down
+bindsym $mod+k        focus up
+bindsym $mod+l        focus right
+
+bindsym $mod+h        focus left
+bindsym $mod+k        focus down
+bindsym $mod+k        focus up
+bindsym $mod+l        focus right
+
+bindsym $mod+Shift+h  move left
+bindsym $mod+Shift+j  move down
+bindsym $mod+Shift+k  move up
+bindsym $mod+Shift+l  move right
+
+bindsym $mod+Shift+h  move left
+bindsym $mod+Shift+k  move down
+bindsym $mod+Shift+k  move up
+bindsym $mod+Shift+l  move right
+
+bindsym $mod+0x12 workspace number 1
+bindsym $mod+0x13 workspace number 2
+bindsym $mod+0x14 workspace number 3
+bindsym $mod+0x15 workspace number 4
+bindsym $mod+0x16 workspace number 5
+bindsym $mod+0x17 workspace number 6
+bindsym $mod+0x18 workspace number 7
+bindsym $mod+0x19 workspace number 8
+bindsym $mod+0x20 workspace number 9
+
+bindsym $mod+Shift+0x12 move container to workspace number 1
+bindsym $mod+Shift+0x13 move container to workspace number 2
+bindsym $mod+Shift+0x14 move container to workspace number 3
+bindsym $mod+Shift+0x15 move container to workspace number 4
+bindsym $mod+Shift+0x16 move container to workspace number 5
+bindsym $mod+Shift+0x17 move container to workspace number 6
+bindsym $mod+Shift+0x18 move container to workspace number 7
+bindsym $mod+Shift+0x19 move container to workspace number 8
+bindsym $mod+Shift+0x20 move container to workspace number 9
+
+bindsym $mod+v splitv
+bindsym $mod+s layout stacking
+bindsym $mod+w layout tabbed
+bindsym $mod+Shift+s layout toggle split
+bindsym $mod+f fullscreen
+bindsym $mod+space floating toggle
+bindsym $mod+a focus parent
+
+bindsym $mod+Shift+minus move scratchpad
+bindsym $mod+minus scratchpad show
+
+bindsym Ctrl+$mod+h resize shrink width 10px
+bindsym Ctrl+$mod+j resize grow   height 10px
+bindsym Ctrl+$mod+k resize shrink height 10px
+bindsym Ctrl+$mod+l resize grow   width 10px
+
+# Media / brightness / screenshots
+bindsym --locked XF86AudioMute         exec pactl set-sink-mute @DEFAULT_SINK@ toggle
+bindsym --locked XF86AudioLowerVolume  exec pactl set-sink-volume @DEFAULT_SINK@ -5%
+bindsym --locked XF86AudioRaiseVolume  exec pactl set-sink-volume @DEFAULT_SINK@ +5%
+bindsym --locked XF86AudioMicMute      exec pactl set-source-mute @DEFAULT_SOURCE@ toggle
+
+bindsym --locked XF86MonBrightnessDown exec brightnessctl set 5%-
+bindsym --locked XF86MonBrightnessUp   exec brightnessctl set 5%+
+
+bindsym Print exec grim -g "$(slurp)" - \
+    | tee ~/Pictures/Screenshots/$(date +'%Y-%m-%d-%H%M%S_grim.png') \
+    | wl-copy
+
+# Clipboard history
+exec_always wl-paste --type text  --watch cliphist store
+exec_always wl-paste --type image --watch cliphist store
+
+bindsym $mod+v exec cliphist list \
+    | $menu --dmenu --config ~/.config/fuzzel/clip.ini \
+    | cliphist decode \
+    | wl-copy
+
+# Colors
+set $bg        #111111
+set $fg        #c5c8c6
+set $inactive  #39393c
+set $focused   #6699cc
+set $urgent    #f2777a
+
+# sway borders
+# class                 border    backgr    text    indicator child_border
+client.focused          $focused  $focused  $bg     $focused  $fg
+client.focused_inactive $inactive $bg       $fg     $inactive $inactive
+client.unfocused        $bg       $bg       $fg     $bg       $bg
+client.urgent           $urgent   $urgent   $fg     $urgent   $urgent
+
+font pango: CaskaydiaCove Nerd Font

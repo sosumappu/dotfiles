@@ -6,7 +6,7 @@
 {{- $work := false -}}
 {{- $gpg := dict "sign" "" "encrypt" "" -}}
 {{- $secrets := dict "age" stdinIsATTY "bitwarden" false -}}
-{{- $toolchains := list "cloud" "docker" "golang" "iac" "java" "kubernetes" "node" "python" "rust" "extra" "dotnet" "cpp" -}}
+{{- $toolchains := list "cloud" "docker" "golang" "iac" "java" "kubernetes" "node" "python" "rust" "extra" "dotnet" "cpp" "web" "lua" -}}
 
 {{- $data := . -}}
 {{- range $k := list "personal" "gpg" "host" "toolchains" -}}
@@ -144,6 +144,8 @@
       "docker"      "🐳"
       "golang"      "🐹"
       "cpp"         "+"
+      "web"         "🕸️"
+      "lua"         "🐟"
       "iac"         "🏗️"
       "java"        "☕"
       "dotnet"      "🛜"

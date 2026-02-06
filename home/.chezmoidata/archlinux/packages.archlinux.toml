@@ -1,3 +1,10 @@
 [packages.archlinux.common]
-gh = {name = "github-cli"}
-rage = {name = "rage-encryption"}
+gh = { name = "github-cli" }
+rage = { name = "rage-encryption" }
+fuzzel = { test = "fuzzel --version" }
+sway = { test = "sway --version" }
+swaylock = { test = "sway --version" }
+rofi = { test = "rofi --version" }
+waybar = { test = "waybar --version" }
+pipewire = { test = "pipewire --version" }
+caskaydiaCove = { name = "ttf-cascadia-code-nerd" }

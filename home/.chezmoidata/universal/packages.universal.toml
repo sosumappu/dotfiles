@@ -164,6 +164,7 @@ oxfmt = { manager = "mise", version = "latest", name = "npm:oxfmt", test = "oxfm
 stylelint_lsp = { manager = "mise", version = "latest", name = "npm:stylelint-lsp", test = "oxfmt --version" }
 vscode-langservers-extracted = { manager = "mise", version = "latest", name = "npm:vscode-langservers-extracted" }
 biome = { manager = "mise", version = "latest" }
+bun = { manager = "mise", version = "latest", test = "bun --version" }
 
 [packages.universal.lua]
 emmylua-ls = { manager = "mise", name = "github:CppCXY/emmylua-analyzer-rust" }
