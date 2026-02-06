@@ -38,12 +38,12 @@ bindsym $mod+Shift+e exec swaynag -t warning \
 
 # Focus movement
 bindsym $mod+h        focus left
-bindsym $mod+k        focus down
+bindsym $mod+j        focus down
 bindsym $mod+k        focus up
 bindsym $mod+l        focus right
 
 bindsym $mod+Shift+h  move left
-bindsym $mod+Shift+k  move down
+bindsym $mod+Shift+j  move down
 bindsym $mod+Shift+k  move up
 bindsym $mod+Shift+l  move right
 
@@ -55,7 +55,6 @@ bindsym $mod+0x16 workspace number 5
 bindsym $mod+0x17 workspace number 6
 bindsym $mod+0x18 workspace number 7
 bindsym $mod+0x19 workspace number 8
-bindsym $mod+0x20 workspace number 9
 
 bindsym $mod+Shift+0x12 move container to workspace number 1
 bindsym $mod+Shift+0x13 move container to workspace number 2
@@ -65,7 +64,6 @@ bindsym $mod+Shift+0x16 move container to workspace number 5
 bindsym $mod+Shift+0x17 move container to workspace number 6
 bindsym $mod+Shift+0x18 move container to workspace number 7
 bindsym $mod+Shift+0x19 move container to workspace number 8
-bindsym $mod+Shift+0x20 move container to workspace number 9
 
 bindsym $mod+v splitv
 bindsym $mod+s layout stacking
