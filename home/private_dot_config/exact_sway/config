@@ -119,4 +119,4 @@ client.focused_inactive $inactive $bg       $fg     $inactive $inactive
 client.unfocused        $bg       $bg       $fg     $bg       $bg
 client.urgent           $urgent   $urgent   $fg     $urgent   $urgent
 
-font pango: CaskaydiaCove Nerd Font
+font pango: CaskaydiaCove Nerd Font 14
