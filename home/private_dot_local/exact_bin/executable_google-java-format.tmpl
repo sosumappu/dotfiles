@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+if command -v mise &>/dev/null; then
+  java -jar $(mise where github:google/google-java-format)/google-java-format-*-all-deps.jar "$@"
+else
+  echo "mise needs to be installed" >&2
+  exit 1
+fi

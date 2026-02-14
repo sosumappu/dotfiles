@@ -56,6 +56,7 @@
         {{- $pkgTest := printf "%s" (index $override "test" | default (index $pkg "test" | default "")) -}}
         {{- $pkgVersion := printf "%s" (index $override "version" | default (index $pkg "version" | default "")) -}}
         {{- $pkgUrl := printf "%s" (index $override "url" | default (index $pkg "url" | default "" )) -}}
+        {{- $pkgAssetPattern := printf "%s" (index $override "asset_pattern" | default (index $pkg "asset_pattern" | default "" )) -}}
         {{- $pkgExcludeArch := index $override "exclude_arch" | default list -}}
 
         {{- $archExcluded := false -}}
@@ -72,6 +73,7 @@
                 "version" $pkgVersion
                 "test" $pkgTest
                 "url" $pkgUrl
+                "asset_pattern" $pkgAssetPattern
             ) -}}
         {{- end }}
     {{- end }}
@@ -99,9 +101,12 @@
     {{- $name := index $pkg "name" }}
     {{- $version := index $pkg "version" | default "latest" }}
     {{- $url := index $pkg "url" }}
+    {{- $asset_pattern := index $pkg "asset_pattern" }}
     {{- if $url }}
-      "{{ $name }}".version = "{{ $version }}"
-      "{{ $name }}".url = "{{ $url }}"
+      '{{ $name }}'.version = '{{ $version }}'
+      '{{ $name }}'.url = '{{ $url }}'
+    {{- else if $asset_pattern }}
+      '{{ $name }}' = { version = '{{ $version }}', asset_pattern = '{{ $asset_pattern }}'}
     {{- else }}
       '{{ $name }}' = '{{ $version }}'
     {{- end }}

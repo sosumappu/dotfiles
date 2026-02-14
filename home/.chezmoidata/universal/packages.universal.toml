@@ -33,6 +33,7 @@ procs = { test = "procs --version" }
 rage = { test = "rage --version" }
 rclone = { test = "rclone --version" }
 ripgrep = { test = "rg --version" }
+tree-sitter = { manager = "mise", name = "github:tree-sitter/tree-sitter" }
 sd = { test = "sd --version" }
 tmux = { test = "tmux -V" }
 tokei = { test = "tokei --version" }
@@ -41,25 +42,6 @@ wget = { test = "wget --version" }
 zsh = { test = "zsh --version" }
 jj = { manager = "mise", test = "jj --version" }
 lazygit = { manager = "mise", test = "lazygit --version" }
-mpv = { disabled = "headless", manager = "system", test = "mpv --version" }
-zk = { manager = "mise", name = "github:zk-org/zk", test = "zk --version" }
-
-# LSPs
-typos = { manager = "mise", name = "cargo:crate-ci/typos" }
-typos-lsp = { manager = "mise", name = "cargo:tekumara/typos-lsp" }
-bash-language-server = { manager = "mise", name = "npm:bash-language-server" }
-tree-sitter = { manager = "mise", name = "github:tree-sitter/tree-sitter" }
-mutt-ls = { manager = "mise", name = "pipx:mutt-language-server" }
-taplo = { manager = "mise", test = "taplo --version" }
-yamlls = { manager = "mise", name = "npm:yaml-language-server" }
-hado = { manager = "mise", name = "github:hadolint/hadolint" }
-
-# Formatters
-prettier = { manager = "mise", test = "prettier --version" }
-stylua = { manager = "mise", test = "stylua --version" }
-shfmt = { manager = "mise", name = "github:mvdan/sh", test = "shfmt --version" }
-clang-format = { manager = "mise", name = "pipx:clang-format", test = "clang-format --version" }
-
 
 [packages.universal.docker]
 docker = { test = "docker -v" }
@@ -73,10 +55,20 @@ docker-compose-ls = { manager = "mise", name = "npm:@microsoft/compose-language-
 gocryptfs = { disabled = "headless,restricted", test = "gocryptfs -version" }
 qrencode = { test = "qrencode --version" }
 unison = { test = "unison -version" }
+mpv = { disabled = "headless", manager = "system", test = "mpv --version" }
+zk = { manager = "mise", name = "github:zk-org/zk", test = "zk --version" }
 zbar = { test = "zbarimg --version" }
 claude-code = { manager = "mise", test = "claude --version" }
 opencode = { manager = "mise", test = "opencode --version" }
 repomix = { manager = "mise", name = "npm:repomix", test = "repomix --version" }
+typos = { manager = "mise", name = "cargo:crate-ci/typos" }
+typos-lsp = { manager = "mise", name = "cargo:tekumara/typos-lsp" }
+bash-language-server = { manager = "mise", name = "npm:bash-language-server" }
+mutt-ls = { manager = "mise", name = "pipx:mutt-language-server" }
+taplo = { manager = "mise", test = "taplo --version" }
+yamlls = { manager = "mise", name = "npm:yaml-language-server" }
+hado = { manager = "mise", name = "github:hadolint/hadolint" }
+
 
 [packages.universal.golang]
 go = { manager = "mise", test = "go version" }
@@ -96,6 +88,7 @@ maven = { manager = "mise", test = "mvn -v" }
 java = { manager = "mise", test = "java -version", version = "temurin-21.0.8+9.0.LTS" }
 "http:jdtls" = { manager = "mise", version = "1.56.0", test = "jdtls --version", url = "https://download.eclipse.org/jdtls/milestones/{{ version }}/jdt-language-server-{{ version }}-202601291528.tar.gz" }
 "http:lombok" = { manager = "mise", url = "https://projectlombok.org/downloads/lombok.jar" }
+google-java-format = { manager = "mise", name = "github:google/google-java-format", asset_pattern = "google-java-format-*-all-deps.jar" }
 
 
 [packages.universal.kubernetes]
@@ -145,7 +138,7 @@ node = { manager = "mise", test = "node --version && npm --version && yarn --ver
 python = { manager = "mise", test = "python3 --version && pip --version && pre-commit --version" }
 uv = { manager = "mise", name = "uv", test = "uv --version" }
 ruff = { manager = "mise", test = "ruff --version" }
-basedpyright = { manager = "mise", name = "pipx:DetachHead/basedpyright" }
+basedpyright = { manager = "mise", name = "pipx:basedpyright" }
 
 [packages.universal.rust]
 rust = { manager = "mise", test = "rustc --version" }
@@ -153,6 +146,7 @@ rust-analyzer = { manager = "mise", name = "github:rust-lang/rust-analyzer", tes
 
 [packages.universal.cpp]
 clangd = { manager = "mise", name = "github:clangd/clangd@21.1.8" }
+clang-format = { manager = "mise", name = "pipx:clang-format", test = "clang-format --version" }
 
 [packages.universal.web]
 tailwindcss = { manager = "mise", name = "npm:tailwindcss-language-server" }
@@ -165,6 +159,8 @@ stylelint_lsp = { manager = "mise", version = "latest", name = "npm:stylelint-ls
 vscode-langservers-extracted = { manager = "mise", version = "latest", name = "npm:vscode-langservers-extracted" }
 biome = { manager = "mise", version = "latest" }
 bun = { manager = "mise", version = "latest", test = "bun --version" }
+prettier = { manager = "mise", test = "prettier --version" }
 
 [packages.universal.lua]
 emmylua-ls = { manager = "mise", name = "github:CppCXY/emmylua-analyzer-rust" }
+stylua = { manager = "mise", test = "stylua --version" }

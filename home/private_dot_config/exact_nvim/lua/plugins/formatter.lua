@@ -132,7 +132,8 @@ return {
 				bash = { 'shfmt' },
 				toml = { 'taplo' },
         c = { 'clang-format' },
-        cpp = { 'clang-format' }
+        cpp = { 'clang-format' },
+        java = { 'google-java-format' }
 			}, js_formats),
 			format_on_save = function(bufnr)
 				-- Disable with a global or buffer-local variable
