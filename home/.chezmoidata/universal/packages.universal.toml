@@ -28,7 +28,7 @@ hyperfine = { test = "hyperfine --version" }
 jq = { test = "jq --version" }
 mise = { test = "mise --version" }
 mkcert = { test = "mkcert -version" }
-neovim = { manager = "mise", test = "nvim --version", version = "0.11.4" }
+neovim = { manager = "mise", test = "nvim --version", version = "0.11.5" }
 procs = { test = "procs --version" }
 rage = { test = "rage --version" }
 rclone = { test = "rclone --version" }
@@ -47,7 +47,7 @@ lazygit = { manager = "mise", test = "lazygit --version" }
 docker = { test = "docker -v" }
 docker-compose = { test = "docker compose version" }
 docker-buildx = { test = "docker buildx version" }
-dive = { manager = "mise", name = "ubi:wagoodman/dive", test = "dive --version" }
+dive = { manager = "mise", name = "github:wagoodman/dive", test = "dive --version" }
 dockerfile-ls = { manager = "mise", name = "npm:dockerfile-language-server-nodejs", version = "latest" }
 docker-compose-ls = { manager = "mise", name = "npm:@microsoft/compose-language-service", version = "latest" }
 
@@ -100,7 +100,7 @@ kubectl = { manager = "mise", test = "kubectl version --client" }
 kubectx = { manager = "mise", test = "kubectx --help" }
 kubens = { manager = "mise", test = "kubens --help" }
 kubecolor = { manager = "mise", test = "kubecolor help" }
-kubesess = { manager = "mise", name = "ubi:Ramilito/kubesess", test = "kubesess --help" }
+kubesess = { manager = "mise", name = "github:Ramilito/kubesess", test = "kubesess --help" }
 kustomize = { manager = "mise", test = "kustomize version" }
 oc = { manager = "mise", test = "oc version --client" }
 popeye = { manager = "mise", test = "popeye version" }
@@ -145,14 +145,14 @@ rust = { manager = "mise", test = "rustc --version" }
 rust-analyzer = { manager = "mise", name = "github:rust-lang/rust-analyzer", test = "rust-analyzer --version" }
 
 [packages.universal.cpp]
-clangd = { manager = "mise", name = "github:clangd/clangd@21.1.8" }
+clangd = { manager = "mise", name = "github:clangd/clangd" }
 clang-format = { manager = "mise", name = "pipx:clang-format", test = "clang-format --version" }
 
 [packages.universal.web]
 tailwindcss = { manager = "mise", name = "npm:tailwindcss-language-server" }
 deno = { manager = "mise", version = "latest", test = "deno --version" }
-vtsls = { manager = "mise", version = "latest", name = "npm:vtsls", test = "vstls --version" }
-tsgo = { manager = "mise", version = "latest", name = "npm:tsgo", test = "tsgo --version" }
+vtsls = { manager = "mise", version = "latest", name = "npm:@vtsls/language-server", test = "vstls --version" }
+tsgo = { manager = "mise", version = "latest", name = "npm:@typescript/native-preview", test = "tsgo --version" }
 oxlint = { manager = "mise", version = "latest", name = "npm:oxlint", test = "oxlint --version" }
 oxfmt = { manager = "mise", version = "latest", name = "npm:oxfmt", test = "oxfmt --version" }
 stylelint_lsp = { manager = "mise", version = "latest", name = "npm:stylelint-lsp", test = "oxfmt --version" }
