@@ -6,11 +6,11 @@ export XDG_DATA_HOME="$HOME/.local/share"
 export XDG_STATE_HOME="$HOME/.local/state"
 export XDG_RUNTIME_DIR=
 {{- if eq .host.distro.family "darwin" -}}
-  "$TMPDIR"
+"$TMPDIR"
 {{- else if .host.interactive -}}
-  "/run/user/$(id -u)"
+"/run/user/$(id -u)"
 {{- else -}}
-  "/tmp"
+"/tmp"
 {{- end }}
 {{- if .host.interactive }}
 export XDG_MUSIC_DIR="$HOME/Music"
@@ -66,9 +66,9 @@ export KREW_ROOT="$XDG_DATA_HOME/krew"
 export LESSKEY="$XDG_CONFIG_HOME/less/lesskey"
 export LESSHISTFILE="$XDG_STATE_HOME/less/history"
 # maven
-export MAVEN_USER_HOME="$XDG_DATA_HOME/maven" # For maven-wrapper
+export MAVEN_USER_HOME="$XDG_DATA_HOME/maven"                 # For maven-wrapper
 export MAVEN_CONFIG="-gs $XDG_CONFIG_HOME/maven/settings.xml" # For maven-wrapper
-export MAVEN_ARGS="$MAVEN_CONFIG" # For Maven >= 3.9.0
+export MAVEN_ARGS="$MAVEN_CONFIG"                             # For Maven >= 3.9.0
 # minikube
 export MINIKUBE_HOME="$XDG_DATA_HOME/minikube"
 # mise
@@ -97,8 +97,6 @@ export UNISON="$XDG_DATA_HOME/unison"
 export WGETRC="$XDG_CONFIG_HOME/wget/wgetrc"
 #zsh-evalcache
 export ZSH_EVALCACHE_DIR="$XDG_CACHE_HOME/zsh-evalcache"
-# startship
-export STARSHIP_CONFIG="$XDG_CONFIG_HOME/zsh/starship.toml"
 
 # Editor
 {{- if .host.interactive }}

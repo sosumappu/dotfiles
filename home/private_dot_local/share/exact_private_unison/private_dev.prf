@@ -30,14 +30,41 @@ sortnewfirst = true
 #Unison will log all changes to the filesystems on a file.
 log = true
 
+# System / editor junk
 ignore = Name Thumbs.db
 ignore = Name .DS_Store
 ignore = Name .Trashes
 ignore = Name .sync.ffs_db
 ignore = Name .fseventsd
+ignore = Name *~
+ignore = Name *.log
+
+# Temp
+ignore = Name tmp
+
+# Node / Python
 ignore = Name node_modules
 ignore = Name venv
+
+# Rust
 ignore = Name target
+ignore = Name .cargo
+ignore = Name *.rlib
+ignore = Name *.rmeta
+ignore = Name *.pdb
+ignore = Name Cargo.lock
+
+# Build outputs (general)
 ignore = Name build
-ignore = Name *.log
-ignore = Name tmp
+ignore = Name release
+ignore = Name dist
+ignore = Name out
+ignore = Name bin
+ignore = Name *.o
+ignore = Name *.a
+ignore = Name *.so
+ignore = Name *.d
+
+# git
+ignore = BelowPath .git
+ignore = BelowPath .jj

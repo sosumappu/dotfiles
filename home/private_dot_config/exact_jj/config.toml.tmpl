@@ -7,3 +7,7 @@ default-command = "log"
 
 [revsets]
 log = "present(@) | ancestors(immutable_heads().., 10) | present(trunk())"
+
+[user]
+name = "{{ .personal.name }}"
+email = "{{ .personal.email }}"

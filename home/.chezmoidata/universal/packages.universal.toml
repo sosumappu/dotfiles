@@ -48,8 +48,8 @@ docker = { test = "docker -v" }
 docker-compose = { test = "docker compose version" }
 docker-buildx = { test = "docker buildx version" }
 dive = { manager = "mise", name = "github:wagoodman/dive", test = "dive --version" }
-dockerfile-ls = { manager = "mise", name = "npm:dockerfile-language-server-nodejs", version = "latest" }
-docker-compose-ls = { manager = "mise", name = "npm:@microsoft/compose-language-service", version = "latest" }
+dockerfile-ls = { manager = "mise", name = "npm:dockerfile-language-server-nodejs", version = "latest", test = "dockerfile-ls --version" }
+docker-compose-ls = { manager = "mise", name = "npm:@microsoft/compose-language-service", version = "latest", test = "docker-compose-ls --version" }
 
 [packages.universal.extra]
 gocryptfs = { disabled = "headless,restricted", test = "gocryptfs -version" }
@@ -61,13 +61,18 @@ zbar = { test = "zbarimg --version" }
 claude-code = { manager = "mise", test = "claude --version" }
 opencode = { manager = "mise", test = "opencode --version" }
 repomix = { manager = "mise", name = "npm:repomix", test = "repomix --version" }
-typos = { manager = "mise", name = "cargo:crate-ci/typos" }
-typos-lsp = { manager = "mise", name = "cargo:tekumara/typos-lsp" }
-bash-language-server = { manager = "mise", name = "npm:bash-language-server" }
-mutt-ls = { manager = "mise", name = "pipx:mutt-language-server" }
+typos = { manager = "mise", name = "cargo:crate-ci/typos", test = "typos --version" }
+typos-lsp = { manager = "mise", name = "cargo:tekumara/typos-lsp", test = "typos-lsp --version" }
+bash-language-server = { manager = "mise", name = "npm:bash-language-server", test = "bash-language-server --version" }
+shfmt = { manager = "mise", name = "go:mvdan.cc/sh/v3/cmd/shfmt", test = "shfmt --version" }
+fzf = { manager = "mise", version = "latest", test = "fzf --version" }
+mutt-ls = { manager = "mise", name = "pipx:mutt-language-server", test = "mutt-language-server --version" }
 taplo = { manager = "mise", test = "taplo --version" }
-yamlls = { manager = "mise", name = "npm:yaml-language-server" }
-hado = { manager = "mise", name = "github:hadolint/hadolint" }
+yamlls = { manager = "mise", name = "npm:yaml-language-server", test = "yaml-language-server --version" }
+hado = { manager = "mise", name = "github:hadolint/hadolint", test = "hadolint --version" }
+asm-lsp = { manager = "mise", name = "cargo:asm-lsp", test = "asm-lsp version" }
+asmfmt = { manager = "mise", name = "cargo:asmfmt" }
+mipsfmt = { manager = "mise", name = "go:libdb.so/mipsfmt" }
 
 
 [packages.universal.golang]
@@ -89,6 +94,8 @@ java = { manager = "mise", test = "java -version", version = "temurin-21.0.8+9.0
 "http:jdtls" = { manager = "mise", version = "1.56.0", test = "jdtls --version", url = "https://download.eclipse.org/jdtls/milestones/{{ version }}/jdt-language-server-{{ version }}-202601291528.tar.gz" }
 "http:lombok" = { manager = "mise", url = "https://projectlombok.org/downloads/lombok.jar" }
 google-java-format = { manager = "mise", name = "github:google/google-java-format", asset_pattern = "google-java-format-*-all-deps.jar" }
+"http:java-debug" = { manager = "mise", version = "0.58.2", url = "https://open-vsx.org/api/vscjava/vscode-java-debug/{{ version }}/file/vscjava.vscode-java-debug-{{ version }}.vsix" }
+"http:java-test" = { manager = "mise", version = "0.44.0", url = "https://open-vsx.org/api/vscjava/vscode-java-test/{{ version }}/file/vscjava.vscode-java-test-{{ version }}.vsix" }
 
 
 [packages.universal.kubernetes]

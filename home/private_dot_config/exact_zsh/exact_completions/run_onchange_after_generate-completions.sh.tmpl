@@ -8,15 +8,15 @@ source $HOME/.config/shell/exports.sh
 {{- $compDir:= joinPath .host.home ".config/zsh/completions" -}}
 
 if [ "$(command -v mise)" ]; then
-  mise completion zsh > "{{ $compDir }}/_mise"
+  mise completion zsh >"{{ $compDir }}/_mise"
 fi
 
 if [ "$(command -v jj)" ]; then
-  jj util completion zsh > "{{ $compDir }}/_jj"
+  jj util completion zsh >"{{ $compDir }}/_jj"
 fi
 
 if [ "$(command -v bw)" ]; then
-  bw completion --shell zsh > "{{ $compDir }}/_bw"
+  bw completion --shell zsh >"{{ $compDir }}/_bw"
 fi
 
 # if [ "$(command -v cht.sh)" ]; then
@@ -24,33 +24,33 @@ fi
 # fi
 #
 if [ "$(command -v datree)" ]; then
-  datree completion zsh > "{{ $compDir }}/_datree"
+  datree completion zsh >"{{ $compDir }}/_datree"
 fi
 
 if [ "$(command -v k3d)" ]; then
-  k3d completion zsh > "{{ $compDir }}/_k3d"
+  k3d completion zsh >"{{ $compDir }}/_k3d"
 fi
 
 if [ "$(command -v kubectl)" ]; then
-  kubectl completion zsh | sed 's/kubectl/kubecolor/g' > "{{ $compDir }}/_kubecolor"
+  kubectl completion zsh | sed 's/kubectl/kubecolor/g' >"{{ $compDir }}/_kubecolor"
 fi
 
 if [ "$(command -v popeye)" ]; then
-  popeye completion zsh > "{{ $compDir }}/_popeye"
+  popeye completion zsh >"{{ $compDir }}/_popeye"
 fi
 
 if [ "$(command -v stern)" ]; then
-  stern --completion zsh > "{{ $compDir }}/_stern"
+  stern --completion zsh >"{{ $compDir }}/_stern"
 fi
 
 if [ "$(command -v yq)" ]; then
-  yq shell-completion zsh > "{{ $compDir }}/_yq"
+  yq shell-completion zsh >"{{ $compDir }}/_yq"
 fi
 
 if [ "$(command -v stripe)" ]; then
-  stripe completion --write-to-stdout > "{{ $compDir }}/_stripe"
+  stripe completion --write-to-stdout >"{{ $compDir }}/_stripe"
 fi
 
 if [ "$(command -v supabase)" ]; then
-  supabase completion zsh > "{{ $compDir }}/_supabase"
+  supabase completion zsh >"{{ $compDir }}/_supabase"
 fi

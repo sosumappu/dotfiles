@@ -44,6 +44,22 @@ return {
             ignore_errors = true,
           },
         },
+        ["google-java-format"] = {
+          prepend_args = { "--aosp" }, -- ensures 4-space indentation
+          range_args = function(_, ctx)
+            return { "--lines", ctx.range.start[1], ":", ctx.range["end"][1] }
+          end,
+        },
+        -- usage: asmfmt <filename>
+        asmfmt = {
+          stdin = false,
+          args = { "$FILENAME" },
+        },
+        mipsfmt = {
+          command = "mipsfmt",
+          stdin = false,
+          args = { "$FILENAME" },
+        },
         -- Look into dprint as my default formatter instead
         prettier = {
           cwd = function()
@@ -132,6 +148,8 @@ return {
         toml = { "taplo" },
         c = { "clang-format" },
         cpp = { "clang-format" },
+        java = { "google-java-format" },
+        asm = { "mipsfmt" },
       }, js_formats),
       format_on_save = function(bufnr)
         -- Disable with a global or buffer-local variable
@@ -146,7 +164,7 @@ return {
         end
 
         -- Fall back to language-specific formatters
-        return { timeout_ms = 500, lsp_format = "fallback" }
+        return { timeout_ms = 3000, lsp_format = "fallback" }
       end,
     },
     init = function()

@@ -2,10 +2,7 @@ local utils = require("_.utils")
 
 return {
   {
-    "https://github.com/nvim-java/nvim-java",
-    config = function()
-      require("java").setup()
-    end,
+    "https://codeberg.org/mfussenegger/nvim-jdtls",
   },
   {
     "https://github.com/SmiteshP/nvim-navic",
@@ -133,7 +130,7 @@ return {
 
         { "bashls", "bash-language-server" },
         { "emmylua_ls" },
-        { "rust_analyzer" },
+        { "rust_analyzer", "rust-analyzer" },
         { "gopls" },
         { "nixd" },
         { "ast_grep", utils.get_lsp_bin("ast-grep") },
@@ -143,6 +140,7 @@ return {
         { "typos_lsp", "typos-lsp" },
         { "mutt_ls", "mutt-language-server" },
 
+        { "asm_lsp", "asm-lsp" },
         { "jdtls" },
         { "clangd" },
       }

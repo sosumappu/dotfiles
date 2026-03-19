@@ -1,0 +1,2 @@
+.local/share/unison/**
+!.local/share/unison/*.prf
