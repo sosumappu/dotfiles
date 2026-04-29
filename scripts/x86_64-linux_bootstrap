@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2034,SC2181
 
 set -Eueo pipefail
 
@@ -11,15 +12,15 @@ print_main_banner
 # =======================================================================
 
 if ! command -v nixos-rebuild >/dev/null; then
-	log_error "nixos-rebuild was not found; this bootstrap currently supports NixOS hosts only"
+    log_error "nixos-rebuild was not found; this bootstrap currently supports NixOS hosts only"
 fi
 
 if [ -e "$DOTFILES_DIR/flake.nix" ]; then
-	FLAKE_ROOT="$DOTFILES_DIR"
+    FLAKE_ROOT="$DOTFILES_DIR"
 elif [ -n "${BOOTSTRAP_FLAKE_ROOT:-}" ]; then
-	FLAKE_ROOT="$BOOTSTRAP_FLAKE_ROOT"
+    FLAKE_ROOT="$BOOTSTRAP_FLAKE_ROOT"
 else
-	log_error "Could not find a flake source for bootstrap"
+    log_error "Could not find a flake source for bootstrap"
 fi
 
 log_info "Installing flake -> $FLAKE"
@@ -31,8 +32,8 @@ clone_dotfiles
 FAILED_COMMAND=$(fc -ln -1)
 
 if [ $? -eq 0 ]; then
-	log_success "Done."
-	log_info "Don't forget to generate SSH keys & import gpg keys"
+    log_success "Done."
+    log_info "Don't forget to generate SSH keys & import gpg keys"
 else
-	log_error "Something went wrong, [ Failed on: $FAILED_COMMAND ]"
+    log_error "Something went wrong, [ Failed on: $FAILED_COMMAND ]"
 fi

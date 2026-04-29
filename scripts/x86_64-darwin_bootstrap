@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2034,SC2181
 
 set -Eueo pipefail
-
-SUDO_USER=$(whoami)
 
 FLAKE=${1:-$(hostname -s)}
 
