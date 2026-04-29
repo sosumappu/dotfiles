@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+set -ue -o pipefail
+
+FILE="$1"
+WIDTH="${FZF_PREVIEW_COLUMNS:-${COLUMNS:-80}}"
+HEIGHT="${FZF_PREVIEW_LINES:-${LINES:-24}}"
+X="${FZF_PREVIEW_TOP:-0}"
+Y="${FZF_PREVIEW_LEFT:-0}"
+
+if [ -n "${DEBUG-}" ]; then
+	echo "FILE: $FILE WIDTH: $WIDTH HEIGHT: $HEIGHT X: $X Y: $Y"
+fi
+
+case $(file --brief --mime-type "$FILE") in
+image/*)
+	kitty icat --clear --transfer-mode=memory --stdin=no --place="${WIDTH}x${HEIGHT}@${X}x${Y}" "$FILE"
+	;;
+text/troff)
+	man ./ "$1" | col -b
+	;;
+text/* | */xml | application/json | application/javascript)
+	if [[ $FILE == *.md ]]; then
+		# Need `-s dark` to force color outside of interactive shell:
+		# https://github.com/charmbracelet/glow/issues/440
+		glow -s dark --width "$WIDTH" "$FILE"
+	else
+		bat --style=plain,changes --terminal-width "$WIDTH" --wrap never --color always "$FILE"
+	fi
+	;;
+application/pdf)
+	file_name=$(basename "$FILE" .pdf)
+	temp_image="$TMPDIR/$file_name.png"
+
+	if [ ! -e "$temp_image" ]; then
+		# Convert the first page of the PDF to an image
+		magick "$FILE[0]" -thumbnail x300 "$temp_image"
+	fi
+
+	# Display the image and text side by side
+	kitty icat --clear --transfer-mode=memory --stdin=no --align=left "$temp_image"
+
+	padding=$(identify -format "%w" "$temp_image")
+	padding=$(awk -v n="$padding" 'BEGIN{print int(n/10)}')
+
+	# Extract the first 100 lines of text from the PDF
+	pdftotext "$FILE" - 2>/dev/null | head -100 | pr -T -o "$padding"
+	;;
+application/zip)
+	unzip -l "$FILE"
+	;;
+application/x-tar | application/gzip)
+	tar tf "$FILE"
+	;;
+inode/directory)
+	eza --color=always --tree --group-directories-first "$FILE"
+	;;
+*)
+	file --brief "$FILE"
+	;;
+esac

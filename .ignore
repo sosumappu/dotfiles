@@ -1,0 +1,6 @@
+pack/
+logs/
+result/
+.direnv/
+config/.hammerspoon/Spoons
+.jj/

@@ -1,0 +1,3 @@
+set font "CaskaydiaCove Nerd Font 17"
+set selection-clipboard clipboard
+set guioptions ""

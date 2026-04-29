@@ -1,0 +1,10 @@
+/* remove annoying copilot shit */
+.copilotPreview__suggestionButton, .copilotPreview, .copilotPreview__container,
+#copilot-dashboard-entrypoint-textarea {
+  display: none !important;
+}
+
+/* very ugly underlines for every CI job */
+[data-component="listview-title-link"] {
+  text-decoration: none !important;
+}

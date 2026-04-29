@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -ue -o pipefail
+
+# No arguments: `open .`
+# With arguments: acts like `open`
+
+if [[ $# -eq 0 ]]; then
+	open .
+else
+	open "$@"
+fi

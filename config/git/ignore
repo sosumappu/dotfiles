@@ -1,0 +1,54 @@
+# OS generated files #
+######################
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+# Icon?
+ehthumbs.db
+Thumbs.db
+
+# Misc      #
+#############
+*.pyc
+*.map
+.mx-start
+.direnv
+.envrc
+.tern-port
+.tern-project
+.ignore
+*.zwc
+*.zwc.old
+*.un~
+tags.*
+.local.vim
+Session.vim
+*.swp
+*.add.spl
+*.vim-rplugin~
+.netrwhist
+.git-fuzzy-snapshots
+
+.env
+!.envrc
+
+# AI      #
+#############
+.aider*
+# personal settings
+# https://docs.claude.com/en/docs/claude-code/settings#settings-files
+.claude/settings.local.json
+# https://docs.claude.com/en/docs/claude-code/memory#determine-memory-type
+# These are mine, custom related to my hooks
+CLAUDE.local.md
+.claude/hook-events.jsonl
+PROMPTS.md
+.claude-notes
+
+# Mise      #
+#############
+mise.local.toml
+
+.jj

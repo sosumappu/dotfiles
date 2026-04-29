@@ -1,0 +1,12 @@
+{
+    "auths": {
+        "ghcr.io": {},
+        "https://index.docker.io/v1/": {}
+    },
+    "credsStore": "osxkeychain",
+    "currentContext": "colima",
+    "aliases": {
+        "builder": "buildx"
+    }
+}
+

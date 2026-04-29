@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+set -ue -o pipefail
+
+# Flakify the current directory
+
+# Check if Nix command exists
+if ! command -v nix &>/dev/null; then
+	echo "Error: nix command not found. Please install Nix."
+	exit 1
+fi
+
+if [ ! -e ./flake.nix ]; then
+	echo "Creating flake.nix using nix-direnv template..."
+	nix flake init -t github:ahmedelgabri/dotfiles .
+
+	if [ -e ./.envrc ]; then
+		if command -v direnv &>/dev/null; then
+			direnv allow
+		else
+			echo "Warning: direnv command not found. Please run 'direnv allow' manually."
+		fi
+	else
+		echo "Warning: nix flake template did not create .envrc as expected."
+	fi
+else
+	echo "flake.nix already exists."
+fi
+
+echo "Opening flake.nix and .envrc in $EDITOR..."
+"$EDITOR" flake.nix .envrc
