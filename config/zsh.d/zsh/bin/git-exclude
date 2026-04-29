@@ -1,0 +1,8 @@
+#!/bin/sh
+set -ue -o pipefail
+
+mkdir -p .git/info
+for pattern in "$@"
+do
+	echo "$pattern" >> .git/info/exclude
+done

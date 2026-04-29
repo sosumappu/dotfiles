@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+appleInterfaceStyle=$(defaults read -g AppleInterfaceStyle 2>/dev/null)
+
+if [[ $appleInterfaceStyle == *"Dark" ]] then
+  echo "include ~/.config/zathura/themes/plain"
+else
+  echo "include ~/.config/zathura/themes/aquarium_light"
+endif

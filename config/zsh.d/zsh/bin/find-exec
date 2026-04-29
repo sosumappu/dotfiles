@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -ue -o pipefail
+# Finds files matching a pattern (arg1) and executes a command (arg2, default: file) on them.
+
+# Default pattern to empty string if $1 is not provided
+pattern="${1:-}"
+# Default command to 'file' if $2 is not provided
+command_to_exec="${2:-file}"
+
+# Use find -print0 and xargs -0 for safety with filenames containing special characters
+# Use "$pattern" to handle potential spaces or special chars in the pattern itself
+# Using -iname for case-insensitive search as in the original zsh function
+find . -type f -iname "*${pattern}*" -print0 | xargs -0 --no-run-if-empty "$command_to_exec"

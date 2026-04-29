@@ -1,0 +1,11 @@
+* text=auto eol=lf
+
+*.json diff=json
+*.lock diff=lockfile
+
+*.png diff=exif
+*.jpg diff=exif
+*.jpeg diff=exif
+*.gif diff=exif
+*.webp diff=exif
+*.plist diff=plist

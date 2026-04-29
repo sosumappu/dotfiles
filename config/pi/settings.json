@@ -1,0 +1,18 @@
+{
+	"lastChangelogVersion": "0.61.1",
+	"enableInstallTelemetry": false,
+	"defaultThinkingLevel": "xhigh",
+	"defaultProvider": "openai-codex",
+	"defaultModel": "gpt-5.4",
+	"enabledModels": ["claude-4*", "gpt-5.*"],
+	"showHardwareCursor": true,
+	"autocompleteMaxVisible": 10,
+	"steeringMode": "one-at-a-time",
+	"followUpMode": "one-at-a-time",
+	"transport": "auto",
+	"hideThinkingBlock": false,
+	"collapseChangelog": false,
+	"quietStartup": false,
+	"treeFilterMode": "default",
+	"theme": "dark"
+}

@@ -1,0 +1,93 @@
+#!/usr/bin/env bash
+
+# mx
+# version 1.1
+
+# Contributors:
+#   Wynn Netherland - http://github.com/pengwynn
+#   Adam Jahnke - http://github.com/adamyonk
+#   Yoshua Wuyts - https://github.com/yoshuawuyts
+#   Ahmed El Gabri - https://github.com/ahmedelgabri
+
+# Usage:
+#   mx [session] [subdirectory (optional)]
+
+# To 'auto-launch' projects, you'll need a $PROJECTS dir where you keep code
+# sorted like so: $PROJECTS/<org or user>/<repo>.
+# So, a typical workflow would look like:
+#   $ hub clone pengwynn/octonaut $PROJECTS/pengwynn/octonaut
+#   $ mx octonaut
+
+# If `mx` is called with a <session> name, and there is no valid repo inside
+# $PROJECTS, a new tmux session will be initialized in the current working
+# directory with a name of <session>
+
+set -ue -o pipefail
+
+if [[ -n "${DEBUG-}" ]]; then
+	set -x
+fi
+
+MX_START=${MX_START:-"./.mx-start"}
+
+get_session() {
+	echo "$1" | awk -F"/" '{print $NF}'
+}
+
+SESSION="$(get_session "${1:-$(pwd)}")"
+# tmux 1.9a+ doesn't like .'s in session names
+TMUX_SESSION_NAME="${SESSION//./_}"
+
+if ! (tmux has-session -t "$SESSION" &>/dev/null); then
+	mx-init
+
+	WORKINGDIR=""
+
+	if [ -d "$WORK/$SESSION/${2-}" ]; then
+		WORKINGDIR="$WORK/$SESSION/$2"
+	elif [ -d "$WORK/$SESSION" ]; then
+		WORKINGDIR="$WORK/$SESSION"
+	elif [ -d "$PROJECTS/$SESSION" ]; then
+		WORKINGDIR="$PROJECTS/$SESSION"
+	else
+		WORKINGDIR="$PWD"
+	fi
+
+	if [ -n "$WORKINGDIR" ]; then
+		cd "$WORKINGDIR"
+		tmux new-session -d -s "$TMUX_SESSION_NAME"
+		tmux select-window -t "$TMUX_SESSION_NAME"
+		# Sometimes I need to setup some project specific stuff & run some commands
+		if [ -x "$MX_START" ]; then
+			tmux send-keys "$MX_START" C-m
+		fi
+	fi
+
+	if tmux has-session -t _shared:mail 2>/dev/null; then
+		tmux link-window -s _shared:mail -t 6
+	fi
+
+	if tmux has-session -t _shared:rss 2>/dev/null; then
+		tmux link-window -s _shared:rss -t 7
+	fi
+
+	if tmux has-session -t _shared:HN 2>/dev/null; then
+		tmux link-window -s _shared:HN -t 8
+	fi
+
+	if tmux has-session -t _shared:dotfiles 2>/dev/null; then
+		tmux link-window -s _shared:dotfiles -t 9
+	fi
+
+	if tmux has-session -t _shared:notes 2>/dev/null; then
+		tmux link-window -s _shared:notes -t 10
+	fi
+
+	tmux select-window -t 1
+fi
+
+if [ -z "${TMUX-}" ]; then
+	tmux attach -t "$TMUX_SESSION_NAME"
+else
+	tmux switch-client -t "$TMUX_SESSION_NAME"
+fi
