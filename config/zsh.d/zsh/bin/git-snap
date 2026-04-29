@@ -1,0 +1,12 @@
+#!/bin/bash
+set -ue -o pipefail
+
+if [[ $@ ]]; then
+	note=" - $@"
+fi
+
+message="snapshot: $(date '+%Y-%m-%d %H:%M:%S') $note"
+
+hash=$(git stash create -u "$message")
+git stash store -m "$message" "$hash"
+git stash list -1

@@ -1,0 +1,9 @@
+#!/bin/sh
+set -ue -o pipefail
+#
+# [B]ranches [B]y [D]ate: List branches used in a specific date
+#
+# Usage: bbd "Sep 14"
+#        bbd "Sep"
+
+git reflog --date=local | grep "${1-} .* checkout: moving from .* to" | grep -o "[a-zA-Z0-9\-]*$" | sort | uniq

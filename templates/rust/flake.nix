@@ -1,0 +1,48 @@
+{
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    flake-parts.url = "github:hercules-ci/flake-parts";
+  };
+
+  outputs = inputs @ {
+    flake-parts,
+    nixpkgs,
+    ...
+  }:
+    flake-parts.lib.mkFlake {inherit inputs;} {
+      systems = ["x86_64-linux" "aarch64-linux" "aarch64-darwin"];
+      perSystem = {
+        pkgs,
+        system,
+        ...
+      }: {
+        # This sets `pkgs` to a nixpkgs with allowUnfree option set.
+        _module.args.pkgs = import nixpkgs {
+          inherit system;
+          config.allowUnfree = true;
+        };
+
+        formatter = pkgs.alejandra;
+
+        devShells.default = with pkgs;
+          mkShell {
+            packages = [
+              cargo
+              rust-analyzer-unwrapped
+              rustPackages.clippy
+              rustc
+              rustfmt
+            ];
+
+            RUST_SRC_PATH = rustPlatform.rustLibSrc;
+
+            shellHook =
+              /*
+              bash
+              */
+              ''
+              '';
+          };
+      };
+    };
+}

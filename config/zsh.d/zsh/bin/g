@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+set -ue -o pipefail
+
+# https://github.com/pengwynn/dotfiles/blob/master/git/git.zsh
+# Wrap git with hub
+
+command -v git >/dev/null || return 0
+
+time_since_last_commit() {
+	local __LAST_COMMIT
+	__LAST_COMMIT=$(git log --color=always -1 --pretty=format:"%C(238)%cr%Creset %C(blue)%h%Creset %s - %C(cyan)%aN %C(238)%(describe:tags,abbrev=0)%Creset" --date=auto:human 2>/dev/null)
+
+	printf "%s\n" "$__LAST_COMMIT"
+}
+
+__CMD=""
+
+if command -v hub >/dev/null 2>&1; then
+	__CMD=$(command -v hub)
+elif command -v git >/dev/null 2>&1; then
+	__CMD=$(command -v git)
+fi
+
+[[ $__CMD != "" ]] || return
+
+if [ $# -eq 0 ]; then
+	printf "%s\n\n" "$(time_since_last_commit)"
+	"$__CMD" st 2>/dev/null || "$__CMD" status --short --branch
+else
+	"$__CMD" "$@"
+fi

@@ -1,0 +1,100 @@
+#!/usr/bin/env bash
+set -ue -o pipefail
+
+# Function to get the Wi-Fi service name (e.g., "Wi-Fi")
+get_wifi_service() {
+	networksetup -listallhardwareports | awk -F': ' '/^Hardware Port: (Wi-Fi|AirPort)$/{print $2}'
+}
+
+# Function to check if the interface is Wi-Fi
+is_wifi() {
+	local interface="$1"
+	local wifi_service
+	wifi_service=$(get_wifi_service)
+	[ "$interface" = "$wifi_service" ]
+}
+
+# Function to check if the interface is connected
+is_connected() {
+	local interface="$1"
+	local other_status
+	other_status=$(networksetup -getinfo "$interface" | grep -E "IP address: [0-9]+" || true)
+	[ -n "$other_status" ]
+}
+
+# Function to get the currently used network interface
+get_current_interface() {
+	local interfaces
+	interfaces=$(networksetup -listnetworkserviceorder | grep -E "^\([0-9]+\)" | awk -F'[()]' '{gsub(/^[ \t]+|[ \t]+$/, "", $3); print $3}')
+
+	while IFS= read -r interface; do
+		if is_connected "$interface"; then
+			echo -n "$interface"
+			return
+		fi
+	done <<<"$interfaces"
+}
+
+# Function to get the Wi-Fi hardware interface (e.g., en0, en1)
+get_wifi_device() {
+	networksetup -listallhardwareports | awk '/Wi-Fi|AirPort/{getline; print $NF}'
+}
+
+# Function to get SSID of the connected Wi-Fi network
+get_wifi_ssid() {
+	local ssid
+	local wifi_device
+	wifi_device=$(get_wifi_device)
+
+	if [ -z "$wifi_device" ]; then
+		return
+	fi
+
+	ssid=$(networksetup -getairportnetwork "$wifi_device" | awk -F ": " '{print $2}')
+
+	if [ -z "$ssid" ]; then
+		# Sequoia has a bug with networksetup command. But the following works
+		ssid=$(ipconfig getsummary "$wifi_device" | awk -F ' SSID : ' '/ SSID : / {print $2}')
+	fi
+
+	# Try getting SSID via preferred networks if Wi-Fi is active
+	if [ "$ssid" = "<redacted>" ]; then
+		local is_inactive
+		is_inactive=$(ipconfig getsummary "$wifi_device" | grep -Fxq "  Active : FALSE" && echo "yes")
+		if [ -z "$is_inactive" ]; then
+			ssid=$(networksetup -listpreferredwirelessnetworks "$wifi_device" | sed -n '2s/^\t//p')
+		fi
+	fi
+
+	# Final fallback: use Hammerspoon CLI to get the network SSID
+	if [ "$ssid" = "<redacted>" ] && command -v hs &>/dev/null; then
+		ssid=$(hs -c "hs.wifi.currentNetwork()")
+	fi
+
+	echo -n "$ssid"
+}
+
+# icon codes here are PragmataPro related
+get_formatted_output() {
+	local interface
+	interface=$(get_current_interface)
+
+	if [ -n "$interface" ]; then
+		if is_wifi "$interface"; then
+			ssid=$(get_wifi_ssid)
+			echo -ne "\UF05A9  $ssid"
+		else
+			# echo -ne "\UF06F5  $interface"
+			echo -ne "\UF06F5 " # Icon for other interfaces
+		fi
+	else
+		if [ -n "${TMUX-}" ]; then
+			echo -ne "#[fg=red]\UF0C9C "
+		else
+			echo -ne "\UF0C9C "
+		fi
+	fi
+}
+
+# Print the currently used network interface and its status with icon
+echo -ne "$(get_formatted_output)"

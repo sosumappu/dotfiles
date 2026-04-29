@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -ue -o pipefail
+
+if command -v rg >/dev/null; then
+	rg "TODO|HACK|FIXME|OPTIMIZE"
+else
+	echo "Install rg (ripgrep)..."
+fi
