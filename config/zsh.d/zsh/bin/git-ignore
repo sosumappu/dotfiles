@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+set -ue -o pipefail
+# Usage: $ git ignore <file/directory>
+
+if [ ! -f ".gitignore" ]; then
+	touch .gitignore
+fi
+
+echo "$1" >>.gitignore

@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -ue -o pipefail
+# Displays user owned processes status.
+
+ps -U "${1:-$LOGNAME}" -o 'pid,%cpu,%mem,command' "${@:2}"

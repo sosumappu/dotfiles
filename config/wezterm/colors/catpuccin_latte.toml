@@ -1,0 +1,82 @@
+[colors]
+ansi = [
+  '#a5adcb',
+  '#b50d31',
+  '#358524',
+  '#ad6c16',
+  '#1850bf',
+  '#c946a6',
+  '#127378',
+  '#363a4f',
+]
+background = '#cccccc'
+brights = [
+  '#9399b2',
+  '#b50d31',
+  '#358524',
+  '#ad6c16',
+  '#1850bf',
+  '#c946a6',
+  '#127378',
+  '#494d64',
+]
+compose_cursor = '#bf5c5c'
+cursor_bg = '#bf6a6a'
+cursor_border = '#bf6a6a'
+cursor_fg = '#cccccc'
+foreground = '#24273a'
+scrollbar_thumb = '#9399b2'
+selection_bg = '#9399b2'
+selection_fg = '#24273a'
+split = '#b8c0e0'
+visual_bell = '#b8c0e0'
+
+[colors.indexed]
+16 = '#d65d0e'
+17 = '#bf6a6a'
+
+[colors.tab_bar]
+background = '#b8b8b8'
+inactive_tab_edge = '#9399b2'
+
+[colors.tab_bar.active_tab]
+bg_color = '#7a2fd9'
+fg_color = '#cccccc'
+intensity = 'Normal'
+italic = false
+strikethrough = false
+underline = 'None'
+
+[colors.tab_bar.inactive_tab]
+bg_color = '#c2c2c2'
+fg_color = '#24273a'
+intensity = 'Normal'
+italic = false
+strikethrough = false
+underline = 'None'
+
+[colors.tab_bar.inactive_tab_hover]
+bg_color = '#cccccc'
+fg_color = '#24273a'
+intensity = 'Normal'
+italic = false
+strikethrough = false
+underline = 'None'
+
+[colors.tab_bar.new_tab]
+bg_color = '#b8c0e0'
+fg_color = '#24273a'
+intensity = 'Normal'
+italic = false
+strikethrough = false
+underline = 'None'
+
+[colors.tab_bar.new_tab_hover]
+bg_color = '#a5adcb'
+fg_color = '#24273a'
+intensity = 'Normal'
+italic = false
+strikethrough = false
+underline = 'None'
+
+

@@ -1,0 +1,68 @@
+[colors]
+# Core Colors
+scrollbar_thumb = '#CCCBD9'
+split = '#D5D4E0'
+cursor_bg = "#829FB0"
+cursor_border = "#829FB0"
+cursor_fg = "#708190"
+selection_bg = "#6A8CBC"
+selection_fg = "#708190"
+foreground = "#708190"
+background = "#E6E6F1"
+
+# ANSI (Normal) - Palettes 0-7
+ansi = [
+  "#313449",
+  "#C34864",
+  "#7D9685",
+  "#DE956F",
+  "#6A8CBC",
+  "#8787BF",
+  "#829FB0",
+  "#D5D4E0",
+]
+
+# Brights - Palettes 8-15
+brights = [
+  "#414560",
+  "#B7435E",
+  "#7e8f80",
+  "#D88B72",
+  "#6E7EBF",
+  "#7170C2",
+  "#728A9A",
+  "#CCCBD9",
+]
+
+# Tab Bar - Light Theme Styled
+[colors.tab_bar]
+background = '#D5D4E0' # Slightly darker than window bg
+
+[colors.tab_bar.active_tab]
+bg_color = '#E6E6F1' # Matches window background
+fg_color = '#313449' # Dark text for contrast
+intensity = 'Bold'
+
+[colors.tab_bar.inactive_tab]
+bg_color = '#D5D4E0'
+fg_color = '#829FB0'
+intensity = 'Normal'
+
+[colors.tab_bar.inactive_tab_hover]
+bg_color = '#CCCBD9'
+fg_color = '#313449'
+intensity = 'Normal'
+
+[colors.tab_bar.new_tab]
+bg_color = '#D5D4E0'
+fg_color = '#829FB0'
+intensity = 'Normal'
+
+[colors.tab_bar.new_tab_hover]
+bg_color = '#CCCBD9'
+fg_color = '#313449'
+intensity = 'Normal'
+
+[metadata]
+author = "FrenzyExists"
+name = "Aquarium Dark"

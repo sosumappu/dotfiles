@@ -1,0 +1,63 @@
+[colors]
+# Core Colors
+foreground = '#c5c8c6'
+background = '#111111'
+cursor_bg = '#20bbfc'
+cursor_border = '#20bbfc'
+cursor_fg = '#111111'
+selection_fg = '#000000'
+selection_bg = '#FFFACD'
+
+# ANSI (Normal) - Palettes 0-7
+ansi = [
+  '#1d1f21', # Black
+  '#cc6666', # Red
+  '#b5bd68', # Green
+  '#f0c674', # Yellow
+  '#81a2be', # Blue
+  '#b294bb', # Magenta
+  '#8abeb7', # Cyan
+  '#c5c8c6', # White
+]
+
+# Brights - Palettes 8-15
+brights = [
+  '#333333', # Bright Black
+  '#f2777a', # Bright Red
+  '#99cc99', # Bright Green
+  '#ffcc66', # Bright Yellow
+  '#6699cc', # Bright Blue
+  '#cc99cc', # Bright Magenta
+  '#66cccc', # Bright Cyan
+  '#dddddd', # Bright White
+]
+
+# Tab Bar - Adapted for Dark Mode
+# (I adjusted these to blend with the #111111 background)
+[colors.tab_bar]
+background = '#1d1f21' # Using the "Normal Black" for the bar
+
+[colors.tab_bar.active_tab]
+bg_color = '#111111'   # Matches window background
+fg_color = '#c5c8c6'   # Matches window foreground
+intensity = 'Bold'
+
+[colors.tab_bar.inactive_tab]
+bg_color = '#1d1f21'
+fg_color = '#868686'   # Dimmed text
+intensity = 'Normal'
+
+[colors.tab_bar.inactive_tab_hover]
+bg_color = '#333333'   # Slightly lighter on hover
+fg_color = '#c5c8c6'
+intensity = 'Normal'
+
+[colors.tab_bar.new_tab]
+bg_color = '#1d1f21'
+fg_color = '#868686'
+intensity = 'Normal'
+
+[colors.tab_bar.new_tab_hover]
+bg_color = '#333333'
+fg_color = '#c5c8c6'
+intensity = 'Normal'
