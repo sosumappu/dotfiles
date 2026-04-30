@@ -90,6 +90,7 @@
     sound.enable = true;
 
     environment.systemPackages = with pkgs; [
+      bitwarden-cli
       gnumake
       wget
       htop

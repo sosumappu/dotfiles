@@ -1,5 +1,7 @@
 let
-  module = { pkgs, config, ... }: let
+  module = {
+    darwin
+         = { pkgs, config, ... }: let
     inherit (config.my.user) home;
     inherit (config.home-manager.users."${config.my.username}") xdg;
     sketchybar = pkgs.sketchybar;
@@ -11,12 +13,7 @@ let
         sbarlua
       ];
 
-      xdg.configFile."sketchybar" = {
-        recursive = true;
-        source = ../../../../config/sketchybar;
-      };
-
-      launchd.user.agents.sketchybar = {
+            launchd.user.agents.sketchybar = {
         serviceConfig.ProgramArguments = [ "${sketchybar}/bin/sketchybar" ];
         serviceConfig.KeepAlive = true;
         serviceConfig.RunAtLoad = true;
@@ -26,6 +23,17 @@ let
       };
     };
   };
+        homeManager = _ : {
+xdg.configFile."sketchybar" = {
+        recursive = true;
+        source = ../../../../config/sketchybar;
+      };
+
+
+        };
+    };
 in {
-  flake.modules.darwin.sketchybar = module;
+  flake = {modules = {darwin.sketchybar = module.darwin;
+        homeManager.sketchybar = module.homeManager;
+    }; };
 }

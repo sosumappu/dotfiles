@@ -1,4 +1,3 @@
-
 {inputs, ...}: let
   host = inputs.self.lib.mkNixos "aarch64-linux" "berry";
 
@@ -44,6 +43,11 @@
       extraLocaleSettings = {LC_TIME = "en_GB.UTF-8";};
     };
 
+    age.secrets.cloudflared-berry = {
+      file = ../../../secrets/cloudflared.json.age;
+      mode = 600;
+    };
+
     services = {
       openssh = {
         enable = true;
@@ -72,15 +76,16 @@
     };
 
     environment.systemPackages = with pkgs; [
-          graphviz
-          mermaid-cli
-          git-filter-repo
-          git-lfs
-          git-sizer
-          httpstat
-          lazydocker
-          llm-agents.gemini-cli
-          entr
+      bitwarden-cli
+      graphviz
+      mermaid-cli
+      git-filter-repo
+      git-lfs
+      git-sizer
+      httpstat
+      lazydocker
+      llm-agents.gemini-cli
+      entr
     ];
 
     environment.shellAliases.l = null;

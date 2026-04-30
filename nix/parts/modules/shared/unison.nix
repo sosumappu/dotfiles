@@ -1,10 +1,13 @@
 let
   module = {
     generic = {
+            config,
       pkgs,
       lib,
       ...
-    }: {
+    }: let
+      inherit (config.home-manager.users."${config.my.username}") xdg;
+    in {
       config = with lib; {
         environment.variables.UNISON = "${xdg.dataHome}/unison";
         my.user.packages = with pkgs; [
@@ -14,7 +17,7 @@ let
     };
 
     homeManager = _: {
-      xdg.dataHome."unison" = {
+      xdg.dataFile."unison" = {
         recursive = true;
         source = ../../../../config/unison;
       };

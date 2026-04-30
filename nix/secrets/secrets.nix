@@ -22,20 +22,21 @@
 let
   # Host SSH keys (from /etc/ssh/ssh_host_ed25519_key.pub)
   # Run: cat /etc/ssh/ssh_host_ed25519_key.pub
-  erdnase = "";
-  berry = "";
+  erdnase = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILGtpDc+d2hinuG8VTlxhc5infICbdDoWFroRzeqwIEO erdnase";
+  berry = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINaL4MTErA8KKohTECD8VQI9kkLImgVLjq6iT8UAxgpy berry";
+
   silvana = "";
 
   allHosts = [erdnase berry silvana];
 
   # These are in 1Password
   # work = "";
-  personal = "";
+  personal = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOF1uj9DgHdyYxOezFk2GhrgdFR8DWoXXVr/O2g2CMfG adelarab.works@gmail.com";
 
   allUsers = [personal];
 
   allKeys = allHosts ++ allUsers;
 in {
-  "cloudflared.age".publicKeys = [personal berry];
+  "cloudflared.json.age".publicKeys = [personal berry];
   "npmrc.age".publicKeys = allKeys;
 }

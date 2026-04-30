@@ -50,6 +50,7 @@
 
       casks = [
         "loom"
+        "bitwarden-cli"
         "docker-desktop"
         "ngrok"
         "figma"

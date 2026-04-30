@@ -48,6 +48,19 @@
           inputs.nixpkgs.follows = "nixpkgs";
         };
 
+gh-gfm-preview = {
+      url = "github:thiagokokada/gh-gfm-preview";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    git-wt = {
+      url = "github:ahmedelgabri/git-wt";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    ccpeek = {
+      url = "github:ahmedelgabri/ccpeek";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
         agenix = {
           url = "github:ryantm/agenix";
           inputs = {
@@ -78,7 +91,7 @@
         };
 
        krew2nix = {
-            url = "github:eigengrau/krew2nix";
+            url = "github:sosumappu/krew2nix";
             inputs.nixpkgs.follows = "nixpkgs";
         };
 

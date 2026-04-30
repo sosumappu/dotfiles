@@ -1,1 +1,0 @@
-{"Name":"multiplatform","Driver":"docker-container","Nodes":[{"Name":"multiplatform0","Endpoint":"colima","Platforms":null,"DriverOpts":null,"Flags":["--allow-insecure-entitlement=network.host"],"Files":null}],"Dynamic":false}

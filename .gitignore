@@ -3,4 +3,6 @@ scratch
 result
 .claude
 .opencode
+.direnv
 config/nvim/nvim-pack-lock.json
+*~

@@ -6,75 +6,44 @@ let
       ...
     }: {
       config = with lib; {
-        my.user.packages = with pkgs; [
-          llm-agents.claude-code
-          llm-agents.qmd
-          llm-agents.agent-browser
-          llama-cpp
-          ccpeek
+        environment.systemPackages = with pkgs; [
+          jujutsu
         ];
       };
     };
 
-    homeManager = {config, ...}: {
-      home.activation.syncAgentSettings = config.lib.dag.entryAfter ["writeBoundary"] ''
-        BK="${config.home.homeDirectory}/.claude/settings.json.bk"
-        TARGET="${config.home.homeDirectory}/.claude/settings.json"
-        if [ -f "$BK" ] || [ -L "$BK" ]; then
-          rm -f "$TARGET"
-          cp "$BK" "$TARGET"
-        fi
-      '';
+    homeManager = {
+      lib,
+      myConfig,
+      ...
+    }:
+      with lib; {
+        xdg.configFile = {
+          "jj" = {
+            recursive = true;
+            source = ../../../../config/jj;
+          };
 
-      home.file = {
-        ".agents/AGENTS.md".source = ../../../../config/claude/CLAUDE.md;
+          "jj/conf.d/nix.toml".text = ''
+            # ${myConfig.nix_managed}
+            #:schema https://docs.jj-vcs.dev/latest/config-schema.json
 
-        ".agents/skills" = {
-          recursive = true;
-          source = ../../../../config/claude/skills;
+
+            --when.hostnames = ["${myConfig.hostName}"]
+
+            [user]
+            ${optionalString (myConfig.name != "") "name = \"${myConfig.name}\""}
+            ${optionalString (myConfig.email != "") "email = \"${myConfig.email}\""}
+
+          '';
         };
-
-        ".claude/CLAUDE.md".source = ../../../../config/claude/CLAUDE.md;
-
-        ".claude/agents" = {
-          recursive = true;
-          source = ../../../../config/claude/agents;
-        };
-
-        ".claude/docs" = {
-          recursive = true;
-          source = ../../../../config/claude/docs;
-        };
-
-        ".claude/commands" = {
-          recursive = true;
-          source = ../../../../config/claude/commands;
-        };
-
-        ".claude/hooks" = {
-          recursive = true;
-          source = ../../../../config/claude/hooks;
-        };
-
-        ".claude/scripts" = {
-          recursive = true;
-          source = ../../../../config/claude/scripts;
-        };
-
-        ".claude/skills" = {
-          recursive = true;
-          source = ../../../../config/claude/skills;
-        };
-
-        ".claude/settings.json.bk".source = ../../../../config/claude/settings.json;
       };
-    };
   };
 in {
   flake = {
     modules = {
-      generic.ai = module.generic;
-      homeManager.ai = module.homeManager;
+      generic.jujutsu = module.generic;
+      homeManager.jujutsu = module.homeManager;
     };
   };
 }

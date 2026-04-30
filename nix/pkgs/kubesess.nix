@@ -7,9 +7,9 @@
 
 let
   platform = {
-    "x86_64-linux"  = { os = "x86_64-unknown-linux-gnu" };
-    "aarch64-linux" = { os = "aarch64-unknown-linux-gnu" };
-    "x86_64-darwin" = { os = "x86_64-apple-darwin" };
+    "x86_64-linux"  = { os = "x86_64-unknown-linux-gnu";};
+    "aarch64-linux" = { os = "aarch64-unknown-linux-gnu"; };
+    "x86_64-darwin" = { os = "x86_64-apple-darwin"; };
     "aarch64-darwin"= { os = "aarch64-apple-darwin"; };
   }.${system};
 

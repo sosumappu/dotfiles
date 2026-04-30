@@ -146,7 +146,6 @@ let
               user = {
                 shell = pkgs.zsh;
                 packages = with pkgs; [
-                  bitwarden-cli
                   atuin
                   # buku
                   eza

@@ -15,7 +15,7 @@ let
 
         system.primaryUser = config.my.username;
 
-        security.pam.services.sudo_local.touchIdAuto = true;
+        security.pam.services.sudo_local.touchIdAuth = true;
 
         nix-homebrew = {
             enable = true;

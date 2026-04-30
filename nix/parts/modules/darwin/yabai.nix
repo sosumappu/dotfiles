@@ -1,5 +1,6 @@
 let
-  module = { pkgs, config, ... }: let
+    module = {
+  darwin= { pkgs, config, ... }: let
     inherit (config.my.user) home;
     inherit (config.home-manager.users."${config.my.username}") xdg;
     yabai = pkgs.yabai;
@@ -7,7 +8,7 @@ let
     config = {
       my.user.packages = [ yabai ];
 
-      home.file.".config/yabai/yabairc".source = ../../../../config/yabai/yabairc;
+
 
       launchd.user.agents.yabai = {
         serviceConfig.ProgramArguments = [
@@ -39,6 +40,16 @@ let
       '';
     };
   };
+    homeManager = _ : {
+xdg.configFile."yabai" = {
+                enable = true;
+                source = ../../../../config/yabai;
+            };
+    };
+    };
 in {
-  flake.modules.darwin.yabai = module;
+  flake = {modules = { darwin.yabai = module.darwin;
+        homeManager.yabai = module.homeManager;
+    };
+    };
 }

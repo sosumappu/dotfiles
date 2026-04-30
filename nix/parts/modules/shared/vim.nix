@@ -50,9 +50,9 @@ let
           markdown-oxide
           copilot-language-server
           stylelint-lsp
-          jdtls
+jdt-language-server
           lombok
-          clangd
+          clang-tools
         ];
       };
     };
