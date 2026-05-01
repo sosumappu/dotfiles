@@ -21,7 +21,7 @@ _: {
             program = pkgs.lib.getExe (pkgs.writeShellApplication {
               name = "bootstrap";
               runtimeInputs = [pkgs.git];
-                excludeShellChecks = [ "SC2034" "SC2181" ];
+              excludeShellChecks = ["SC2034" "SC2181"];
               text = ''
                 export BOOTSTRAP_FLAKE_ROOT=${flakeRoot}
 
