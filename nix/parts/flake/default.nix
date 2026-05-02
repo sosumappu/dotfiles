@@ -169,8 +169,7 @@
       extraFonts = pkgs:
         with pkgs; [
           noto-fonts
-          noto-fonts-cjk
-          noto-fonts-emoji
+          noto-fonts-cjk-sans
           fira-code
           fira-code-symbols
           nerd-fonts-caskaydia-cove
