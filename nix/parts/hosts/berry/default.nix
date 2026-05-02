@@ -62,7 +62,6 @@
           credentialsFile = config.age.secrets.cloudflared-berry.path;
           "warp-routing".enabled = true;
           protocol = "quic";
-          loglevel = "debug";
           ingress = {
             "berry" = "ssh://localhost:22";
           };
