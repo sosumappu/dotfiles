@@ -172,16 +172,10 @@
           noto-fonts-cjk-sans
           fira-code
           fira-code-symbols
-          mplus-outline-fonts
           dina-font
-          proggyfonts
-          (nerdfonts.override {
-            fonts = [
-              "FiraCode"
-              "DroidSansMono"
-              "CaskaydiaCove"
-            ];
-          })
+          nerd-fonts.fira-code
+          nerd-fonts.droid-sans-mono
+          nerd-fonts.caskaydia-cove
         ];
       systemStateVersion = "24.05";
       homeStateVersion = config: config.system.stateVersion;
