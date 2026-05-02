@@ -58,16 +58,11 @@
 
       cloudflared = {
         enable = true;
-        tunnels.berry = {
+        tunnels."f021ef4e-6386-450a-864e-f54e8c1ab427" = {
           credentialsFile = config.age.secrets.cloudflared-berry.path;
-
-          extraConfig = {
-            tunnel = "f021ef4e-6386-450a-864e-f54e8c1ab427";
-            "warp-routing".enabled = true;
-            protocol = "quic";
-            loglevel = "debug";
-          };
-
+          "warp-routing".enabled = true;
+          protocol = "quic";
+          loglevel = "debug";
           ingress = {
             "berry" = "ssh://localhost:22";
           };
@@ -92,7 +87,7 @@
     environment.shellAliases.l = null;
 
     programs = {
-      gnupg.agent = {pinentryPackage= pkgs.pinentry-curses;};
+      gnupg.agent = {pinentryPackage = pkgs.pinentry-curses;};
       less.enable = true;
       mosh.enable = true;
       npm.enable = true;
