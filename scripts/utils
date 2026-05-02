@@ -2,7 +2,7 @@
 
 set -Eueo pipefail
 
-ARCH="$(arch)"
+ARCH="$(uname -m)"
 
 # =======================================================================
 # = Helpers & setting some variables

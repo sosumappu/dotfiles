@@ -102,6 +102,7 @@
             "https://nix-community.cachix.org"
             "https://nixpkgs.cachix.org"
             "https://yazi.cachix.org"
+            "https://sosumappu.cachix.org"
             "https://cache.numtide.com"
           ];
           trusted-public-keys = [
@@ -109,6 +110,7 @@
             "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
             "nixpkgs.cachix.org-1:q91R6hxbwFvDqTSDKwDAV4T5PxqXGxswD8vhONFMeOE="
             "yazi.cachix.org-1:Dcdz63NZKfvUCbDGngQDAZq6kOroIrFoyO064uvLh8k="
+            "sosumappu.cachix.org-1:xt9vvdkqXA3b2/DNj+VV77aWoveHXxlHMd3H3LmYL/c="
             "niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g="
           ];
           keep-derivations = true;
@@ -121,7 +123,8 @@
         optimise.automatic = optimiseAutomatic;
       };
 
-      fonts.packages = [pkgs.pragmatapro] ++ extraFonts pkgs;
+      # fonts.packages = [pkgs.pragmatapro] ++ extraFonts pkgs;
+      fonts.packages = extraFonts pkgs;
 
       nixpkgs = {
         config.allowUnfree = true;
@@ -152,7 +155,18 @@
       ];
       autoOptimiseStore = false;
       optimiseAutomatic = true;
-      extraFonts = _: [];
+      extraFonts = pkgs:
+        with pkgs; [
+          noto-fonts
+          noto-fonts-cjk-sans
+          fira-code
+          fira-code-symbols
+          dina-font
+          nerd-fonts.fira-code
+          nerd-fonts.droid-sans-mono
+          nerd-fonts.caskaydia-cove
+        ];
+
       homePrefix = "/Users";
       systemStateVersion = 5;
       homeStateVersion = _: "24.05";

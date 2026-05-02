@@ -1,5 +1,10 @@
 let
-  module = {config, pkgs, ...}: let
+  module = {
+    config,
+    lib,
+    pkgs,
+    ...
+  }: let
     inherit (config.home-manager.users."${config.my.username}") xdg;
   in {
     config = {
@@ -14,7 +19,7 @@ let
         packages = with pkgs; [
           delve # dlv
           go
-          go-tools # staticcheck
+          (lib.lowPrio gotools)
           gofumpt
           golangci-lint
           gomodifytags

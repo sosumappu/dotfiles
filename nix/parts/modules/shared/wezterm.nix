@@ -19,7 +19,7 @@ let
         homeManager = _: {
             xdg.configFile."wezterm" = {
                 recursive = true;
-                source = "../../../../config/wezterm";
+                source = ../../../../config/wezterm;
             };
         };
     };

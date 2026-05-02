@@ -2,50 +2,50 @@
 set -ue -o pipefail
 
 add_mirrors() {
-	local REMOTE_URL
-	REMOTE_URL=$(git config --get remote.origin.url 2>/dev/null) || {
-		echo "No origin remote found. Are you in a git repo with an origin remote?"
-		exit 1
-	}
+    local REMOTE_URL
+    REMOTE_URL=$(git config --get remote.origin.url 2>/dev/null) || {
+        echo "No origin remote found. Are you in a git repo with an origin remote?"
+        exit 1
+    }
 
-	local REMOTE_REPO
-	REMOTE_REPO=$(basename -s .git "$REMOTE_URL")
+    local REMOTE_REPO
+    REMOTE_REPO=$(basename -s .git "$REMOTE_URL")
 
-	local REPO=${1:-$REMOTE_REPO}
+    local REPO=${1:-$REMOTE_REPO}
 
-	if [ -z "$REPO" ]; then
-		echo "Can't get the proper git repo name, you have to pass one"
-		exit 1
-	fi
+    if [ -z "$REPO" ]; then
+        echo "Can't get the proper git repo name, you have to pass one"
+        exit 1
+    fi
 
-	local USER=${GITHUB_USER:-ahmedelgabri}
-	local MIRRORS=("bitbucket.com" "gitlab.com" "codeberg.org")
-	local PUSH_URLS
-	PUSH_URLS=$(git remote get-url --push --all origin 2>/dev/null || true)
+    local USER=${GITHUB_USER:-sosumappu}
+    local MIRRORS=("bitbucket.com" "gitlab.com" "codeberg.org")
+    local PUSH_URLS
+    PUSH_URLS=$(git remote get-url --push --all origin 2>/dev/null || true)
 
-	if ! echo "$PUSH_URLS" | grep -qF "$REMOTE_URL"; then
-		git remote set-url --add --push origin "$REMOTE_URL"
-	fi
+    if ! echo "$PUSH_URLS" | grep -qF "$REMOTE_URL"; then
+        git remote set-url --add --push origin "$REMOTE_URL"
+    fi
 
-	for mirror in "${MIRRORS[@]}"; do
-		local URL
-		if [ "$mirror" = "codeberg.org" ]; then
-			URL="ssh://git@$mirror/$USER/${REPO}.git"
-		else
-			URL="git@$mirror:$USER/${REPO}.git"
-		fi
+    for mirror in "${MIRRORS[@]}"; do
+        local URL
+        if [ "$mirror" = "codeberg.org" ]; then
+            URL="ssh://git@$mirror/$USER/${REPO}.git"
+        else
+            URL="git@$mirror:$USER/${REPO}.git"
+        fi
 
-		if echo "$PUSH_URLS" | grep -qF "$URL"; then
-			echo "Skipping $mirror (already configured)"
-		else
-			git remote set-url --add --push origin "$URL"
-		fi
-	done
+        if echo "$PUSH_URLS" | grep -qF "$URL"; then
+            echo "Skipping $mirror (already configured)"
+        else
+            git remote set-url --add --push origin "$URL"
+        fi
+    done
 
-	echo "--------------------------------------------------------"
-	echo "${MIRRORS[*]} were added as push targets to origin remote"
-	echo "--------------------------------------------------------"
-	git remote --verbose
+    echo "--------------------------------------------------------"
+    echo "${MIRRORS[*]} were added as push targets to origin remote"
+    echo "--------------------------------------------------------"
+    git remote --verbose
 }
 
 add_mirrors "$@"

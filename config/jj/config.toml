@@ -8,12 +8,12 @@ backend = "gpg"
 backends.gpg.program = "vcs-gpg"
 
 [git]
-push-bookmark-prefix = 'ahmedelgabri/'
+push-bookmark-prefix = 'sosumappu/'
 private-commits = 'private()'
 
 [remotes.origin]
 # https://docs.jj-vcs.dev/latest/config/#automatic-tracking-of-bookmarks
-auto-track-bookmarks = "ahmedelgabri/*"
+auto-track-bookmarks = "sosumappu/*"
 auto-track-created-bookmarks = "*"
 
 
@@ -85,7 +85,7 @@ tug = ["bookmark", "advance"]
 # Generate prefixed bookmark names when running `jj git push --change`:
 # See: https://jj-vcs.github.io/jj/latest/config/#generated-bookmark-names-on-push
 # git_push_bookmark = '"<%= variables.gitHubUsername %>/" ++ change_id.short()'
-git_push_bookmark = '"ahmedelgabri/" ++ change_id.short()'
+git_push_bookmark = '"sosumappu/" ++ change_id.short()'
 
 # Add change ID to the end of the commit
 commit_trailers = '''

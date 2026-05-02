@@ -1,43 +1,44 @@
 let
-    module = {
-        config,
-        pkgs,
-        inputs,
-        ...
-    }: {
-        imports = [
-            inputs.self.modules.darwin.karabiner
-            inputs.self.modules.darwin.skhd
-            inputs.self.modules.darwin.yabai
-            inputs.self.modules.darwin.sketchybar
-            inputs.self.modules.darwin.colima
-        ];
+  module = {
+    config,
+    pkgs,
+    inputs,
+    ...
+  }: {
+    imports = [
+      inputs.self.modules.darwin.karabiner
+      inputs.self.modules.darwin.skhd
+      inputs.self.modules.darwin.yabai
+      inputs.self.modules.darwin.sketchybar
+      inputs.self.modules.darwin.colima
+    ];
 
-        system.primaryUser = config.my.username;
+    system.primaryUser = config.my.username;
 
-        security.pam.services.sudo_local.touchIdAuth = true;
+    security.pam.services.sudo_local.touchIdAuth = true;
 
-        nix-homebrew = {
-            enable = true;
-            enableRosetta = pkgs.stdenv.hostPlatform.isAarch64;
-            user = config.my.username;
-        };
+    nix-homebrew = {
+      enable = true;
+      enableRosetta = pkgs.stdenv.hostPlatform.isAarch64;
+      user = config.my.username;
+      autoMigrate = true;
+    };
 
-        homebrew = {
-            enable = true;
-            global = {
-                brewfile = true;
-            };
-            onActivation = {
-                autoUpdate = true;
-                upgrade = true;
-                cleanup = "zap";
-            };
-        };
+    homebrew = {
+      enable = true;
+      global = {
+        brewfile = true;
+      };
+      onActivation = {
+        autoUpdate = true;
+        upgrade = true;
+        cleanup = "zap";
+      };
+    };
 
-        system = {
-            startup.chime = false;
-defaults = {
+    system = {
+      startup.chime = false;
+      defaults = {
         # ".GlobalPreferences".com.apple.sound.beep.sound = "Funk";
         LaunchServices.LSQuarantine = false;
         SoftwareUpdate.AutomaticallyInstallMacOSUpdates = true;
@@ -204,14 +205,14 @@ defaults = {
           "com.apple.ImageCapture".disableHotPlug = true;
           # Turn on app auto-update
           "com.apple.commerce".AutoUpdate = true;
-          };
         };
-   keyboard = {
+      };
+      keyboard = {
         enableKeyMapping = true;
         remapCapsLockToEscape = true;
       };
-        };
     };
+  };
 in {
-    flake.modules.darwin.defaults= module;
+  flake.modules.darwin.defaults = module;
 }

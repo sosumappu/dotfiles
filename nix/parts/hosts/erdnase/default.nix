@@ -3,11 +3,10 @@
 
   hostConfiguration = {pkgs, ...}: {
     networking = {hostName = "erdnase";};
-    ids.gids.nixbld = 30000;
 
     my = {
       username = "localhost";
-      email = "adel@vinceromedia.co";
+      email = "adelarab.works@gmail.com";
       website = "https://vinceromedia.co";
       company = "Vincero";
       devFolder = "dev";
@@ -50,18 +49,21 @@
 
       casks = [
         "loom"
-        "bitwarden-cli"
+        "bitwarden"
         "docker-desktop"
         "ngrok"
         "figma"
         "visual-studio-code"
+        "rawtherapee"
+        "inkscape"
         "google-chrome"
         "cursor"
         "calibre"
+        "garmin-express"
       ];
 
       brews = [
-        "acli"
+        "atlassian-labs/acli/acli"
       ];
     };
   };
@@ -79,6 +81,7 @@
         "git"
         "jujutsu"
         "ssh"
+        "wezterm"
         "bat"
         "yazi"
         "ripgrep"

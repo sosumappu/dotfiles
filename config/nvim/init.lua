@@ -17,12 +17,12 @@ end
 -- selene: allow(global_usage)
 _G.__ = {}
 
-local utils = require '_.utils'
+local utils = require("_.utils")
 
-local root = vim.env.USER == 'root'
+local root = vim.env.USER == "root"
 
-vim.g.mapleader = ' '
-vim.g.maplocalleader = ','
+vim.g.mapleader = " "
+vim.g.maplocalleader = ","
 
 -- Skip vim plugins menu.vim, saves ~100ms, disabled by lazy later in this file
 vim.g.did_install_default_menus = 1
@@ -54,12 +54,12 @@ vim.o.shiftwidth = 0
 -- always use tabs
 vim.o.expandtab = false
 
-vim.o.signcolumn = 'yes'
+vim.o.signcolumn = "yes"
 
 vim.o.emoji = false
 
 -- start highlighting from 256 lines backwards
-vim.cmd 'syntax sync minlines=256'
+vim.cmd("syntax sync minlines=256")
 -- do not highlight very long lines
 vim.o.synmaxcol = 300
 
@@ -68,45 +68,44 @@ vim.o.showmode = false
 vim.o.ruler = false
 
 -- show a navigable menu for tab completion
-vim.o.wildmode = 'noselect,full'
+vim.o.wildmode = "noselect,full"
 vim.o.wildignore = vim.o.wildignore
 	.. table.concat({
-		'*.o',
-		'*.out',
-		'*.obj',
-		'.git',
-		'*.rbc',
-		'*.rbo',
-		'*.class',
-		'.svn',
-		'*.gem',
-		'*.pyc',
-		'*.swp',
-		'*~',
-		'*/.DS_Store',
-	}, ',')
+		"*.o",
+		"*.out",
+		"*.obj",
+		".git",
+		"*.rbc",
+		"*.rbo",
+		"*.class",
+		".svn",
+		"*.gem",
+		"*.pyc",
+		"*.swp",
+		"*~",
+		"*/.DS_Store",
+	}, ",")
 
-vim.o.tagcase = 'followscs'
-vim.o.tags = utils.prepend(vim.o.tags, { './.git/tags;' })
+vim.o.tagcase = "followscs"
+vim.o.tags = utils.prepend(vim.o.tags, { "./.git/tags;" })
 
 -- https://robots.thoughtbot.com/opt-in-project-specific-vim-spell-checking-and-word-completion
-vim.o.spelllang = 'en,nl'
-vim.o.spellsuggest = '30'
-vim.o.spelloptions = 'camel'
-vim.o.spellfile =
-	string.format('%s%s', vim.fn.stdpath 'config', '/spell/spell.add')
+vim.o.spelllang = "en,nl"
+vim.o.spellsuggest = "30"
+vim.o.spelloptions = "camel"
+vim.o.spellfile = string.format("%s%s", vim.fn.stdpath("config"), "/spell/spell.add")
 
-vim.o.complete = utils.append(vim.o.complete, { 'kspell' })
-vim.o.completeopt = 'menu,menuone,noselect,fuzzy,preinsert'
+vim.o.complete = utils.append(vim.o.complete, { "kspell" })
+vim.o.completeopt = "menu,menuone,noselect,fuzzy,preinsert"
 
 -- Disable unsafe commands. Only run autocommands owned by me http://andrew.stwrt.ca/posts/project-specific-vimrc/
 vim.o.secure = true
 
 -- allow cursor to move where there is no text in visual block mode
-vim.o.virtualedit = 'block'
+vim.o.virtualedit = "block"
 
 -- allow <BS>/h/l/<Left>/<Right>/<Space>, ~ to cross line boundaries
-vim.o.whichwrap = 'b,h,l,s,<,>,[,],~'
+vim.o.whichwrap = "b,h,l,s,<,>,[,],~"
 
 -- don't bother updating screen during macro playback
 vim.o.lazyredraw = true
@@ -115,7 +114,7 @@ vim.o.lazyredraw = true
 vim.o.showmatch = true
 
 vim.o.title = true
-vim.o.mouse = 'a'
+vim.o.mouse = "a"
 
 -- More natural splitting
 vim.o.splitbelow = true
@@ -125,11 +124,11 @@ vim.o.splitright = true
 vim.o.ignorecase = true
 vim.o.smartcase = true
 vim.o.infercase = true
-vim.o.iskeyword = utils.append(vim.o.iskeyword, { '-' })
+vim.o.iskeyword = utils.append(vim.o.iskeyword, { "-" })
 
 vim.o.timeoutlen = 300
 
-vim.o.formatoptions = vim.o.formatoptions .. 'nr1'
+vim.o.formatoptions = vim.o.formatoptions .. "nr1"
 
 -- No beeping.
 vim.o.visualbell = false
@@ -145,19 +144,19 @@ vim.o.sidescrolloff = 5
 vim.o.sidescroll = 3
 
 -- yank and paste with the system clipboard
-vim.o.clipboard = 'unnamedplus'
+vim.o.clipboard = "unnamedplus"
 
 -- show trailing whitespace
 vim.o.list = true
 vim.o.listchars = table.concat({
-	'multispace:⋅ ',
-	'lead:⋅',
-	'tab:  ',
-	'nbsp:░',
-	'extends:»',
-	'precedes:«',
-	'trail:␣',
-}, ',')
+	"multispace:⋅ ",
+	"lead:⋅",
+	"tab:  ",
+	"nbsp:░",
+	"extends:»",
+	"precedes:«",
+	"trail:␣",
+}, ",")
 
 -- Pattern for a start of numbered list (used in `gw`). This reads as
 -- "Start of list item is: at least one special character (digit, -, +, *)
@@ -166,34 +165,34 @@ vim.o.formatlistpat = [[^\s*[0-9\-\+\*]\+[\.\)]*\s\+]]
 
 vim.o.joinspaces = false
 
-vim.o.concealcursor = 'n'
+vim.o.concealcursor = "n"
 
 vim.o.fillchars = table.concat({
-	'stl:⎼',
-	'diff:╱',
-	'msgsep:‾',
-	'eob: ', -- Hide end of buffer ~
-	'fold:─',
-	'foldopen:▾',
-	'foldsep: ',
-	'foldclose:▸',
-	'horiz:━',
-	'horizup:┻',
-	'horizdown:┳',
-	'vert:┃', -- HEAVY VERTICAL (U+2503, UTF-8: E2 94 83)
-	'vertleft:┫',
-	'vertright:┣',
-	'verthoriz:╋',
-}, ',')
+	"stl:⎼",
+	"diff:╱",
+	"msgsep:‾",
+	"eob: ", -- Hide end of buffer ~
+	"fold:─",
+	"foldopen:▾",
+	"foldsep: ",
+	"foldclose:▸",
+	"horiz:━",
+	"horizup:┻",
+	"horizdown:┳",
+	"vert:┃", -- HEAVY VERTICAL (U+2503, UTF-8: E2 94 83)
+	"vertleft:┫",
+	"vertright:┣",
+	"verthoriz:╋",
+}, ",")
 
-vim.o.foldcolumn = '0'
+vim.o.foldcolumn = "0"
 vim.o.foldlevel = 99
 vim.o.foldnestmax = 20 -- 20 is the max
 vim.o.foldminlines = 0 -- Allow closing even 1-line folds.
 -- https://www.reddit.com/r/neovim/comments/1fv8o74/is_it_too_much_to_ask_for_a_foldline_that_looks/
-vim.o.foldtext = ''
-vim.o.foldmethod = 'expr'
-vim.o.foldexpr = 'v:lua.__.foldexpr(v:lnum)'
+vim.o.foldtext = ""
+vim.o.foldmethod = "expr"
+vim.o.foldexpr = "v:lua.__.foldexpr(v:lnum)"
 -- vim.o.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
 
 vim.o.linebreak = true
@@ -202,10 +201,10 @@ vim.o.autoindent = true
 vim.o.smartindent = true
 vim.o.wrap = false
 vim.o.breakindent = true
-vim.o.breakindentopt = 'list:-1'
-vim.o.showbreak = '↳  ' -- DOWNWARDS ARROW WITH TIP RIGHTWARDS (U+21B3, UTF-8: E2 86 B3)
+vim.o.breakindentopt = "list:-1"
+vim.o.showbreak = "↳  " -- DOWNWARDS ARROW WITH TIP RIGHTWARDS (U+21B3, UTF-8: E2 86 B3)
 
-if not vim.fn.has 'nvim-0.6' then
+if not vim.fn.has("nvim-0.6") then
 	vim.o.hidden = true
 end
 
@@ -214,30 +213,28 @@ vim.o.tildeop = true
 
 -- Make sure diffs are always opened in vertical splits, also match my git settings
 vim.o.diffopt = utils.append(vim.o.diffopt, {
-	'vertical',
-	'algorithm:histogram',
-	'indent-heuristic',
-	'hiddenoff',
-	'foldcolumn:0',
-	'linematch:60',
+	"vertical",
+	"algorithm:histogram",
+	"indent-heuristic",
+	"hiddenoff",
+	"foldcolumn:0",
+	"linematch:60",
 })
 
-vim.o.shortmess = vim.o.shortmess .. 'AIOTWaot'
+vim.o.shortmess = vim.o.shortmess .. "AIOTWaot"
 
-vim.o.viewoptions = 'cursor,folds' -- save/restore just these (with `:{mk,load}view`)
+vim.o.viewoptions = "cursor,folds" -- save/restore just these (with `:{mk,load}view`)
 
-vim.o.backupcopy = 'yes' -- overwrite files to update, instead of renaming + rewriting
+vim.o.backupcopy = "yes" -- overwrite files to update, instead of renaming + rewriting
 vim.o.backup = false
 vim.o.writebackup = false
 
-if not vim.fn.has 'nvim-0.6' then
-	vim.o.backupdir =
-		string.format('%s,%s%s', '.', vim.fn.stdpath 'state', '/backup//') -- keep backup files out of the way
+if not vim.fn.has("nvim-0.6") then
+	vim.o.backupdir = string.format("%s,%s%s", ".", vim.fn.stdpath("state"), "/backup//") -- keep backup files out of the way
 end
 
 vim.o.swapfile = false
-vim.o.directory =
-	string.format('%s%s,%s', vim.fn.stdpath 'state', '/swap//', '.') -- keep swap files out of the way
+vim.o.directory = string.format("%s%s,%s", vim.fn.stdpath("state"), "/swap//", ".") -- keep swap files out of the way
 
 vim.o.updatetime = 250
 
@@ -245,7 +242,7 @@ if root then
 	vim.o.undofile = false -- don't create root-owned files
 else
 	vim.o.undofile = true -- actually use undo files
-	vim.o.undodir = utils.append(vim.o.undodir, { '.' })
+	vim.o.undodir = utils.append(vim.o.undodir, { "." })
 end
 
 -- Shada Defaults:
@@ -257,26 +254,26 @@ end
 -- - h do not save/restore 'hlsearch' setting
 
 if root then -- don't create root-owned files then
-	vim.o.shada = ''
-	vim.o.shadafile = 'NONE'
+	vim.o.shada = ""
+	vim.o.shadafile = "NONE"
 end
 
 -- cursor behavior:
 --   - no blinking in normal/visual mode
 --   - blinking in insert-mode
 vim.o.guicursor = utils.append(vim.o.guicursor, {
-	'n-v-c:blinkon0',
-	'i-ci:ver25-Cursor/lCursor-blinkwait30-blinkoff100-blinkon100',
+	"n-v-c:blinkon0",
+	"i-ci:ver25-Cursor/lCursor-blinkwait30-blinkoff100-blinkon100",
 })
 vim.o.cursorline = true
-vim.o.cursorlineopt = 'screenline,number'
+vim.o.cursorlineopt = "screenline,number"
 vim.o.smoothscroll = true
 
-vim.o.tabclose = 'uselast'
+vim.o.tabclose = "uselast"
 
-vim.o.winborder = 'bold'
+vim.o.winborder = "bold"
 
-vim.o.jumpoptions = 'stack'
+vim.o.jumpoptions = "stack"
 -------------------------------------------------------------------------------
 -- PLUGINS {{{1
 -------------------------------------------------------------------------------
@@ -286,54 +283,54 @@ vim.g.markdown_recommended_style = 0
 vim.g.vim_markdown_frontmatter = 1
 
 vim.g.markdown_fenced_languages = {
-	'css',
-	'erb=eruby',
-	'javascript',
-	'js=javascript',
-	'jsx=javascriptreact',
-	'ts=typescript',
-	'tsx=typescriptreact',
-	'json=jsonc',
-	'ruby',
-	'sass',
-	'scss=sass',
-	'xml',
-	'html',
-	'py=python',
-	'python',
-	'clojure',
-	'clj=clojure',
-	'cljs=clojure',
-	'stylus=css',
-	'less=css',
-	'viml=vim',
+	"css",
+	"erb=eruby",
+	"javascript",
+	"js=javascript",
+	"jsx=javascriptreact",
+	"ts=typescript",
+	"tsx=typescriptreact",
+	"json=jsonc",
+	"ruby",
+	"sass",
+	"scss=sass",
+	"xml",
+	"html",
+	"py=python",
+	"python",
+	"clojure",
+	"clj=clojure",
+	"cljs=clojure",
+	"stylus=css",
+	"less=css",
+	"viml=vim",
 }
 
-local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
-	vim.fn.system {
-		'git',
-		'clone',
-		'--filter=blob:none',
-		'https://github.com/folke/lazy.nvim.git',
-		'--branch=stable', -- latest stable release
+	vim.fn.system({
+		"git",
+		"clone",
+		"--filter=blob:none",
+		"https://github.com/folke/lazy.nvim.git",
+		"--branch=stable", -- latest stable release
 		lazypath,
-	}
+	})
 end
 
 vim.o.rtp = utils.prepend(vim.o.rtp, { lazypath })
 
 ---@diagnostic disable-next-line: missing-fields, param-type-not-match
-require('lazy').setup {
+require("lazy").setup({
 	spec = {
-		{ import = 'plugins' },
+		{ import = "plugins" },
 	},
 	---@diagnostic disable-next-line: assign-type-mismatch
 	dev = {
 		-- directory where you store your local plugin projects
-		path = '~/code/personal/forks',
+		path = "~/dev/personal/forks",
 		---@type string[] plugins that match these patterns will use your local versions instead of being fetched from GitHub
-		patterns = { 'ahmedelgabri' }, -- For example {"folke"}
+		patterns = { "sosumappu" }, -- For example {"folke"}
 		fallback = true, -- Fallback to git when local plugin doesn't exist
 	},
 	ui = {
@@ -344,15 +341,15 @@ require('lazy').setup {
 		rtp = {
 			-- Stuff I don't use.
 			disabled_plugins = {
-				'getscript',
-				'getscriptPlugin',
-				'netrwPlugin',
-				'rplugin',
-				'rrhelper',
-				'tohtml',
-				'tutor',
-				'vimball',
-				'vimballPlugin',
+				"getscript",
+				"getscriptPlugin",
+				"netrwPlugin",
+				"rplugin",
+				"rrhelper",
+				"tohtml",
+				"tutor",
+				"vimball",
+				"vimballPlugin",
 			},
 		},
 	},
@@ -362,16 +359,16 @@ require('lazy').setup {
 		-- Track each new require in the Lazy profiling tab
 		require = true,
 	},
-}
+})
 
 -------------------------------------------------------------------------------
 -- OVERRIDES {{{1
 -------------------------------------------------------------------------------
 
-local vimrc_local = string.format('%s/%s', vim.env.HOST_CONFIGS, 'nvimrc.lua')
+local vimrc_local = string.format("%s/%s", vim.env.HOST_CONFIGS, "nvimrc.lua")
 
 if vim.uv.fs_stat(vimrc_local) then
-	vim.cmd(string.format('source %s', vimrc_local))
+	vim.cmd(string.format("source %s", vimrc_local))
 end
 
 -------------------------------------------------------------------------------

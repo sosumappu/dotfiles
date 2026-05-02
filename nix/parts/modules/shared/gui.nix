@@ -253,7 +253,7 @@ let
           "onyx"
           "stats"
           "macfuse"
-          "flux"
+          "flux-app"
           "pearcleaner"
         ];
       };

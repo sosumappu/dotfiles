@@ -1,15 +1,19 @@
 let
   module = {
-     darwin = {
+    darwin = {
       pkgs,
+      lib,
       ...
     }: {
-      config = {
-        homebrew.casks = ["tart"];
-        my.user.packages = with pkgs; [
-          sb
-        ];
-      };
+      config =
+        lib.mkIf pkgs.stdenv.hostPlatform.isAarch64 {
+          homebrew.casks = ["cirruslabs/cli/tart"];
+        }
+        // {
+          my.user.packages = with pkgs; [
+            sb
+          ];
+        };
     };
     generic = {
       pkgs,
