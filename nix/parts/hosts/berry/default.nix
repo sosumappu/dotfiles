@@ -82,7 +82,7 @@
       entr
     ];
 
-    environment.shellAliases.l = null;
+    environment.shellAliases.l = pkgs.lib.mkForce null;
 
     programs = {
       gnupg.agent = {pinentryPackage = pkgs.pinentry-curses;};

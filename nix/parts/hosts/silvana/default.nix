@@ -105,7 +105,7 @@
       gnome3.networkmanagerapplet
     ];
 
-    environment.shellAliases.l = null;
+    environment.shellAliases.l = pkgs.lib.mkForce null;
 
     programs = {
       gnupg.agent = {pinentryFlavor = "pinentry";};
