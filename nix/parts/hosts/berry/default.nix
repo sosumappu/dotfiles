@@ -28,6 +28,7 @@
       };
     };
 
+    boot.loader.grub.enable = false;
     boot.loader.systemd-boot.enable = false;
     boot.loader.generic-extlinux-compatible.enable = true;
 
@@ -91,12 +92,10 @@
     environment.shellAliases.l = null;
 
     programs = {
-      gnupg.agent = {pinentryFlavor = "pinentry";};
-      java.enable = true;
+      gnupg.agent = {pinentryPackage= pkgs.pinentry-curses;};
       less.enable = true;
       mosh.enable = true;
       npm.enable = true;
-      wireshark.enable = true;
     };
   };
 
