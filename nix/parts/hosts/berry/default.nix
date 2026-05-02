@@ -61,7 +61,6 @@
         tunnels."f021ef4e-6386-450a-864e-f54e8c1ab427" = {
           credentialsFile = config.age.secrets.cloudflared-berry.path;
           "warp-routing".enabled = true;
-          protocol = "quic";
           ingress = {
             "berry" = "ssh://localhost:22";
           };
