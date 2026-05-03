@@ -47,6 +47,13 @@
     ../modules/shared/iac.nix
     ../modules/shared/unison.nix
 
+    ../modules/shared/syncthing.nix
+    ../modules/nixos/adguardhome.nix
+    ../modules/nixos/caddy.nix
+    ../modules/nixos/immich.nix
+    ../modules/nixos/ntfy.nix
+    ../modules/nixos/prometheus.nix
+
     ../hosts/erdnase/default.nix
     ../hosts/berry/default.nix
     ../hosts/silvana/default.nix
@@ -84,11 +91,11 @@
       nix = {
         enable = true;
         channel.enable = false;
-        nixPath = {
-          inherit (inputs) nixpkgs;
-          inherit (inputs) darwin;
-          inherit (inputs) home-manager;
-        };
+        nixPath = [
+          "nixpkgs=${inputs.nixpkgs}"
+          "darwin=${inputs.darwin}"
+          "home-manager=${inputs.home-manager}"
+        ];
         package = pkgs.nix;
         settings = {
           trusted-users = ["@admin"];

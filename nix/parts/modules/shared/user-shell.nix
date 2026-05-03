@@ -14,7 +14,7 @@ let
         ...
       }: let
         inherit (config.my.user) home;
-        inherit (config.my) devFolder hostConfigHome company;
+        inherit (config.my) syncFolder devFolder hostConfigHome company;
         inherit (config.home-manager.users."${config.my.username}") xdg;
 
         local_zshrc = "${hostConfigHome}/zshrc";
@@ -100,7 +100,7 @@ let
                   # Better spell checking & auto correction prompt
                   SHELL = "${pkgs.zsh}/bin/zsh";
                   SPROMPT = "zsh: correct %F{red}'%R'%f to %F{blue}'%r'%f [%B%Uy%u%bes, %B%Un%u%bo, %B%Ue%u%bdit, %B%Ua%u%bbort]?";
-                  SYNC_DIR = "${xdg.configHome}/sync";
+                  SYNC_DIR = "${xdg.configHome}/${syncFolder}";
                   VIM_FZF_LOG = ''"$(${lib.getExe pkgs.git} config --get alias.l 2>/dev/null | awk '{$1=""; print $0;}' | tr -d '\r')"'';
                   ZCOMPDUMP_PATH = "${ZDOTDIR}/.zcompdump";
                   ZDOTDIR = "${xdg.configHome}/zsh";
@@ -132,6 +132,7 @@ let
                 zoxide
                 mise
                 sd
+                dust
                 pure-prompt
                 (pkgs.writeShellScriptBin "nixup"
                   ''
@@ -166,7 +167,6 @@ let
                   newsraft
                   circumflex # HN CLI reader
                   repomix
-                  terminal-notifier
                 ];
               };
             };
@@ -484,6 +484,7 @@ let
 
           systemPackages = with pkgs;
             [
+              terminal-notifier
               openssl
               gawk
               gnused

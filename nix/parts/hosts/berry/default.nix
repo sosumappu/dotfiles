@@ -16,37 +16,127 @@
         isNormalUser = true;
         extraGroups = ["wheel" "networkmanager" "docker"];
       };
+
+      modules = {
+        caddy = {
+          domain = "berry.home";
+          tls.mode = "internal";
+          services = {
+            vault.upstream = "http://127.0.0.1:${toString config.my.modules.vaultwarden.port}";
+            immich.upstream = "http://127.0.0.1:${toString config.my.modules.immich.port}";
+            ntfy.upstream = "http://127.0.0.1:${toString config.my.modules.ntfy.port}";
+            prometheus.upstream = "http://127.0.0.1:${toString config.my.modules.prometheus.port}";
+            alertmanager.upstream = "http://127.0.0.1:${toString config.my.modules.prometheus.alertmanager.port}";
+            adguard.upstream = "http://127.0.0.1:${toString config.my.modules.adguardhome.webPort}";
+          };
+        };
+
+        adguardhome = {
+          lanIp = "192.168.1.63";
+          localDomain = "berry.home";
+          autoRegisterCaddyServices = true;
+        };
+
+        vaultwarden = {
+          domain = "vault.berry.home";
+        };
+
+        immich = {
+          mediaLocation = "/data/immich";
+          settings = {
+            newVersionCheck.enabled = false;
+            trash = {
+              enabled = true;
+              days = 30;
+            };
+            storageTemplate = {
+              enabled = true;
+              template = "{{y}}/{{MM}}/{{filename}}";
+            };
+          };
+        };
+
+        ntfy = {
+          baseUrl = "https://ntfy.berry.home";
+        };
+
+        prometheus = {
+          retentionTime = "30d";
+          alertmanager.secretsFile = "/etc/secrets/alertmanager.conf";
+        };
+      };
+    };
+
+    services.restic.backups = let
+      common = {
+        repository = "s3:s3.eu-central-003.backblazeb2.com/berry-backups"; # ← change me
+        passwordFile = "/etc/secrets/restic-password";
+        environmentFile = "/etc/secrets/restic-env";
+        pruneOpts = ["--keep-daily 7" "--keep-weekly 5" "--keep-monthly 12" "--keep-yearly 3"];
+      };
+    in {
+      vaultwarden =
+        common
+        // {
+          paths = ["/var/lib/vaultwarden"];
+          backupPrepareCommand = "systemctl start vaultwarden-wal-flush";
+          timerConfig = {
+            OnCalendar = "03:00";
+            Persistent = true;
+          };
+        };
+      immich =
+        common
+        // {
+          paths = ["/data/immich"];
+          exclude = [".cache" "*.tmp" "thumbs" "encoded-video"];
+          timerConfig = {
+            OnCalendar = "04:00";
+            Persistent = true;
+          };
+        };
+    };
+
+    age.secrets.cloudflared-berry = {
+      file = ../../../secrets/cloudflared.json.age;
+      mode = "600";
     };
 
     nix = {
       settings."use-xdg-base-directories" = true;
       gc = {dates = "daily";};
-      autoOptimiseStore = true;
       registry = {
         nixos.flake = inputs.nixpkgs;
         nixpkgs.flake = inputs.nixpkgs;
       };
     };
 
-    boot.loader.grub.enable = false;
-    boot.loader.systemd-boot.enable = false;
-    boot.loader.generic-extlinux-compatible.enable = true;
+    boot.loader = {
+      grub.enable = false;
+      systemd-boot.enable = false;
+      generic-extlinux-compatible.enable = true;
+    };
 
     networking = {
       hostName = "berry";
       wireless.enable = true;
       networkmanager.enable = false;
-      interfaces.wlan0.useDHCP = true;
+      interfaces.wlan0 = {
+        useDHCP = false;
+        ipv4.addresses = [
+          {
+            address = "192.168.1.63";
+            prefixLength = 24;
+          }
+        ];
+      };
+      defaultGateway = "192.168.1.1";
+      nameservers = ["1.1.1.1"];
     };
 
     i18n = {
       defaultLocale = "en_US.UTF-8";
       extraLocaleSettings = {LC_TIME = "en_GB.UTF-8";};
-    };
-
-    age.secrets.cloudflared-berry = {
-      file = ../../../secrets/cloudflared.json.age;
-      mode = 600;
     };
 
     services = {
@@ -61,9 +151,7 @@
         tunnels."f021ef4e-6386-450a-864e-f54e8c1ab427" = {
           credentialsFile = config.age.secrets.cloudflared-berry.path;
           "warp-routing".enabled = true;
-          ingress = {
-            "berry" = "ssh://localhost:22";
-          };
+          ingress."berry" = "ssh://localhost:22";
           default = "http_status:404";
         };
       };
@@ -115,6 +203,13 @@
         "gpg"
         "zk"
         "bun"
+
+        "caddy"
+        "adguardhome"
+        "vaultwarden"
+        "immich"
+        "ntfy"
+        "prometheus"
       ];
     })
     hostConfiguration
