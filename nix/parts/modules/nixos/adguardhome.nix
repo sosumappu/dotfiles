@@ -202,9 +202,9 @@ let
         };
 
         filters =
-          map (bl: {
+          lib.imap1 (i: bl: {
             inherit (bl) name url enabled;
-            id = builtins.hashString "sha256" bl.url; # stable ID from URL
+            id = i;
           })
           cfg.blocklists;
 

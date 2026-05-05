@@ -12,6 +12,9 @@
     ];
 
     my = {
+      username = "localhost";
+      email = "adelarab.works@gmail.com";
+
       user = {
         isNormalUser = true;
         extraGroups = ["wheel" "networkmanager" "docker"];
