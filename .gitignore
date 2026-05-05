@@ -6,3 +6,4 @@ result
 .direnv
 config/nvim/nvim-pack-lock.json
 *~
+repomix-output.xml
