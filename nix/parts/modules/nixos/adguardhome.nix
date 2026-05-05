@@ -175,9 +175,6 @@ let
       };
 
       adguardConfig = {
-        bind_host = "0.0.0.0";
-        bind_port = cfg.webPort;
-
         dns = {
           bind_hosts = ["0.0.0.0"];
           inherit (cfg) port;
@@ -235,6 +232,8 @@ let
       services.adguardhome = {
         enable = true;
         mutableSettings = true; # allow the web UI to persist changes
+        host = "0.0.0.0";
+        port = cfg.webPort;
         settings = builtins.fromJSON (builtins.readFile configFile);
       };
 

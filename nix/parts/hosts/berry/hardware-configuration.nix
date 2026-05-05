@@ -22,7 +22,11 @@
     fsType = "ext4";
   };
 
-  swapDevices = [];
-
+  swapDevices = [
+    {
+      device = "/swapfile";
+      size = 8192;
+    }
+  ];
   nixpkgs.hostPlatform = lib.mkDefault "aarch64-linux";
 }

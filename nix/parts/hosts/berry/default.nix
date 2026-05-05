@@ -62,7 +62,6 @@
 
         prometheus = {
           retentionTime = "30d";
-          alertmanager.secretsFile = "/etc/secrets/alertmanager.conf";
         };
       };
     };
@@ -119,7 +118,13 @@
 
     networking = {
       hostName = "berry";
-      wireless.enable = true;
+      wireless = {
+        enable = true;
+        secretsFile = "/etc/secrets/wifi.conf";
+        networks."Almond wifi 2" = {
+          pskRaw = "ext:psk_home";
+        };
+      };
       networkmanager.enable = false;
       interfaces.wlan0 = {
         useDHCP = false;
@@ -130,7 +135,7 @@
           }
         ];
       };
-      defaultGateway = "192.168.1.1";
+      defaultGateway = "192.168.1.254";
       nameservers = ["1.1.1.1"];
     };
 
@@ -153,6 +158,15 @@
           "warp-routing".enabled = true;
           ingress."berry" = "ssh://localhost:22";
           default = "http_status:404";
+        };
+      };
+
+      avahi = {
+        enable = true;
+        nssmdns4 = true;
+        publish = {
+          enable = true;
+          addresses = true;
         };
       };
     };

@@ -53,6 +53,7 @@
     ../modules/nixos/immich.nix
     ../modules/nixos/ntfy.nix
     ../modules/nixos/prometheus.nix
+    ../modules/nixos/vaultwarden.nix
 
     ../hosts/erdnase/default.nix
     ../hosts/berry/default.nix

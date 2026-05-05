@@ -344,10 +344,6 @@ let
         ];
       };
 
-      alertmanagerConfigFile = pkgs.writeText "alertmanager.yaml" (
-        builtins.toJSON alertmanagerConfig
-      );
-
       localScrapes = [
         {
           job_name = "node";
@@ -379,7 +375,7 @@ let
         wantedBy = ["multi-user.target"];
         after = ["network.target"];
         serviceConfig = {
-          ExecStart = "${pkgs.process-exporter}/bin/process-exporter --config.path=${processExporterConfig} --web.listen-address=:${toString cfg.exporters.process.port}";
+          ExecStart = "${pkgs.prometheus-process-exporter}/bin/prometheus-process-exporter --config.path=${processExporterConfig} --web.listen-address=:${toString cfg.exporters.process.port}";
           Restart = "on-failure";
           DynamicUser = true;
           ReadOnlyPaths = ["/proc"];
@@ -401,7 +397,7 @@ let
       services.prometheus.alertmanager = {
         enable = true;
         inherit (cfg.alertmanager) port;
-        configFile = alertmanagerConfigFile;
+        configuration = alertmanagerConfig;
       };
     };
   };
