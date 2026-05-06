@@ -22,8 +22,7 @@
 
       modules = {
         caddy = {
-          domain = "berry.home";
-          tls.mode = "internal";
+          domain = "berry.tail0fd3d1.ts.net";
           services = {
             vault.upstream = "http://127.0.0.1:${toString config.my.modules.vaultwarden.port}";
             immich.upstream = "http://127.0.0.1:${toString config.my.modules.immich.port}";
@@ -36,12 +35,12 @@
 
         adguardhome = {
           lanIp = "192.168.1.63";
-          localDomain = "berry.home";
+          localDomain = "berry.tail0fd3d1.ts.net";
           autoRegisterCaddyServices = true;
         };
 
         vaultwarden = {
-          domain = "vault.berry.home";
+          domain = "vault.berry.tail0fd3d1.ts.net";
         };
 
         immich = {
@@ -60,7 +59,7 @@
         };
 
         ntfy = {
-          baseUrl = "https://ntfy.berry.home";
+          baseUrl = "https://ntfy.berry.tail0fd3d1.ts.net";
         };
 
         prometheus = {

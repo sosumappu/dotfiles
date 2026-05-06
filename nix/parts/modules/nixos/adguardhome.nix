@@ -161,6 +161,7 @@ let
         (lib.mapAttrsToList (name: _: {
             domain = "${name}.${cfg.localDomain}";
             answer = cfg.lanIp;
+            enabled = true;
           })
           config.my.modules.caddy.services);
 
@@ -172,6 +173,7 @@ let
       wildcardRewrite = {
         domain = "*.${cfg.localDomain}";
         answer = cfg.lanIp;
+        enabled = true;
       };
 
       adguardConfig = {
@@ -180,7 +182,6 @@ let
           inherit (cfg) port;
           upstream_dns = cfg.upstreamDns;
           bootstrap_dns = cfg.bootstrapDns;
-          rewrites = [wildcardRewrite] ++ allRewrites;
 
           # Sensible security defaults
           filtering_enabled = true;
@@ -199,6 +200,10 @@ let
           ratelimit = 20;
           refuse_any = true;
           upstream_timeout = "10s";
+        };
+
+        filtering = {
+          rewrites = [wildcardRewrite] ++ allRewrites;
         };
 
         filters =

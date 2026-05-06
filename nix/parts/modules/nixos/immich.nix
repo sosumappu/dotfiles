@@ -27,6 +27,7 @@ let
     config = {
       services.immich = {
         enable = true;
+        host = "0.0.0.0";
         machine-learning.enable = false;
         inherit (cfg) port mediaLocation settings;
         inherit (cfg) secretsFile;
