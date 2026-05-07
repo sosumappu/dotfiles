@@ -18,7 +18,7 @@ let
       };
       secretsFile = mkOption {
         type = types.str;
-        default = "/etc/secrets/ntfy.conf";
+        default = "etc/secrets/ntfy-env";
       };
     };
 

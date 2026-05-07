@@ -46,7 +46,7 @@ let
           User = "vaultwarden";
           ExecStart = pkgs.writeShellScript "vaultwarden-wal-flush" ''
             set -euo pipefail
-            DB="/var/lib/vaultwarden/db.sqlite3"
+            DB="/var/lib/bitwarden_rs/db.sqlite3"  # ← corriger ici aussi
             [ -f "$DB" ] && ${pkgs.sqlite}/bin/sqlite3 "$DB" "PRAGMA wal_checkpoint(TRUNCATE);"
           '';
         };

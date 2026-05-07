@@ -14,6 +14,11 @@ let
           description = "Tailscale domain e.g. berry.tail0fd3d1.ts.net";
         };
 
+        authKeyFile = mkOption {
+          type = types.nullOr types.path;
+          default = "/etc/secrets/caddy-tailscale-env";
+        };
+
         services = mkOption {
           type = types.attrsOf (types.submodule {
             options = {
@@ -34,10 +39,11 @@ let
     config = with lib; let
       siteBlocks = lib.concatStringsSep "\n\n" (
         lib.mapAttrsToList (name: svc: ''
-          ${name}.${cfg.domain} {
-            reverse_proxy ${svc.upstream}
-            ${lib.optionalString (svc.extraConfig != "") svc.extraConfig}
-          }
+                 ${name}.${cfg.domain}{
+          bind tailscale/${name}
+                    reverse_proxy ${svc.upstream}
+                    ${lib.optionalString (svc.extraConfig != "") svc.extraConfig}
+                  }
         '')
         cfg.services
       );
@@ -47,8 +53,21 @@ let
 
       services.caddy = {
         enable = true;
+        package = pkgs.caddy.withPlugins {
+          plugins = ["github.com/tailscale/caddy-tailscale@v0.0.0-20260106222316-bb080c4414ac"];
+          hash = "sha256-t03XUYBJAYJkvJFQK8veN9SqHr9yZmvfxRYi7eA0174=";
+        };
         virtualHosts = {};
+        globalConfig = ''
+          tailscale {
+               	auth_key {env.TS_AUTH_KEY}
+               }
+               servers {
+          	 protocols h1 h2
+           }
+        '';
         extraConfig = siteBlocks;
+        environmentFile = cfg.authKeyFile;
       };
 
       networking.firewall.allowedTCPPorts = [80 443];

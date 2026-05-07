@@ -364,22 +364,24 @@ let
         inherit (cfg.exporters.node) port enabledCollectors disabledCollectors;
       };
 
+      services.prometheus.exporters.process = {
+        enable = true;
+        inherit (cfg.exporters.process) port;
+        settings.process_names =
+          map (g: {
+            name = "{{.Matches}}";
+            cmdline = g.cmdlineMatchers;
+            comm = g.commMatchers;
+          })
+          cfg.exporters.process.groups;
+      };
+
       services.prometheus.exporters.systemd = {
         enable = true;
         inherit (cfg.exporters.systemd) port;
-        extraFlags = ["--systemd.unit-whitelist=${cfg.exporters.systemd.unitWhitelist}"];
-      };
-
-      systemd.services.process-exporter = {
-        description = "Prometheus process exporter";
-        wantedBy = ["multi-user.target"];
-        after = ["network.target"];
-        serviceConfig = {
-          ExecStart = "${pkgs.prometheus-process-exporter}/bin/prometheus-process-exporter --config.path=${processExporterConfig} --web.listen-address=:${toString cfg.exporters.process.port}";
-          Restart = "on-failure";
-          DynamicUser = true;
-          ReadOnlyPaths = ["/proc"];
-        };
+        extraFlags = [
+          "--systemd.collector.unit-include=${cfg.exporters.systemd.unitWhitelist}"
+        ];
       };
 
       services.prometheus = {

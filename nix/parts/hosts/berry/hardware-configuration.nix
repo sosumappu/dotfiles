@@ -22,6 +22,17 @@
     fsType = "ext4";
   };
 
+  fileSystems."/data" = {
+    device = "/dev/disk/by-uuid/c804c018-a180-4d72-abef-b11f5281e235";
+    fsType = "btrfs";
+    options = [
+      "compress=zstd"
+      "noatime"
+      "discard=async"
+      "nofail"
+    ];
+  };
+
   swapDevices = [
     {
       device = "/swapfile";

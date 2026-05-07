@@ -76,6 +76,10 @@ let
             options = {
               domain = mkOption {type = types.str;};
               answer = mkOption {type = types.str;};
+              enabled = mkOption {
+                type = types.bool;
+                default = true;
+              };
             };
           });
           default = [];

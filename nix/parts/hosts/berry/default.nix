@@ -22,25 +22,37 @@
 
       modules = {
         caddy = {
-          domain = "berry.tail0fd3d1.ts.net";
-          services = {
-            vault.upstream = "http://127.0.0.1:${toString config.my.modules.vaultwarden.port}";
-            immich.upstream = "http://127.0.0.1:${toString config.my.modules.immich.port}";
-            ntfy.upstream = "http://127.0.0.1:${toString config.my.modules.ntfy.port}";
-            prometheus.upstream = "http://127.0.0.1:${toString config.my.modules.prometheus.port}";
-            alertmanager.upstream = "http://127.0.0.1:${toString config.my.modules.prometheus.alertmanager.port}";
-            adguard.upstream = "http://127.0.0.1:${toString config.my.modules.adguardhome.webPort}";
+          domain = "tail0fd3d1.ts.net";
+          services = let
+            common = ''
+              tls {
+              	 get_certificate tailscale
+                     }
+                     encode zstd gzip
+                     header +X-Robots-Tag "noindex"
+            '';
+            mkService = upstream: {
+              inherit upstream;
+              extraConfig = common;
+            };
+          in {
+            vault = mkService "http://127.0.0.1:${toString config.my.modules.vaultwarden.port}";
+            immich = mkService "http://127.0.0.1:${toString config.my.modules.immich.port}";
+            ntfy = mkService "http://127.0.0.1:${toString config.my.modules.ntfy.port}";
+            prometheus = mkService "http://127.0.0.1:${toString config.my.modules.prometheus.port}";
+            alertmanager = mkService "http://127.0.0.1:${toString config.my.modules.prometheus.alertmanager.port}";
+            adguard = mkService "http://127.0.0.1:${toString config.my.modules.adguardhome.webPort}";
           };
         };
 
         adguardhome = {
           lanIp = "192.168.1.63";
-          localDomain = "berry.tail0fd3d1.ts.net";
+          localDomain = "berry.home";
           autoRegisterCaddyServices = true;
         };
 
         vaultwarden = {
-          domain = "vault.berry.tail0fd3d1.ts.net";
+          domain = "vault.tail0fd3d1.ts.net";
         };
 
         immich = {
@@ -59,7 +71,7 @@
         };
 
         ntfy = {
-          baseUrl = "https://ntfy.berry.tail0fd3d1.ts.net";
+          baseUrl = "https://ntfy.tail0fd3d1.ts.net";
         };
 
         prometheus = {
@@ -70,7 +82,7 @@
 
     services.restic.backups = let
       common = {
-        repository = "s3:s3.eu-central-003.backblazeb2.com/berry-backups"; # ← change me
+        repository = "s3:s3.eu-central-003.backblazeb2.com/berry-backups";
         passwordFile = "/etc/secrets/restic-password";
         environmentFile = "/etc/secrets/restic-env";
         pruneOpts = ["--keep-daily 7" "--keep-weekly 5" "--keep-monthly 12" "--keep-yearly 3"];
@@ -79,8 +91,8 @@
       vaultwarden =
         common
         // {
-          paths = ["/var/lib/vaultwarden"];
-          backupPrepareCommand = "systemctl start vaultwarden-wal-flush";
+          paths = ["/var/lib/bitwarden_rs"];
+          backupPrepareCommand = "systemctl start vaultwarden-wal-flush || true";
           timerConfig = {
             OnCalendar = "03:00";
             Persistent = true;
@@ -89,8 +101,7 @@
       immich =
         common
         // {
-          paths = ["/data/immich"];
-          exclude = [".cache" "*.tmp" "thumbs" "encoded-video"];
+          paths = ["/data/immich/backups"];
           timerConfig = {
             OnCalendar = "04:00";
             Persistent = true;
