@@ -48,7 +48,6 @@
     ../modules/shared/unison.nix
 
     ../modules/shared/syncthing.nix
-    ../modules/nixos/adguardhome.nix
     ../modules/nixos/caddy.nix
     ../modules/nixos/immich.nix
     ../modules/nixos/ntfy.nix

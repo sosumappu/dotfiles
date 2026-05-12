@@ -22,6 +22,7 @@
 
       modules = {
         caddy = {
+          lanDomain = "berry.home";
           domain = "tail0fd3d1.ts.net";
           services = let
             common = ''
@@ -41,14 +42,7 @@
             ntfy = mkService "http://127.0.0.1:${toString config.my.modules.ntfy.port}";
             prometheus = mkService "http://127.0.0.1:${toString config.my.modules.prometheus.port}";
             alertmanager = mkService "http://127.0.0.1:${toString config.my.modules.prometheus.alertmanager.port}";
-            adguard = mkService "http://127.0.0.1:${toString config.my.modules.adguardhome.webPort}";
           };
-        };
-
-        adguardhome = {
-          lanIp = "192.168.1.63";
-          localDomain = "berry.home";
-          autoRegisterCaddyServices = true;
         };
 
         vaultwarden = {
@@ -77,8 +71,44 @@
         prometheus = {
           retentionTime = "30d";
         };
+
+        syncthing = {
+          peers = ["erdnase"];
+          folders = {
+            code = {
+              path = "~/code";
+              devices = ["erdnase"];
+              type = "sendreceive";
+            };
+            sync = {
+              path = "~/sync";
+              devices = ["erdnase"];
+              type = "sendreceive";
+            };
+          };
+        };
       };
     };
+
+    services.samba = {
+      enable = true;
+      openFirewall = true;
+      settings = {
+        "private" = {
+          "path" = "/data/shared";
+          "browseable" = "yes";
+          "read only" = "no";
+          "guest ok" = "no";
+          "create mask" = "0644";
+          "directory mask" = "0755";
+          "force user" = "localhost";
+        };
+      };
+    };
+
+    systemd.tmpfiles.rules = [
+      "d /data/shared 0770 localhost users - -"
+    ];
 
     services.restic.backups = let
       common = {
@@ -148,9 +178,21 @@
           }
         ];
       };
+      interfaces.end0 = {
+        useDHCP = false;
+        ipv4.addresses = [
+          {
+            address = "192.168.50.2";
+            prefixLength = 24;
+          }
+        ];
+      };
       defaultGateway = "192.168.1.254";
       nameservers = ["1.1.1.1"];
     };
+
+    # enable fast upload on mac for immich
+    networking.firewall.interfaces.end0.allowedTCPPorts = [2283];
 
     i18n = {
       defaultLocale = "en_US.UTF-8";
@@ -232,11 +274,11 @@
         "bun"
 
         "caddy"
-        "adguardhome"
         "vaultwarden"
         "immich"
         "ntfy"
         "prometheus"
+        "syncthing"
       ];
     })
     hostConfiguration

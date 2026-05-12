@@ -13,6 +13,22 @@ let
           type = types.str;
           description = "Tailscale domain e.g. berry.tail0fd3d1.ts.net";
         };
+        lanDomain = mkOption {
+          type = types.nullOr types.str;
+          default = null;
+          example = "berry.home";
+          description = ''
+            Optional LAN domain. When set, each service in `services` gets an
+            additional plain HTTP (port 80) virtual host bound to `lanBindIp`
+            at <service>.<lanDomain>. No TLS — intended for trusted LAN use.
+          '';
+        };
+        lanBindIp = mkOption {
+          type = types.str;
+          default = "0.0.0.0";
+          example = "192.168.1.63";
+          description = "IP to bind the LAN HTTP vhosts to.";
+        };
 
         authKeyFile = mkOption {
           type = types.nullOr types.path;
@@ -29,6 +45,11 @@ let
                 type = types.lines;
                 default = "";
               };
+              lanExpose = mkOption {
+                type = types.bool;
+                default = true;
+                description = "Expose this service on the LAN domain. Ignored when lanDomain is null.";
+              };
             };
           });
           default = {};
@@ -37,15 +58,28 @@ let
     };
 
     config = with lib; let
-      siteBlocks = lib.concatStringsSep "\n\n" (
+      tailscaleSiteBlocks = lib.concatStringsSep "\n\n" (
         lib.mapAttrsToList (name: svc: ''
-                 ${name}.${cfg.domain}{
-          bind tailscale/${name}
-                    reverse_proxy ${svc.upstream}
-                    ${lib.optionalString (svc.extraConfig != "") svc.extraConfig}
-                  }
+          ${name}.${cfg.domain} {
+            bind tailscale/${name}
+            reverse_proxy ${svc.upstream}
+            ${lib.optionalString (svc.extraConfig != "") svc.extraConfig}
+          }
         '')
         cfg.services
+      );
+
+      lanSiteBlocks = lib.optionalString (cfg.lanDomain != null) (
+        lib.concatStringsSep "\n\n" (
+          lib.mapAttrsToList (name: svc:
+            lib.optionalString svc.lanExpose ''
+              http://${name}.${cfg.lanDomain} {
+                bind ${cfg.lanBindIp}
+                reverse_proxy ${svc.upstream}
+              }
+            '')
+          cfg.services
+        )
       );
     in {
       users.users.caddy.extraGroups = ["tailscale"];
@@ -60,17 +94,19 @@ let
         virtualHosts = {};
         globalConfig = ''
           tailscale {
-               	auth_key {env.TS_AUTH_KEY}
-               }
-               servers {
-          	 protocols h1 h2
-           }
+            auth_key {env.TS_AUTH_KEY}
+          }
+          servers {
+            protocols h1 h2
+          }
         '';
-        extraConfig = siteBlocks;
+        extraConfig = tailscaleSiteBlocks + "\n\n" + lanSiteBlocks;
         environmentFile = cfg.authKeyFile;
       };
 
-      networking.firewall.allowedTCPPorts = [80 443];
+      networking.firewall.allowedTCPPorts =
+        [80 443]
+        ++ lib.optionals (cfg.lanDomain != null) [];
     };
   };
 in {

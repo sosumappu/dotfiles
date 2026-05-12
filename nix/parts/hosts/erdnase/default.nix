@@ -24,6 +24,21 @@
             }
           ];
         };
+        syncthing = {
+          peers = ["berry"];
+          folders = {
+            code = {
+              path = "~/code";
+              devices = ["berry"];
+              type = "sendreceive";
+            };
+            sync = {
+              path = "~/sync";
+              devices = ["berry"];
+              type = "sendreceive";
+            };
+          };
+        };
       };
       user = {
         packages = with pkgs; [
@@ -108,6 +123,7 @@
         "discord"
         "bun"
         "zathura"
+        "syncthing"
       ];
     })
     hostConfiguration
