@@ -95,7 +95,7 @@ let
                   NEXT_TELEMETRY_DISABLED = "1";
                   NOTES_DIR = "${SYNC_DIR}/notes";
                   PAGER = "less";
-                  PROJECTS_DIR = "$HOME/${devFolder}/personal/code";
+                  PROJECTS_DIR = "$HOME/${devFolder}/personal/dev";
                   RLWRAP_HOME = "${xdg.dataHome}/rlwrap";
                   # Better spell checking & auto correction prompt
                   SHELL = "${pkgs.zsh}/bin/zsh";

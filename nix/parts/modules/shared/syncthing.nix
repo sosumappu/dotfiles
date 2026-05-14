@@ -59,11 +59,8 @@ let
         };
         config = with lib; {
           my.user.packages = with pkgs; [syncthing];
-          services.syncthing = {
+          home-manager.users."${username}".services.syncthing = {
             enable = true;
-            user = config.my.username;
-            dataDir = homeDir;
-            configDir = "${xdg.configHome}/syncthing";
             overrideDevices = true;
             overrideFolders = true;
 

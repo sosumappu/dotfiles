@@ -9,7 +9,7 @@
       email = "adelarab.works@gmail.com";
       website = "https://vinceromedia.co";
       company = "Vincero";
-      devFolder = "dev";
+      devFolder = "code";
       modules = {
         mail = {
           accounts = [

@@ -20,6 +20,8 @@ let
           VISUAL = "$EDITOR";
           GIT_EDITOR = "$EDITOR";
           MANPAGER = "$EDITOR +Man!";
+          JAVA_DEBUG_PATH = "${pkgs.vscode-extensions.vscjava.vscode-java-debug}";
+          JAVA_TEST_PATH = "${pkgs.vscode-extensions.vscjava.vscode-java-test}";
         };
 
         my.user.packages = with pkgs; [
@@ -50,8 +52,10 @@ let
           markdown-oxide
           copilot-language-server
           stylelint-lsp
-jdt-language-server
+          jdt-language-server
           lombok
+          vscode-extensions.vscjava.vscode-java-debug
+          vscode-extensions.vscjava.vscode-java-test
           clang-tools
         ];
       };

@@ -19,8 +19,8 @@ let
         recursive = true;
         source = ../../../../config/tmux;
       };
-     xdg.configFile."tmux-sessionizer" = {
-        recursive =true;
+      xdg.configFile."tmux-sessionizer" = {
+        recursive = true;
         source = ../../../../config/tmux-sessionizer;
       };
     };
