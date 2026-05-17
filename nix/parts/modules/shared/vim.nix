@@ -52,10 +52,13 @@ let
           markdown-oxide
           copilot-language-server
           stylelint-lsp
+          cppcheck
+          mypy
           jdt-language-server
           lombok
           vscode-extensions.vscjava.vscode-java-debug
           vscode-extensions.vscjava.vscode-java-test
+          google-java-format
           clang-tools
         ];
       };
