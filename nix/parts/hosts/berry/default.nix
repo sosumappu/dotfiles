@@ -164,8 +164,15 @@
       wireless = {
         enable = true;
         secretsFile = "/etc/secrets/wifi.conf";
-        networks."Almond wifi 2" = {
-          pskRaw = "ext:psk_home";
+        networks = {
+          "Almond wifi 2" = {
+            pskRaw = "ext:psk_home";
+            priority = 5;
+          };
+          "Freebox-0B1620" = {
+            pskRaw = "ext:psk_home_free";
+            priority = 10;
+          };
         };
       };
       networkmanager.enable = false;
