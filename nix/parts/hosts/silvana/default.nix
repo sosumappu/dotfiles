@@ -27,57 +27,33 @@
       };
     };
 
-    boot.loader.systemd-boot.enable = true;
-    boot.loader.efi.canTouchEfiVariables = true;
+    # Efi boot
+    boot.loader = {
+      systemd-boot.enable = true;
+      efi.canTouchEfiVariables = true;
+    };
 
     networking = {
       hostName = "silvana";
-      wireless.enable = false;
       networkmanager.enable = true;
-      useDHCP = false;
-      interfaces.enp0s20u2.useDHCP = true;
     };
 
-    hardware.bluetooth.enable = true;
-    hardware.pulseaudio = {
+    # VM / Memory tuning
+    # ---------------------------------
+    boot.kernel.sysctl = {
+      "vm.swappiness" = 10; # Strongly prefer RAM over swap (default 60 causes swap-thrashing)
+      "vm.vfs_cache_pressure" = 50; # Keep dentries/inodes cached longer
+    };
+
+    # Enable zram for compressed in-memory swap (much faster than disk swap)
+    zramSwap = {
       enable = true;
-      systemWide = true;
-      support32Bit = true;
-      package = pkgs.pulseaudioFull;
-    };
-
-    i18n = {
-      defaultLocale = "en_US.UTF-8";
-      extraLocaleSettings = {LC_TIME = "en_GB.UTF-8";};
-    };
-
-    console = {
-      font = "PragmataPro Mono Liga16";
-      keyMap = "us";
+      memoryPercent = 50; # Use up to 50% of RAM for compressed swap
+      algorithm = "zstd";
+      priority = 100; # Higher priority than disk swap (-2)
     };
 
     services = {
-      xserver = {
-        enable = true;
-        layout = "us,ar,nl";
-        libinput = {
-          enable = true;
-          touchpad = {
-            tapping = true;
-            naturalScrolling = true;
-          };
-        };
-        windowManager.dwm.enable = true;
-        windowManager.i3 = {
-          enable = true;
-          package = pkgs.i3-gaps;
-          extraPackages = with pkgs; [i3lock dmenu i3blocks];
-        };
-        displayManager.defaultSession = "none+i3";
-        displayManager.sddm.enable = true;
-        desktopManager.plasma5.enable = true;
-      };
-
       nextdns.enable = true;
       printing.enable = true;
       openssh.enable = true;
@@ -85,23 +61,18 @@
       avahi.enable = true;
     };
 
-    nixpkgs.config.dwm.patches = [./dwm.patch];
-
-    sound.enable = true;
-
     environment.systemPackages = with pkgs; [
       bitwarden-cli
       gnumake
       wget
       htop
       emacs
-      dunst
+      mako
       killall
       feh
       unzip
       wirelesstools
       libnotify
-      x11
       gnome3.networkmanagerapplet
     ];
 
@@ -109,7 +80,6 @@
 
     programs = {
       gnupg.agent = {pinentryFlavor = "pinentry";};
-      java.enable = true;
       less.enable = true;
       mosh.enable = true;
       npm.enable = true;
@@ -145,6 +115,9 @@
         "zk"
         "discord"
         "bun"
+        "gaming"
+        "ctos"
+        "defaults"
       ];
     })
     hostConfiguration

@@ -1,0 +1,152 @@
+include optional=true "conf.d/nix.kdl"
+
+input {
+    keyboard {
+        xkb {
+            layout "fr"
+        }
+    }
+
+    // fn key = mouse modifier for move/resize (closest to yabai's `mouse_modifier fn`)
+    // Niri uses Mod (Super) by default; map to Alt to match your skhd lalt usage
+    focus-follows-mouse max-scroll-amount="0%"  // off — matches focus_follows_mouse off
+}
+
+// ── Layout  ──────────────────────
+layout {
+    gaps 10           // window_gap 10
+
+    struts {
+        left 8
+        right 8
+        top 8
+        bottom 8
+    }
+
+    default-column-width { proportion 0.5; }  // split_ratio 0.50
+
+    focus-ring {
+        width 5                             // borders width=5.0
+        active-color "#9a9a9a"              // active_color=0xff9a9a9a
+        inactive-color "#545454"            // unactive_color=0xff545454
+    }
+}
+
+// ── Animations  ──────────────
+animations {
+    window-movement {
+        spring damping-ratio=1.0 stiffness=800 epsilon=0.0001
+    }
+    window-open {
+        duration-ms 500
+        curve "ease-out-quint"
+    }
+    window-close {
+        duration-ms 200
+        curve "ease-out-quint"
+    }
+}
+
+// ── Window rules ───────────────────────────────────
+window-rule {
+    match app-id="^(calculator|vlc|steam|org\.gnome\.Software)$"
+    open-floating true
+}
+
+window-rule {
+    match app-id="org.gnome.Nautilus"
+    match title="(Copy|Move|Info|Preferences|Connect)"
+    open-floating true
+}
+
+window-rule {
+    match app-id="^kitty$"
+    open-on-workspace "1"
+}
+window-rule {
+    match app-id="^(Safari|org.gnome.Epiphany|firefox|chromium)$"
+    open-on-workspace "2"
+}
+
+
+// ── Spawn at startup ───────────────────────────────────────────────────────
+spawn-at-startup "kitty"
+spawn-at-startup "firefox"   // or "chromium", "safari" doesn't exist on Linux
+
+// ── Keybindings ────────────────────────────────────────────────────────────
+binds {
+    // ── Workspace (Space) Navigation: Alt+1..8 ──────────────────────────
+    Alt+1 { focus-workspace 1; }
+    Alt+2 { focus-workspace 2; }
+    Alt+3 { focus-workspace 3; }
+    Alt+4 { focus-workspace 4; }
+    Alt+5 { focus-workspace 5; }
+    Alt+6 { focus-workspace 6; }
+    Alt+7 { focus-workspace 7; }
+    Alt+8 { focus-workspace 8; }
+
+    // ── Move window to workspace: Shift+Alt+1..8 ────────────────────────
+    Alt+Shift+1 { move-column-to-workspace 1; }
+    Alt+Shift+2 { move-column-to-workspace 2; }
+    Alt+Shift+3 { move-column-to-workspace 3; }
+    Alt+Shift+4 { move-column-to-workspace 4; }
+    Alt+Shift+5 { move-column-to-workspace 5; }
+    Alt+Shift+6 { move-column-to-workspace 6; }
+    Alt+Shift+7 { move-column-to-workspace 7; }
+    Alt+Shift+8 { move-column-to-workspace 8; }
+
+    // Move window to prev/next workspace
+    // Replaces shift+lalt-p / shift+lalt-n
+    Alt+Shift+P { move-column-to-workspace-up; }
+    Alt+Shift+N { move-column-to-workspace-down; }
+
+    // ── Window Focus: Alt+hjkl ───────────────────────────────────────────
+    Alt+H { focus-column-left; }
+    Alt+L { focus-column-right; }
+    Alt+K { focus-window-up; }
+    Alt+J { focus-window-down; }
+
+    // Focus first/last window — replaces lalt-p / lalt-m
+    Alt+P { focus-column-first; }
+    Alt+M { focus-column-last; }
+
+    // ── Window Movement: Shift+Alt+hjkl ─────────────────────────────────
+    Alt+Shift+H { move-column-left-or-to-monitor-left; }
+    Alt+Shift+L { move-column-right-or-to-monitor-right; }
+    Alt+Shift+K { move-window-up; }
+    Alt+Shift+J { move-window-down; }
+
+    // ── Float toggle — replaces lalt-space ──────────────────────────────
+    Alt+Space { toggle-window-floating; }
+
+    // ── Fullscreen — replaces shift+lalt-f ──────────────────────────────
+    Alt+Shift+F { toggle-fullscreen; }
+
+    // ── Zoom to parent — replaces lalt-f ────────────────────────────────
+    Alt+F { expand-column-to-available-width; }
+
+    // ── Resize: Ctrl+Alt+hjkl ───────────────────────────────────────────
+    Ctrl+Alt+H { set-column-width "-100"; }
+    Ctrl+Alt+L { set-column-width "+100"; }
+    Ctrl+Alt+J { set-window-height "+100"; }
+    Ctrl+Alt+K { set-window-height "-100"; }
+
+    // Equalize — replaces ctrl+lalt-e (yabai space --balance)
+    Ctrl+Alt+E { reset-window-height; }
+
+    // ── Toggle split orientation — replaces shift+lalt-s ────────────────
+    Alt+Shift+S { switch-layout "horizontal"; }  // no-op if only 1 window in col
+
+    // ── New window splits — replaces lalt-s / lalt-v ────────────────────
+    // In niri, new windows open in the column layout automatically.
+    // To open a new kitty to the right: spawn it (it will open as new column)
+    // To open below (in same column): not directly bindable without a script
+    Alt+S { spawn "kitty"; }   // opens new kitty as a new column (east)
+    // Alt+V has no clean "open in same column below" binding without a wrapper
+
+
+    // ── Stack navigation — replaces shift+ctrl-{n,p} ────────────────────
+    Ctrl+Shift+N { focus-window-down; }
+    Ctrl+Shift+P { focus-window-up; }
+
+}

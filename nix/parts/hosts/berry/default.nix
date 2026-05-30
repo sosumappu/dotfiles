@@ -94,7 +94,7 @@
       enable = true;
       openFirewall = true;
       settings = {
-        "private" = {
+        "mirror" = {
           "path" = "/data/shared";
           "browseable" = "yes";
           "read only" = "no";
@@ -142,21 +142,6 @@
     age.secrets.cloudflared-berry = {
       file = ../../../secrets/cloudflared.json.age;
       mode = "600";
-    };
-
-    nix = {
-      settings."use-xdg-base-directories" = true;
-      gc = {dates = "daily";};
-      registry = {
-        nixos.flake = inputs.nixpkgs;
-        nixpkgs.flake = inputs.nixpkgs;
-      };
-    };
-
-    boot.loader = {
-      grub.enable = false;
-      systemd-boot.enable = false;
-      generic-extlinux-compatible.enable = true;
     };
 
     networking = {
@@ -223,6 +208,15 @@
         };
       };
 
+      github-runners = {
+        "berry-runner" = {
+          enable = true;
+          url = "https://github.com/sosumappu/my-nix-cache";
+          tokenFile = "/etc/secrets/github-runner-token";
+          extraLabels = ["nixos" "arm64" "berry"];
+        };
+      };
+
       avahi = {
         enable = true;
         nssmdns4 = true;
@@ -242,7 +236,7 @@
       git-sizer
       httpstat
       lazydocker
-      llm-agents.gemini-cli
+      llm-agents.pi
       entr
     ];
 
@@ -279,12 +273,7 @@
         "gpg"
         "zk"
         "bun"
-
-        "caddy"
-        "vaultwarden"
-        "immich"
-        "ntfy"
-        "prometheus"
+        "homelab"
         "syncthing"
       ];
     })

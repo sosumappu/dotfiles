@@ -46,14 +46,17 @@
     ../modules/shared/java.nix
     ../modules/shared/iac.nix
     ../modules/shared/unison.nix
-
     ../modules/shared/syncthing.nix
-    ../modules/nixos/caddy.nix
-    ../modules/nixos/immich.nix
-    ../modules/nixos/ntfy.nix
-    ../modules/nixos/prometheus.nix
-    ../modules/nixos/vaultwarden.nix
-
+    ../modules/homelab/default.nix
+    ../modules/homelab/immich.nix
+    ../modules/homelab/ntfy.nix
+    ../modules/homelab/prometheus.nix
+    ../modules/homelab/vaultwarden.nix
+    ../modules/homelab/caddy.nix
+    ../modules/nixos/audio.nix
+    ../modules/nixos/bluetooth.nix
+    ../modules/nixos/ctos.nix
+    ../modules/nixos/gaming.nix
     ../hosts/erdnase/default.nix
     ../hosts/berry/default.nix
     ../hosts/silvana/default.nix
