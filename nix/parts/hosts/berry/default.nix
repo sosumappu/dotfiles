@@ -208,15 +208,6 @@
         };
       };
 
-      github-runners = {
-        "berry-runner" = {
-          enable = true;
-          url = "https://github.com/sosumappu/my-nix-cache";
-          tokenFile = "/etc/secrets/github-runner-token";
-          extraLabels = ["nixos" "arm64" "berry"];
-        };
-      };
-
       avahi = {
         enable = true;
         nssmdns4 = true;

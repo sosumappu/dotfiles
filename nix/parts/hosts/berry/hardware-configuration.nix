@@ -12,32 +12,36 @@
     (modulesPath + "/installer/scan/not-detected.nix")
   ];
 
-  boot.initrd.availableKernelModules = ["xhci_pci"];
+  boot.initrd.availableKernelModules = ["xhci_pci" "uas"];
   boot.initrd.kernelModules = [];
   boot.kernelModules = [];
   boot.extraModulePackages = [];
 
   fileSystems."/" = {
-    device = "/dev/disk/by-uuid/44444444-4444-4444-8888-888888888888";
-    fsType = "ext4";
+    device = "/dev/disk/by-uuid/243624a9-58b5-4e95-ba5c-e36cec4092f4";
+    fsType = "btrfs";
+    options = ["subvol=@"];
+  };
+
+  fileSystems."/nix" = {
+    device = "/dev/disk/by-uuid/243624a9-58b5-4e95-ba5c-e36cec4092f4";
+    fsType = "btrfs";
+    options = ["subvol=@nix"];
   };
 
   fileSystems."/data" = {
-    device = "/dev/disk/by-uuid/c804c018-a180-4d72-abef-b11f5281e235";
+    device = "/dev/disk/by-uuid/243624a9-58b5-4e95-ba5c-e36cec4092f4";
     fsType = "btrfs";
-    options = [
-      "compress=zstd"
-      "noatime"
-      "discard=async"
-      "nofail"
-    ];
+    options = ["subvol=@data"];
   };
 
-  swapDevices = [
-    {
-      device = "/swapfile";
-      size = 8192;
-    }
-  ];
+  fileSystems."/boot" = {
+    device = "/dev/disk/by-uuid/96F0-EA3C";
+    fsType = "vfat";
+    options = ["fmask=0022" "dmask=0022"];
+  };
+
+  swapDevices = [];
+
   nixpkgs.hostPlatform = lib.mkDefault "aarch64-linux";
 }

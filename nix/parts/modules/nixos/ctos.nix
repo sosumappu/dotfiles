@@ -7,7 +7,7 @@ let
       ...
     }: let
       inherit (config.home-manager.users."${config.my.username}") xdg;
-      greetdConfig = pkgs.writeText."greeter.niri.kdl" ''
+      greetdConfig = pkgs.writeText "greeter.niri.kdl" ''
         spawn-sh-at-startup "CTOS_MODE=greetd quickshell --path ${xdg.configHome}/quickshell/greeter.qml"
 
          animations {
@@ -29,10 +29,9 @@ let
           wayland-utils # Wayland debugging tools
           wev # Key event viewer (useful for finding key names)
           wlr-randr # Output management
-          pkgs-unstable.xwayland-satellite # X11 app support (non-native on niri)
+          xwayland-satellite # X11 app support (non-native on niri)
           dragon-drop # Drag and drop for wayland
           niri
-          xwayland-satellite
           quickshell
         ];
 
@@ -81,7 +80,7 @@ let
             default_session = {
               # launch a niri instance to lockin greetd
               command = "dbus-run-session
-									${config.programs.niri.package}/bin/niri --config ${greetdConfig}";
+                                      ${config.programs.niri.package}/bin/niri --config ${greetdConfig}";
             };
           };
         };
@@ -90,19 +89,20 @@ let
     homeManager = {
       pkgs,
       config,
+      myConfig,
+      ...
     }: let
-      inherit (config.my.username) username;
-      inherit (config.home-manager.users."${config.my.username}") xdg;
+      inherit (config.my) username;
     in {
       xdg.configFile = {
         #  startup the bar
         "niri/conf.d/nix.kdl".text = ''
-          spawn-at-startup "${pkgs.quickshell}/bin/quickshell --path ${xdg.configHome}/quickshell/bar.qml"
+          spawn-at-startup "${pkgs.quickshell}/bin/quickshell --path ${config.home.homeDirectory}/.config/quickshell/bar.qml"
         '';
         "quickshell/greeter.config.json".text = ''
-          					{
-            "\$schema": "https://raw.githubusercontent.com/TSM-061/ctOS/main/schema/greeter.schema.json",
-            "user": "${username}",
+                            {
+           "$schema": "https://raw.githubusercontent.com/TSM-061/ctOS/main/schema/greeter.schema.json",
+           "user": "${username}",
             "monitor": "aged-cpm",
             "fontFamily": "Pragmata Pro",
             "fakeIdentity": {
@@ -141,8 +141,8 @@ let
     };
   };
 in {
-  flake.module = {
+  flake.modules = {
     nixos.ctos = module.nixos;
-    homeManager.ctos = module.homeManger;
+    homeManager.ctos = module.homeManager;
   };
 }

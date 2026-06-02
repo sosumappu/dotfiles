@@ -9,7 +9,7 @@ Item {
 
     FileView {
         id: jsonFile
-        path: `~/config/quickshell/${root.fileName}.config.json`
+        path: `/home/localhost/.config/quickshell/${root.fileName}.config.json`
         blockLoading: true
     }
 

@@ -14,7 +14,11 @@ let
     ];
 
     nix = {
-      settings."use-xdg-base-directories" = true;
+      settings = {
+        "use-xdg-base-directories" = true;
+        max-jobs = 1;
+        core = 2;
+      };
       gc = {dates = "daily";};
       registry = {
         nixos.flake = inputs.nixpkgs;
