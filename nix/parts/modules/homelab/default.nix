@@ -23,15 +23,6 @@ let
         nixpkgs.flake = inputs.nixpkgs;
       };
     };
-
-    boot = {
-      kernelPackages = pkgs.linuxKernel.packages.linux_rpi4;
-      loader = {
-        grub.enable = false;
-        systemd-boot.enable = false;
-        generic-extlinux-compatible.enable = true;
-      };
-    };
   };
 in {
   flake.modules.nixos.homelab = module;

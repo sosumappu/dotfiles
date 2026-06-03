@@ -11,6 +11,14 @@
       ./hardware-configuration.nix
     ];
 
+    boot = {
+      loader = {
+        grub.enable = false;
+        systemd-boot.enable = false;
+        generic-extlinux-compatible.enable = true;
+      };
+    };
+
     my = {
       username = "localhost";
       email = "adelarab.works@gmail.com";
@@ -242,6 +250,7 @@
   };
 
   systemImports = [
+    inputs.nixos-hardware.nixosModules.raspberry-pi-4
     (inputs.self.lib.mkFeatureModule "nixos" {
       features = [
         "system-base"
