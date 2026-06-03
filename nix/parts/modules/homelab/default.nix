@@ -16,8 +16,6 @@ let
     nix = {
       settings = {
         "use-xdg-base-directories" = true;
-        max-jobs = 1;
-        core = 2;
       };
       gc = {dates = "daily";};
       registry = {
@@ -26,10 +24,13 @@ let
       };
     };
 
-    boot.loader = {
-      grub.enable = false;
-      systemd-boot.enable = false;
-      generic-extlinux-compatible.enable = true;
+    boot = {
+      kernelPackages = pkgs.linuxKernel.packages.linux_rpi4;
+      loader = {
+        grub.enable = false;
+        systemd-boot.enable = false;
+        generic-extlinux-compatible.enable = true;
+      };
     };
   };
 in {
