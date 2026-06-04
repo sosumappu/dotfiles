@@ -13,7 +13,7 @@ let
 
         knownPeers = {
           berry = {
-            id = "O3VOH5C-DVH5PRR-Y773HXN-23QGRAW-JHNDUWJ-CDTLXOW-M2DIHBD-LT5KAQC";
+            id = "USBTMQ7-EKZJMQ5-SA2WGVQ-H2XZSOD-5UPQXVE-YRN5MQD-5PNSV2T-S7RKHQH";
             addresses = ["dynamic"];
           };
           erdnase = {
