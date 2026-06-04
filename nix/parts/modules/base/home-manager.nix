@@ -51,9 +51,8 @@ in {
 
       programs = {
         home-manager.enable = true;
+        man.enable = true;
       };
-
-      documentation.man.enable = true;
 
       manual = {
         html.enable = true;
