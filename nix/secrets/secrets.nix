@@ -23,8 +23,8 @@ let
   # Host SSH keys (from /etc/ssh/ssh_host_ed25519_key.pub)
   # Run: cat /etc/ssh/ssh_host_ed25519_key.pub
   erdnase = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILGtpDc+d2hinuG8VTlxhc5infICbdDoWFroRzeqwIEO erdnase";
-  berry = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKPdEk0bNeXOQMISdnWVM7SYZDiKERUwF9DC1jtB168n berry";
-  silvana = "";
+  berry = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINtJopoV/rmGEnkyGXECQ5+k1KjCl20OPM3IKDE2g9I4 berry";
+  silvana = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIGAx+iz5Z+ArRNmdQJoM70xGNETtdc8vpTYFJuL26jH silvana";
 
   allHosts = [erdnase berry silvana];
 

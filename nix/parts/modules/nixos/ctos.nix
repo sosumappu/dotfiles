@@ -92,7 +92,7 @@ let
       myConfig,
       ...
     }: let
-      inherit (config.my) username;
+      inherit (myConfig) username;
     in {
       xdg.configFile = {
         #  startup the bar

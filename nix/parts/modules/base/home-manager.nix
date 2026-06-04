@@ -23,7 +23,17 @@ in {
       extraSpecialArgs = {
         inherit inputs;
         myConfig = {
-          inherit (config.my) name email github_username company nix_managed hostConfigHome modules;
+          inherit
+            (config.my)
+            name
+            email
+            github_username
+            company
+            nix_managed
+            hostConfigHome
+            modules
+            username
+            ;
           inherit (config.networking) hostName;
         };
       };
@@ -41,8 +51,9 @@ in {
 
       programs = {
         home-manager.enable = true;
-        man.enable = true;
       };
+
+      documentation.man.enable = true;
 
       manual = {
         html.enable = true;
