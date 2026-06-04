@@ -27,6 +27,9 @@
       user = {
         isNormalUser = true;
         extraGroups = ["wheel" "networkmanager" "docker"];
+        openssh.authorizedKeys.keys = [
+          "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOF1uj9DgHdyYxOezFk2GhrgdFR8DWoXXVr/O2g2CMfG"
+        ];
       };
 
       modules = {
