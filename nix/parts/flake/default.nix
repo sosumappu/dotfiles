@@ -101,7 +101,7 @@
         ];
         package = pkgs.nix;
         settings = {
-          trusted-users = ["@admin"];
+          trusted-users = ["@admin" "@wheel"];
           experimental-features = [
             "nix-command"
             "flakes"
@@ -131,6 +131,18 @@
           options = "--delete-older-than 3d";
         };
         optimise.automatic = optimiseAutomatic;
+        distributedBuilds = true;
+        buildMachines = [
+          {
+            hostName = "silvana"; # tailscale
+            systems = ["x86_64-linux" "aarch64-linux"];
+            sshUser = "localhost";
+            sshKey = "/Users/localhost/.ssh/nix_builder";
+            maxJobs = 4;
+            speedFactor = 2;
+            supportedFeatures = ["nixos-test" "benchmark" "big-parallel"];
+          }
+        ];
       };
 
       # fonts.packages = [pkgs.pragmatapro] ++ extraFonts pkgs;

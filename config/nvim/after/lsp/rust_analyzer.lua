@@ -1,11 +1,11 @@
 return {
 	settings = {
-		['rust-analyzer'] = {
+		["rust-analyzer"] = {
 			imports = {
 				granularity = {
-					group = 'module',
+					group = "module",
 				},
-				prefix = 'self',
+				prefix = "self",
 			},
 			cargo = {
 				allFeatures = true,
@@ -16,15 +16,18 @@ return {
 			procMacro = {
 				enable = true,
 			},
-			checkOnSave = {
-				-- default: `cargo check`
-				command = 'clippy',
+
+			checkOnSave = true,
+			check = {
+				command = "clippy",
 				allFeatures = true,
 			},
+
 			assist = {
 				importEnforceGranularity = true,
-				importPrefix = 'create',
+				importPrefix = "crate",
 			},
+
 			inlayHints = {
 				lifetimeElisionHints = {
 					enable = true,

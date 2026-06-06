@@ -54,6 +54,7 @@ let
           stylelint-lsp
           cppcheck
           mypy
+          rust-analyzer
           jdt-language-server
           lombok
           vscode-extensions.vscjava.vscode-java-debug
