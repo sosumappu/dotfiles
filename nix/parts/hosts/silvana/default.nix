@@ -79,7 +79,7 @@
     environment.shellAliases.l = pkgs.lib.mkForce null;
 
     programs = {
-      gnupg.agent = {pinentryFlavor = "pinentry";};
+      gnupg.agent = {pinentryPackage = pkgs.pinentry-curses;};
       less.enable = true;
       mosh.enable = true;
       npm.enable = true;
