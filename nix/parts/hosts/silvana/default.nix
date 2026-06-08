@@ -27,6 +27,8 @@
       };
     };
 
+    boot.binfmt.emulatedSystems = ["aarch64-linux"];
+
     # Efi boot
     boot.loader = {
       systemd-boot.enable = true;
