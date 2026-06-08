@@ -79,8 +79,7 @@ let
           settings = {
             default_session = {
               # launch a niri instance to lockin greetd
-              command = "dbus-run-session
-                                      ${config.programs.niri.package}/bin/niri --config ${greetdConfig}";
+              command = "${config.programs.niri.package}/bin/niri --config ${greetdConfig}";
             };
           };
         };

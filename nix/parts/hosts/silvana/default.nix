@@ -73,7 +73,6 @@
       unzip
       wirelesstools
       libnotify
-      gnome3.networkmanagerapplet
     ];
 
     environment.shellAliases.l = pkgs.lib.mkForce null;
