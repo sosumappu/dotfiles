@@ -60,6 +60,7 @@
     ../hosts/erdnase/default.nix
     ../hosts/berry/default.nix
     ../hosts/silvana/default.nix
+    ../hosts/dio/default.nix
     ../outputs/overlays.nix
     ../outputs/pkgs.nix
     ../outputs/formatter.nix
