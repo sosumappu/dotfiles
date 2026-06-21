@@ -16,7 +16,6 @@
         extraGroups = ["wheel" "networkmanager"];
         packages = with pkgs; [
           docker
-          llm-agents.amp
           llm-agents.pi
           llama-cpp
         ];

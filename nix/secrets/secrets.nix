@@ -25,8 +25,9 @@ let
   erdnase = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILGtpDc+d2hinuG8VTlxhc5infICbdDoWFroRzeqwIEO erdnase";
   berry = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINtJopoV/rmGEnkyGXECQ5+k1KjCl20OPM3IKDE2g9I4 berry";
   silvana = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIGAx+iz5Z+ArRNmdQJoM70xGNETtdc8vpTYFJuL26jH silvana";
+  dio = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBCryOZcPEDof0SRgHKF200cVrnoPrjLJxdGuoiG1Tuc dio";
 
-  allHosts = [erdnase berry silvana];
+  allHosts = [dio erdnase berry silvana];
 
   # These are in 1Password
   # work = "";
