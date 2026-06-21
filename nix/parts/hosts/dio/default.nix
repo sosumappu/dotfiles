@@ -1,5 +1,5 @@
 {inputs, ...}: let
-  host = inputs.self.lib.mkNixos "x86_64-linux" "silvana";
+  host = inputs.self.lib.mkNixos "x86_64-linux" "dio";
 
   hostConfiguration = {
     pkgs,
@@ -14,6 +14,12 @@
       user = {
         isNormalUser = true;
         extraGroups = ["wheel" "networkmanager"];
+        packages = with pkgs; [
+          docker
+          llm-agents.amp
+          llm-agents.pi
+          llama-cpp
+        ];
       };
     };
 
@@ -34,7 +40,7 @@
     };
 
     networking = {
-      hostName = "silvana";
+      hostName = "dio";
       networkmanager.enable = true;
     };
 

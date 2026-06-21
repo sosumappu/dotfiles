@@ -101,7 +101,7 @@
         ];
         package = pkgs.nix;
         settings = {
-          trusted-users = ["@admin" "@wheel"];
+          trusted-users = ["@admin" "@wheel" "localhost"];
           experimental-features = [
             "nix-command"
             "flakes"
@@ -135,10 +135,19 @@
         buildMachines = [
           {
             hostName = "silvana"; # tailscale
-            systems = ["x86_64-linux" "aarch64-linux"];
+            systems = ["x86_64-linux"];
             sshUser = "localhost";
-            sshKey = "/Users/localhost/.ssh/nix_builder";
+            sshKey = "${homePrefix}/${config.my.username}/.ssh/nix_builder";
             maxJobs = 4;
+            speedFactor = 2;
+            supportedFeatures = ["nixos-test" "benchmark" "big-parallel"];
+          }
+          {
+            hostName = "berry";
+            systems = ["aarch64-linux"];
+            sshUser = "localhost";
+            sshKey = "${homePrefix}/${config.my.username}/.ssh/nix_builder";
+            maxJobs = 3;
             speedFactor = 2;
             supportedFeatures = ["nixos-test" "benchmark" "big-parallel"];
           }

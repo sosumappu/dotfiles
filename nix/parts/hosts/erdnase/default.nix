@@ -51,7 +51,7 @@
           httpstat
           k9s
           lazydocker
-          llm-agents.gemini-cli
+          llm-agents.pi
           entr
         ];
       };
