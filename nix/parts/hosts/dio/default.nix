@@ -128,7 +128,7 @@
     hostConfiguration
   ];
 in {
-  flake.modules.nixos.silvana = {
+  flake.modules.nixos.dio = {
     imports = systemImports;
   };
 
