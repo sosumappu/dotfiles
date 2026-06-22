@@ -66,6 +66,8 @@
       avahi.enable = true;
     };
 
+    hardware.nvidia.package = config.boot.kernelPackages.nvidiaPackages.legacy_580;
+
     environment.systemPackages = with pkgs; [
       bitwarden-cli
       gnumake

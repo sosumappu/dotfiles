@@ -10,6 +10,8 @@
     ./lib.nix
     ../modules/base/default.nix
     ../modules/darwin/default.nix
+    ../modules/nixos/default.nix
+    ../modules/nixos/gaming.nix
     ../modules/darwin/karabiner.nix
     ../modules/darwin/skhd.nix
     ../modules/darwin/yabai.nix
@@ -56,7 +58,6 @@
     ../modules/nixos/audio.nix
     ../modules/nixos/bluetooth.nix
     ../modules/nixos/ctos.nix
-    ../modules/nixos/gaming.nix
     ../hosts/erdnase/default.nix
     ../hosts/berry/default.nix
     ../hosts/silvana/default.nix

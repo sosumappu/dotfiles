@@ -61,6 +61,9 @@
       avahi.enable = true;
     };
 
+    # GTX 1080 does not support stable
+    hardware.nvidia.package = config.boot.kernelPackages.nvidiaPackages.legacy_580;
+
     environment.systemPackages = with pkgs; [
       bitwarden-cli
       gnumake
