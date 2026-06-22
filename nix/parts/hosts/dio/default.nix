@@ -17,7 +17,7 @@
         packages = with pkgs; [
           docker
           llm-agents.pi
-          llama-cpp
+          (llama-cpp.override {cudaSupport = true;})
         ];
       };
     };
