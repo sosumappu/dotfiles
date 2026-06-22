@@ -4,6 +4,7 @@
   hostConfiguration = {
     pkgs,
     inputs,
+    config,
     ...
   }: {
     imports = [
