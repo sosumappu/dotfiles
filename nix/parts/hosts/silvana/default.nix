@@ -63,7 +63,10 @@
     };
 
     # GTX 1080 does not support stable
-    hardware.nvidia.package = config.boot.kernelPackages.nvidiaPackages.legacy_580;
+    hardware.nvidia = {
+      open = false;
+      package = config.boot.kernelPackages.nvidiaPackages.legacy_580;
+    };
 
     environment.systemPackages = with pkgs; [
       bitwarden-cli

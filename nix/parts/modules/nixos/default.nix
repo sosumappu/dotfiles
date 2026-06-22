@@ -7,7 +7,7 @@ let
     ...
   }: {
     config = with lib; {
-      impors = [
+      imports = [
         inputs.self.modules.nixos.audio
         inputs.self.modules.nixos.bluetooth
       ];
