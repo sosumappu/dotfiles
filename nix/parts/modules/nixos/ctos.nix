@@ -33,6 +33,7 @@ let
           dragon-drop # Drag and drop for wayland
           niri
           quickshell
+          uwsm # for quickshell exit
         ];
 
         environment.sessionVariables = {
@@ -79,6 +80,7 @@ let
           settings = {
             default_session = {
               # launch a niri instance to lockin greetd
+              user = config.my.username;
               command = "${config.programs.niri.package}/bin/niri --config ${greetdConfig}";
             };
           };

@@ -4,371 +4,321 @@
 -- https://github.com/neovim/neovim/issues/20107
 -- :h lua-guide-options
 
--- Enable the Lua loader byte-compilation cache.
 if vim.loader ~= nil then
-	vim.loader.enable()
+	vim.loader.enable() -- enable the Lua loader byte-compilation cache
 end
 
 -------------------------------------------------------------------------------
 -- GENERAL {{{1
 -------------------------------------------------------------------------------
 
--- My global namespace
 -- selene: allow(global_usage)
-_G.__ = {}
+_G.__ = {} -- global namespace for helpers called from vimscript expressions
 
-local utils = require("_.utils")
+local utils = require '_.utils'
 
-local root = vim.env.USER == "root"
+local root = vim.env.USER == 'root'
 
-vim.g.mapleader = " "
-vim.g.maplocalleader = ","
+vim.g.mapleader = ' ' -- use space as the leader key
+vim.g.maplocalleader = ',' -- use comma as the local leader key
 
--- Skip vim plugins menu.vim, saves ~100ms, disabled by lazy later in this file
-vim.g.did_install_default_menus = 1
+vim.g.did_install_default_menus = 1 -- skip loading menu.vim to speed up startup
 
--- vim.o. them directly if they are installed, otherwise disable them. To avoid the then
--- runtime check cost, which can be slow.
--- Python This must be here because it makes loading vim VERY SLOW otherwise
-vim.g.python_host_skip_check = 1
-vim.g.loaded_python_provider = 0
-
-vim.g.python3_host_skip_check = 1
-vim.g.loaded_python3_provider = 0
-
-vim.g.loaded_node_provider = 0
-vim.g.loaded_ruby_provider = 0
-vim.g.loaded_perl_provider = 0
+-- Disable unused providers to skip slow runtime availability checks at startup.
+vim.g.python_host_skip_check = 1 -- skip Python 2 provider availability check
+vim.g.loaded_python_provider = 0 -- disable Python 2 provider
+vim.g.python3_host_skip_check = 1 -- skip Python 3 provider availability check
+vim.g.loaded_python3_provider = 0 -- disable Python 3 provider
+vim.g.loaded_node_provider = 0 -- disable Node.js provider
+vim.g.loaded_ruby_provider = 0 -- disable Ruby provider
+vim.g.loaded_perl_provider = 0 -- disable Perl provider
 
 -------------------------------------------------------------------------------
 -- OPTIONS {{{1
 -------------------------------------------------------------------------------
 
--- use guifg/guibg instead of ctermfg/ctermbg in terminal
-vim.o.termguicolors = true
--- spaces per tab
-vim.o.tabstop = 2
-vim.o.softtabstop = 2
--- spaces per tab (when shifting), Zero means use tabstop value
-vim.o.shiftwidth = 0
--- always use tabs
-vim.o.expandtab = false
+vim.o.termguicolors = true -- use 24-bit RGB colors in the terminal
+vim.o.tabstop = 2 -- visual width of a tab character
+vim.o.softtabstop = 2 -- spaces inserted/removed when pressing <Tab>/<BS>
+vim.o.shiftwidth = 0 -- indent width for autoindent (0 = follow tabstop)
+vim.o.expandtab = false -- use real tab characters instead of spaces
 
-vim.o.signcolumn = "yes"
+vim.o.signcolumn = 'yes' -- always show the sign column to avoid layout shifts
 
-vim.o.emoji = false
-
--- start highlighting from 256 lines backwards
-vim.cmd("syntax sync minlines=256")
--- do not highlight very long lines
-vim.o.synmaxcol = 300
-
--- Don't Display the mode you're in. since it's already shown on the statusline
-vim.o.showmode = false
-vim.o.ruler = false
-
--- show a navigable menu for tab completion
-vim.o.wildmode = "noselect,full"
+vim.o.wildmode = 'noselect,full' -- show a navigable menu for command-line completion
 vim.o.wildignore = vim.o.wildignore
 	.. table.concat({
-		"*.o",
-		"*.out",
-		"*.obj",
-		".git",
-		"*.rbc",
-		"*.rbo",
-		"*.class",
-		".svn",
-		"*.gem",
-		"*.pyc",
-		"*.swp",
-		"*~",
-		"*/.DS_Store",
-	}, ",")
+		'*.o',
+		'*.out',
+		'*.obj',
+		'.git',
+		'*.rbc',
+		'*.rbo',
+		'*.class',
+		'.svn',
+		'*.gem',
+		'*.pyc',
+		'*.swp',
+		'*~',
+		'*/.DS_Store',
+	}, ',') -- patterns to ignore during wildcard/file expansion
 
-vim.o.tagcase = "followscs"
-vim.o.tags = utils.prepend(vim.o.tags, { "./.git/tags;" })
+vim.o.tagcase = 'followscs' -- tag matching follows smartcase setting
+vim.o.tags = utils.prepend(vim.o.tags, { './.git/tags;' }) -- look for tags in .git/tags first
 
 -- https://robots.thoughtbot.com/opt-in-project-specific-vim-spell-checking-and-word-completion
-vim.o.spelllang = "en,nl"
-vim.o.spellsuggest = "30"
-vim.o.spelloptions = "camel"
-vim.o.spellfile = string.format("%s%s", vim.fn.stdpath("config"), "/spell/spell.add")
+vim.o.spelllang = 'en,nl' -- spell-check English and Dutch
+vim.o.spellsuggest = '30' -- show up to 30 spelling suggestions
+vim.o.spelloptions = 'camel' -- treat camelCase parts as separate words
+vim.o.spellfile =
+	string.format('%s%s', vim.fn.stdpath 'config', '/spell/spell.add') -- file `zg` writes added words to
 
-vim.o.complete = utils.append(vim.o.complete, { "kspell" })
-vim.o.completeopt = "menu,menuone,noselect,fuzzy,preinsert"
+vim.o.complete = utils.append(vim.o.complete, { 'kspell' }) -- include spell dictionary in keyword completion sources
+vim.o.completeopt = 'menu,menuone,noselect,fuzzy,preinsert,nearest' -- completion popup behaviour
 
--- Disable unsafe commands. Only run autocommands owned by me http://andrew.stwrt.ca/posts/project-specific-vimrc/
-vim.o.secure = true
+vim.o.virtualedit = 'block' -- allow cursor past EOL in visual block mode
 
--- allow cursor to move where there is no text in visual block mode
-vim.o.virtualedit = "block"
+vim.o.whichwrap = 'b,h,l,s,<,>,[,],~' -- keys allowed to cross line boundaries
 
--- allow <BS>/h/l/<Left>/<Right>/<Space>, ~ to cross line boundaries
-vim.o.whichwrap = "b,h,l,s,<,>,[,],~"
+vim.o.showmatch = true -- briefly jump to matching bracket when one is inserted
 
--- don't bother updating screen during macro playback
-vim.o.lazyredraw = true
+vim.o.title = true -- set window title to reflect the current file
+vim.o.mouse = 'a' -- enable mouse support in all modes
 
--- highlight matching [{()}]
-vim.o.showmatch = true
+vim.o.splitbelow = true -- horizontal splits open below the current window
+vim.o.splitright = true -- vertical splits open to the right of the current window
 
-vim.o.title = true
-vim.o.mouse = "a"
+vim.o.ignorecase = true -- case-insensitive search by default
+vim.o.smartcase = true -- case-sensitive when search pattern contains uppercase
+vim.o.infercase = true -- infer case from existing word in keyword completion
+vim.o.iskeyword = utils.append(vim.o.iskeyword, { '-' }) -- treat hyphen as part of a word
 
--- More natural splitting
-vim.o.splitbelow = true
-vim.o.splitright = true
+vim.o.timeoutlen = 300 -- wait 300ms for a mapped key sequence to complete
 
--- Ignore case in search.
-vim.o.ignorecase = true
-vim.o.smartcase = true
-vim.o.infercase = true
-vim.o.iskeyword = utils.append(vim.o.iskeyword, { "-" })
+vim.o.formatoptions = vim.o.formatoptions .. 'nr1' -- recognise lists, continue comments, no break before 1-letter words
 
-vim.o.timeoutlen = 300
+vim.o.visualbell = false -- no visual bell flash
+vim.o.errorbells = false -- no audible error bells
 
-vim.o.formatoptions = vim.o.formatoptions .. "nr1"
+vim.o.scrolloff = 5 -- keep 5 lines visible above/below the cursor
+vim.o.sidescrolloff = 5 -- keep 5 columns visible left/right of the cursor
+vim.o.sidescroll = 3 -- scroll horizontally 3 columns at a time
 
--- No beeping.
-vim.o.visualbell = false
+vim.o.clipboard = 'unnamedplus' -- yank/paste use the system clipboard
 
--- No flashing.
-vim.o.errorbells = false
-
--- Start scrolling slightly before the cursor reaches an edge
-vim.o.scrolloff = 5
-vim.o.sidescrolloff = 5
-
--- Scroll sideways a character at a time, rather than a screen at a time
-vim.o.sidescroll = 3
-
--- yank and paste with the system clipboard
-vim.o.clipboard = "unnamedplus"
-
--- show trailing whitespace
-vim.o.list = true
+vim.o.list = true -- show invisible whitespace characters
 vim.o.listchars = table.concat({
-	"multispace:⋅ ",
-	"lead:⋅",
-	"tab:  ",
-	"nbsp:░",
-	"extends:»",
-	"precedes:«",
-	"trail:␣",
-}, ",")
+	'multispace:⋅ ',
+	'lead:⋅',
+	'tab:  ',
+	'nbsp:░',
+	'extends:»',
+	'precedes:«',
+	'trail:␣',
+}, ',') -- glyphs used to render invisible characters
 
--- Pattern for a start of numbered list (used in `gw`). This reads as
--- "Start of list item is: at least one special character (digit, -, +, *)
--- possibly followed by punctuation (. or `)`) followed by at least one space".
-vim.o.formatlistpat = [[^\s*[0-9\-\+\*]\+[\.\)]*\s\+]]
+vim.o.formatlistpat = [[^\s*[0-9\-\+\*]\+[\.\)]*\s\+]] -- pattern matching numbered/bulleted list items for `gw`
 
-vim.o.joinspaces = false
+vim.o.joinspaces = false -- only insert one space after `.?!` when joining lines
 
-vim.o.concealcursor = "n"
+vim.o.concealcursor = 'n' -- conceal text on the cursor line in normal mode
 
 vim.o.fillchars = table.concat({
-	"stl:⎼",
-	"diff:╱",
-	"msgsep:‾",
-	"eob: ", -- Hide end of buffer ~
-	"fold:─",
-	"foldopen:▾",
-	"foldsep: ",
-	"foldclose:▸",
-	"horiz:━",
-	"horizup:┻",
-	"horizdown:┳",
-	"vert:┃", -- HEAVY VERTICAL (U+2503, UTF-8: E2 94 83)
-	"vertleft:┫",
-	"vertright:┣",
-	"verthoriz:╋",
-}, ",")
+	'stl:⎼',
+	'diff:╱',
+	'msgsep:‾',
+	'eob: ', -- hide end-of-buffer `~`
+	'fold:─',
+	'foldopen:▾',
+	'foldsep: ',
+	'foldclose:▸',
+	'horiz:━',
+	'horizup:┻',
+	'horizdown:┳',
+	'vert:┃',
+	'vertleft:┫',
+	'vertright:┣',
+	'verthoriz:╋',
+}, ',') -- glyphs used for window/fold/diff borders and separators
 
-vim.o.foldcolumn = "0"
-vim.o.foldlevel = 99
-vim.o.foldnestmax = 20 -- 20 is the max
-vim.o.foldminlines = 0 -- Allow closing even 1-line folds.
--- https://www.reddit.com/r/neovim/comments/1fv8o74/is_it_too_much_to_ask_for_a_foldline_that_looks/
-vim.o.foldtext = ""
-vim.o.foldmethod = "expr"
-vim.o.foldexpr = "v:lua.__.foldexpr(v:lnum)"
--- vim.o.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
+vim.o.foldcolumn = '0' -- don't show the fold column gutter
+vim.o.foldlevel = 99 -- start with all folds open
+vim.o.foldnestmax = 20 -- maximum number of nested folds (20 is the cap)
+vim.o.foldminlines = 0 -- allow folding even single-line ranges
+vim.o.foldtext = '' -- use the literal first line as fold display (no custom rendering)
+vim.o.foldmethod = 'expr' -- compute folds via an expression
+vim.o.foldexpr = 'v:lua.__.foldexpr(v:lnum)' -- expression returning the fold level for a line
 
-vim.o.linebreak = true
-vim.o.textwidth = 80
-vim.o.autoindent = true
-vim.o.smartindent = true
-vim.o.wrap = false
-vim.o.breakindent = true
-vim.o.breakindentopt = "list:-1"
-vim.o.showbreak = "↳  " -- DOWNWARDS ARROW WITH TIP RIGHTWARDS (U+21B3, UTF-8: E2 86 B3)
+vim.o.linebreak = true -- wrap on word boundaries instead of mid-word
+vim.o.textwidth = 80 -- max line width before auto-wrapping
+vim.o.autoindent = true -- copy indent from the previous line on <CR>
+vim.o.smartindent = true -- smart auto-indenting for C-like syntax
+vim.o.wrap = false -- don't visually wrap long lines
+vim.o.breakindent = true -- visually indent wrapped lines to match the original
+vim.o.breakindentopt = 'list:-1' -- align wrapped list items under the item text
+vim.o.showbreak = '↳  ' -- prefix shown at the start of visually wrapped lines
+vim.o.hidden = true -- allow switching away from modified buffers
 
-if not vim.fn.has("nvim-0.6") then
-	vim.o.hidden = true
-end
+vim.o.tildeop = true -- make `~` behave like an operator (e.g. `~w`)
 
--- Make tilde command behave like an operator.
-vim.o.tildeop = true
+-- always open diffs in vertical splits, use git's histogram algorithm
+vim.opt.diffopt:append {
+	'vertical',
+	'algorithm:histogram',
+	'hiddenoff',
+	'foldcolumn:0',
+	'linematch:60',
+}
 
--- Make sure diffs are always opened in vertical splits, also match my git settings
-vim.o.diffopt = utils.append(vim.o.diffopt, {
-	"vertical",
-	"algorithm:histogram",
-	"indent-heuristic",
-	"hiddenoff",
-	"foldcolumn:0",
-	"linematch:60",
-})
+vim.o.shortmess = vim.o.shortmess .. 'AIOTWaot' -- silence noisy file/message notifications
 
-vim.o.shortmess = vim.o.shortmess .. "AIOTWaot"
+vim.o.viewoptions = 'cursor,folds' -- save/restore only cursor and folds with `:mkview`
 
-vim.o.viewoptions = "cursor,folds" -- save/restore just these (with `:{mk,load}view`)
+vim.o.backupcopy = 'yes' -- write to the original file instead of rename + rewrite
+vim.o.backup = false -- don't keep backup files
+vim.o.writebackup = false -- don't make a backup before overwriting a file
+vim.o.backupdir =
+	string.format('%s,%s%s', '.', vim.fn.stdpath 'state', '/backup//') -- where backup files would live if enabled
 
-vim.o.backupcopy = "yes" -- overwrite files to update, instead of renaming + rewriting
-vim.o.backup = false
-vim.o.writebackup = false
+vim.o.swapfile = false -- don't create swap files
+vim.o.directory =
+	string.format('%s%s,%s', vim.fn.stdpath 'state', '/swap//', '.') -- where swap files would live if enabled
 
-if not vim.fn.has("nvim-0.6") then
-	vim.o.backupdir = string.format("%s,%s%s", ".", vim.fn.stdpath("state"), "/backup//") -- keep backup files out of the way
-end
-
-vim.o.swapfile = false
-vim.o.directory = string.format("%s%s,%s", vim.fn.stdpath("state"), "/swap//", ".") -- keep swap files out of the way
-
-vim.o.updatetime = 250
+vim.o.updatetime = 250 -- shorter delay before CursorHold and swap writes
 
 if root then
-	vim.o.undofile = false -- don't create root-owned files
+	vim.o.undofile = false -- don't create root-owned undo files
 else
-	vim.o.undofile = true -- actually use undo files
-	vim.o.undodir = utils.append(vim.o.undodir, { "." })
+	vim.o.undofile = true -- persist undo history across sessions
+	vim.o.undodir = utils.append(vim.o.undodir, { '.' }) -- also look for undo files in the current directory
 end
 
--- Shada Defaults:
---   Neovim: !,'100,<50,s10,h
--- - ! save/restore global variables (only all-uppercase variables)
--- - '100 save/restore marks from last 100 files
--- - <50 save/restore 50 lines from each register
--- - s10 max item size 10KB
--- - h do not save/restore 'hlsearch' setting
-
-if root then -- don't create root-owned files then
-	vim.o.shada = ""
-	vim.o.shadafile = "NONE"
+if root then
+	vim.o.shada = '' -- don't read/write shada state when running as root
+	vim.o.shadafile = 'NONE' -- and don't load any shada file either
 end
 
--- cursor behavior:
---   - no blinking in normal/visual mode
---   - blinking in insert-mode
 vim.o.guicursor = utils.append(vim.o.guicursor, {
-	"n-v-c:blinkon0",
-	"i-ci:ver25-Cursor/lCursor-blinkwait30-blinkoff100-blinkon100",
-})
-vim.o.cursorline = true
-vim.o.cursorlineopt = "screenline,number"
-vim.o.smoothscroll = true
+	'n-v-c:blinkon0',
+	'i-ci:ver25-Cursor/lCursor-blinkwait30-blinkoff100-blinkon100',
+}) -- no blinking in normal/visual, blinking vertical bar in insert
+vim.o.cursorline = true -- highlight the line the cursor is on
+vim.o.cursorlineopt = 'screenline,number' -- only highlight the screen line and the line number
+vim.o.smoothscroll = true -- smooth scrolling when soft-wrapped lines exist
 
-vim.o.tabclose = "uselast"
+vim.o.tabclose = 'uselast' -- after closing a tab, focus the previously used one
 
-vim.o.winborder = "bold"
+vim.o.winborder = 'bold' -- default border style for floating windows
+vim.o.pumborder = vim.o.winborder -- match popup-menu border to window border
 
-vim.o.jumpoptions = "stack"
+vim.o.jumpoptions = 'stack,view' -- treat the jumplist like a stack and restore view
+
+vim.o.secure = true -- disable unsafe commands in project-local vimrcs
+vim.o.exrc = true -- load project-local `.nvim.lua` / `.exrc` files
+
+-- Experimental UI2: floating cmdline and messages
+vim.o.cmdheight = 0 -- hide the cmdline when not in use (UI2 floats it)
+require('vim._core.ui2').enable {
+	enable = true,
+	msg = {
+		targets = {
+			[''] = 'msg',
+			empty = 'cmd',
+			bufwrite = 'msg',
+			confirm = 'cmd',
+			emsg = 'pager',
+			echo = 'msg',
+			echomsg = 'msg',
+			echoerr = 'pager',
+			completion = 'cmd',
+			list_cmd = 'pager',
+			lua_error = 'pager',
+			lua_print = 'msg',
+			progress = 'pager',
+			rpc_error = 'pager',
+			quickfix = 'msg',
+			search_cmd = 'cmd',
+			search_count = 'cmd',
+			shell_cmd = 'pager',
+			shell_err = 'pager',
+			shell_out = 'pager',
+			shell_ret = 'msg',
+			undo = 'msg',
+			verbose = 'pager',
+			wildlist = 'cmd',
+			wmsg = 'msg',
+			typed_cmd = 'cmd',
+		},
+		cmd = {
+			height = 0.5,
+		},
+		dialog = {
+			height = 0.5,
+		},
+		msg = {
+			height = 0.3,
+			timeout = 5000,
+		},
+		pager = {
+			height = 0.5,
+		},
+	},
+}
 -------------------------------------------------------------------------------
 -- PLUGINS {{{1
 -------------------------------------------------------------------------------
--- Fix markdown indentation settings
-vim.g.markdown_recommended_style = 0
--- disable frontmatter highlighting
-vim.g.vim_markdown_frontmatter = 1
 
-vim.g.markdown_fenced_languages = {
-	"css",
-	"erb=eruby",
-	"javascript",
-	"js=javascript",
-	"jsx=javascriptreact",
-	"ts=typescript",
-	"tsx=typescriptreact",
-	"json=jsonc",
-	"ruby",
-	"sass",
-	"scss=sass",
-	"xml",
-	"html",
-	"py=python",
-	"python",
-	"clojure",
-	"clj=clojure",
-	"cljs=clojure",
-	"stylus=css",
-	"less=css",
-	"viml=vim",
-}
+vim.g.markdown_recommended_style = 0 -- disable runtime's recommended markdown style (it forces tabstop=4)
+vim.g.vim_markdown_frontmatter = 1 -- enable YAML frontmatter highlighting in markdown
 
-local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
-if not vim.loop.fs_stat(lazypath) then
-	vim.fn.system({
-		"git",
-		"clone",
-		"--filter=blob:none",
-		"https://github.com/folke/lazy.nvim.git",
-		"--branch=stable", -- latest stable release
-		lazypath,
-	})
+vim.g.markdown_fenced_languages =
+	{ -- enable syntax highlighting for fenced code blocks in markdown
+		'css',
+		'erb=eruby',
+		'javascript',
+		'js=javascript',
+		'jsx=javascriptreact',
+		'ts=typescript',
+		'tsx=typescriptreact',
+		'json=jsonc',
+		'ruby',
+		'sass',
+		'scss=sass',
+		'xml',
+		'html',
+		'py=python',
+		'python',
+		'clojure',
+		'clj=clojure',
+		'cljs=clojure',
+		'stylus=css',
+		'less=css',
+		'viml=vim',
+	}
+
+-- Disable builtin plugins we don't use
+for _, plugin in ipairs {
+	'getscript',
+	'getscriptPlugin',
+	'matchit',
+	'netrwPlugin',
+	'rplugin',
+	'rrhelper',
+	'tutor',
+	'vimball',
+	'vimballPlugin',
+} do
+	vim.g['loaded_' .. plugin] = 1
 end
-
-vim.o.rtp = utils.prepend(vim.o.rtp, { lazypath })
-
----@diagnostic disable-next-line: missing-fields, param-type-not-match
-require("lazy").setup({
-	spec = {
-		{ import = "plugins" },
-	},
-	---@diagnostic disable-next-line: assign-type-mismatch
-	dev = {
-		-- directory where you store your local plugin projects
-		path = "~/dev/personal/forks",
-		---@type string[] plugins that match these patterns will use your local versions instead of being fetched from GitHub
-		patterns = { "sosumappu" }, -- For example {"folke"}
-		fallback = true, -- Fallback to git when local plugin doesn't exist
-	},
-	ui = {
-		border = utils.get_border(),
-		backdrop = 0,
-	},
-	performance = {
-		rtp = {
-			-- Stuff I don't use.
-			disabled_plugins = {
-				"getscript",
-				"getscriptPlugin",
-				"netrwPlugin",
-				"rplugin",
-				"rrhelper",
-				"tohtml",
-				"tutor",
-				"vimball",
-				"vimballPlugin",
-			},
-		},
-	},
-	-- Don't bother me when tweaking plugins.
-	change_detection = { notify = false },
-	profiling = {
-		-- Track each new require in the Lazy profiling tab
-		require = true,
-	},
-})
 
 -------------------------------------------------------------------------------
 -- OVERRIDES {{{1
 -------------------------------------------------------------------------------
 
-local vimrc_local = string.format("%s/%s", vim.env.HOST_CONFIGS, "nvimrc.lua")
+local vimrc_local = string.format('%s/%s', vim.env.HOST_CONFIGS, 'nvimrc.lua')
 
 if vim.uv.fs_stat(vimrc_local) then
-	vim.cmd(string.format("source %s", vimrc_local))
+	vim.cmd(string.format('source %s', vimrc_local))
 end
 
 -------------------------------------------------------------------------------

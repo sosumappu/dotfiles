@@ -4,14 +4,15 @@ let
     pkgs,
     lib,
     config,
+    inputs,
     ...
   }: {
-    config = with lib; {
-      imports = [
-        inputs.self.modules.nixos.audio
-        inputs.self.modules.nixos.bluetooth
-      ];
+    imports = [
+      inputs.self.modules.nixos.audio
+      inputs.self.modules.nixos.bluetooth
+    ];
 
+    config = with lib; {
       my.user.packages = with pkgs; [
         egl-wayland # required nvida utilities
         nvidia-vaapi-driver
@@ -19,18 +20,20 @@ let
         xorg.xev #xorg key registry
       ];
       # Add these kernel modules
-      boot.kernelModules = [
+      boot.initrd.kernelModules = [
         "nvidia"
         "nvidia_modeset"
         "nvidia_uvm"
         "nvidia_drm"
+      ];
+      boot.kernelModules = [
         "kvm-intel"
       ];
 
       # NVIDIA drivers package (use the stable version)
       hardware.nvidia = {
-        open = true; # Use open kernel modules for Turing or later GPUs (RTX series)
-        package = config.boot.kernelPackages.nvidiaPackages.stable;
+        open = false; # Use open kernel modules for Turing or later GPUs (RTX series)
+        package = config.boot.kernelPackages.nvidiaPackages.legacy_580;
         powerManagement.enable = true; # Enable power management (suspend/resume)
         modesetting.enable = true;
       };
@@ -44,7 +47,6 @@ let
         enable32Bit = true;
       };
 
-      time.timeZone = "Europe/Amsterdam"; # Time zone
       i18n.defaultLocale = "en_GB.UTF-8"; # Locale
 
       # Additional properties
@@ -86,5 +88,5 @@ let
     };
   };
 in {
-  flake.module.nixos.defaults = module;
+  flake.modules.nixos.defaults = module;
 }

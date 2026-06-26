@@ -72,21 +72,4 @@ function M.loadview(event)
 	end
 end
 
--- Project specific override
--- Better than what I had before https://github.com/mhinz/vim-startify/issues/292#issuecomment-335006879
-function M.source_project_config()
-	local files = {
-		'.vim/local.vim',
-		'.vim/local.lua',
-	}
-
-	for _, file in pairs(files) do
-		local current_file = vim.fn.findfile(file, vim.fn.expand '%:p' .. ';')
-
-		if vim.uv.fs_stat(current_file) then
-			vim.api.nvim_command(string.format('silent source %s', current_file))
-		end
-	end
-end
-
 return M

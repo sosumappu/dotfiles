@@ -1,12 +1,86 @@
 let
   module = {
-    generic = {
-      pkgs,
+    generic = {pkgs, ...}: {
+      my.user.packages = with pkgs; [zk];
+    };
+
+    darwin = {
+      config,
       lib,
+      pkgs,
       ...
-    }: {
-      config = with lib; {
-        my.user.packages = with pkgs; [zk];
+    }: let
+      homeDir = config.my.user.home;
+      notesDir = "${homeDir}/sync/notes";
+      notesIndex = [
+        (lib.getExe pkgs.neovim-unwrapped)
+        "--headless"
+        "--clean"
+        "-u"
+        "NONE"
+        "-l"
+        "${homeDir}/.dotfiles/config/nvim/lua/_/notes/cli.lua"
+        "--"
+      ];
+      notesEnvironment = {
+        NOTES_DIR = notesDir;
+        ZK_NOTEBOOK_DIR = notesDir;
+        XDG_CACHE_HOME = "${homeDir}/.cache";
+      };
+    in {
+      imports = [module.generic];
+
+      config = {
+        my.user.packages = with pkgs; [watchexec];
+
+        launchd.user.agents = {
+          "notes-index" = {
+            serviceConfig = {
+              ProgramArguments =
+                [
+                  (lib.getExe pkgs.watchexec)
+                  "--shell=none"
+                  "--debounce"
+                  "10s"
+                  "--watch"
+                  notesDir
+                  "--exts"
+                  "md,markdown"
+                  "--ignore"
+                  "**/.obsidian/**"
+                  "--ignore"
+                  "**/.zk/**"
+                  "--"
+                ]
+                ++ notesIndex
+                ++ ["--quiet"];
+              RunAtLoad = true;
+              KeepAlive = true;
+              ProcessType = "Background";
+              LowPriorityIO = true;
+              StandardOutPath = "${homeDir}/Library/Logs/notes-index-output.log";
+              StandardErrorPath = "${homeDir}/Library/Logs/notes-index-error.log";
+              EnvironmentVariables = notesEnvironment;
+            };
+          };
+
+          "notes-embed" = {
+            serviceConfig = {
+              ProgramArguments =
+                notesIndex
+                ++ [
+                  "--quiet"
+                  "--embed"
+                ];
+              StartInterval = 60 * 60;
+              ProcessType = "Background";
+              LowPriorityIO = true;
+              StandardOutPath = "${homeDir}/Library/Logs/notes-embed-output.log";
+              StandardErrorPath = "${homeDir}/Library/Logs/notes-embed-error.log";
+              EnvironmentVariables = notesEnvironment;
+            };
+          };
+        };
       };
     };
 
@@ -24,6 +98,7 @@ in {
   flake = {
     modules = {
       generic.zk = module.generic;
+      darwin.zk = module.darwin;
       homeManager.zk = module.homeManager;
     };
   };

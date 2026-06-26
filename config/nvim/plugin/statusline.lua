@@ -6,9 +6,6 @@ local M = {}
 
 __.statusline = M
 
--- Setup LSP progress handler
-lsp.setup_progress_handler()
-
 vim.o.laststatus = 2
 
 ---@return string
@@ -49,8 +46,8 @@ function M.render_active()
 		components.spell(),
 		components.diff_source(),
 		lsp.diagnostics(),
+		vim.bo.busy > 0 and '◐ ' or '',
 		lsp.progress(),
-		components.get_codecompanion_status(),
 		components.file_info(),
 		components.rhs(),
 		'%*',
@@ -71,35 +68,46 @@ end
 ---------------------------------------------------------------------------------
 au.augroup('MyStatusLine', {
 	{
-		event = 'VimLeavePre',
+		event = { 'LspAttach', 'LspDetach', 'Progress' },
 		pattern = '*',
 		callback = function()
-			lsp.cleanup()
+			vim.cmd.redrawstatus()
 		end,
 	},
 	{
-		event = 'User',
-		pattern = {
-			'CodeCompanionChatAdapter',
-			'CodeCompanionChatModel',
-			'CodeCompanionRequest*',
-		},
-		callback = function(args)
-			if args.match == 'CodeCompanionRequestStarted' then
-				components.llm_info.processing = true
-			elseif args.match == 'CodeCompanionRequestFinished' then
-				components.llm_info.processing = false
-			elseif not vim.tbl_isempty(args.data) then
-				local bufnr = args.data.bufnr
-				components.llm_info[bufnr] = components.llm_info[bufnr] or {}
-				if args.match == 'CodeCompanionChatAdapter' and args.data.adapter then
-					components.llm_info[bufnr].name = args.data.adapter.name
-				elseif args.match == 'CodeCompanionChatModel' and args.data.model then
-					components.llm_info[bufnr].model = type(args.data.model) == 'table'
-							and args.data.model[1]
-						or args.data.model
-				end
+		event = 'LspProgress',
+		pattern = '*',
+		callback = function(ev)
+			local data = ev.data or {}
+			local params = data.params or {}
+			local value = params.value
+			local token = params.token
+
+			if type(value) ~= 'table' or token == nil or value.kind == nil then
+				return
 			end
+
+			local client = vim.lsp.get_client_by_id(ev.data.client_id)
+			local client_name = client and client.name or 'LSP'
+			local chunks = {
+				{
+					string.format(
+						'[%s] %d%%: %s ',
+						client_name,
+						value.percentage or 100,
+						value.title
+					),
+					'Comment',
+				},
+				{ (value.message or 'done'), 'Comment' },
+			}
+
+			vim.api.nvim_echo(chunks, false, {
+				id = 'lsp.' .. ev.data.client_id,
+				kind = 'progress',
+				source = client_name,
+				status = value.kind ~= 'end' and 'running' or 'success',
+			})
 		end,
 	},
 	{
@@ -117,14 +125,22 @@ au.augroup('MyStatusLine', {
 		event = { 'WinEnter', 'BufEnter' },
 		pattern = '*',
 		callback = function()
-			vim.wo.statusline = '%!v:lua.__.statusline.render_active()'
+			if vim.bo.filetype == 'snacks_picker_input' then
+				vim.wo.statusline = ''
+			else
+				vim.wo.statusline = '%!v:lua.__.statusline.render_active()'
+			end
 		end,
 	},
 	{
 		event = { 'WinLeave', 'BufLeave' },
 		pattern = '*',
 		callback = function()
-			vim.wo.statusline = '%!v:lua.__.statusline.render_inactive()'
+			if vim.bo.filetype == 'snacks_picker_input' then
+				vim.wo.statusline = ''
+			else
+				vim.wo.statusline = '%!v:lua.__.statusline.render_inactive()'
+			end
 		end,
 	},
 })

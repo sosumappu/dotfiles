@@ -1,10 +1,19 @@
 {
-	"lastChangelogVersion": "0.61.1",
 	"enableInstallTelemetry": false,
 	"defaultThinkingLevel": "xhigh",
 	"defaultProvider": "openai-codex",
-	"defaultModel": "gpt-5.4",
-	"enabledModels": ["claude-4*", "gpt-5.*"],
+	"defaultModel": "gpt-5.5",
+	"enabledModels": [
+		"anthropic/claude-fable-5",
+		"anthropic/claude-opus-4-8",
+		"anthropic/claude-opus-4-7",
+		"anthropic/claude-opus-4-6",
+		"anthropic/claude-sonnet-4-6",
+		"anthropic/claude-haiku-4-5",
+		"google/gemini-3.1-pro-preview",
+		"google/gemini-flash-latest",
+		"openai-codex/gpt-5.5*"
+	],
 	"showHardwareCursor": true,
 	"autocompleteMaxVisible": 10,
 	"steeringMode": "one-at-a-time",

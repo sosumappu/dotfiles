@@ -61,15 +61,15 @@ function M.format_diff_summary(data)
 	local t = {}
 
 	if summary.add and summary.add > 0 then
-		table.insert(t, '%#@diff.plus#+' .. summary.add .. '%*')
+		table.insert(t, '%#StatusLineDiffAdd#+' .. summary.add .. '%*')
 	end
 
 	if summary.change and summary.change > 0 then
-		table.insert(t, '%#@diff.delta#~' .. summary.change .. '%*')
+		table.insert(t, '%#StatusLineDiffChange#~' .. summary.change .. '%*')
 	end
 
 	if summary.delete and summary.delete > 0 then
-		table.insert(t, '%#@diff.minus#-' .. summary.delete .. '%*')
+		table.insert(t, '%#StatusLineDiffDelete#-' .. summary.delete .. '%*')
 	end
 
 	vim.b[data.buf].minidiff_summary_string = table.concat(t, ' ')
@@ -101,7 +101,7 @@ function M.filepath()
 	local highlight = 'User4'
 
 	if vim.bo.modified then
-		highlight = 'DiffChange'
+		highlight = 'StatusLineModified'
 	end
 
 	local line = '%#' .. highlight .. '#%f%*'
@@ -177,12 +177,23 @@ end
 
 ---@return string
 function M.rhs()
-	return vim.fn.winwidth(0) > 80
-			and M.get_parts {
-				'%#User4#%3l/%3L:%-2c%*',
-				'%#User4#' .. line_no_indicator() .. '%*',
-			}
-		or line_no_indicator()
+	if vim.fn.winwidth(0) <= 80 then
+		return line_no_indicator()
+	end
+
+	local total = vim.fn.line '$'
+	local width = #tostring(total)
+	local pos = string.format(
+		'%' .. width .. 'd/%d:%-2d',
+		vim.fn.line '.',
+		total,
+		vim.fn.col '.'
+	)
+
+	return M.get_parts {
+		string.format('%%#User4#%s%%*', pos),
+		'%#User4#' .. line_no_indicator() .. '%*',
+	}
 end
 
 ---@return string?
@@ -222,7 +233,7 @@ function M.word_count()
 		)
 	end
 
-	return vim.g.obsidian
+	return nil
 end
 
 ---@return string?
@@ -264,53 +275,9 @@ function M.diff_source()
 
 	if source == 'git' then
 		icon = require('mini.icons').get('directory', '.github')
-	elseif source == 'codecompanion' then
-		icon = require('mini.icons').get('filetype', 'codecompanion')
 	end
 
 	return icon
-end
-
----@class LlmInfo
----@field processing boolean
----@field [number] {name: string?, model: string?}?
-
----@type LlmInfo
-M.llm_info = {
-	processing = false,
-}
-
----@return string?
-function M.get_codecompanion_status()
-	local ok, mini_icons = pcall(require, 'mini.icons')
-	if not ok then
-		return nil
-	end
-
-	local icon = mini_icons.get('filetype', 'codecompanion') .. ' '
-
-	if M.llm_info.processing then
-		return string.format('%s Thinking...', icon)
-	end
-
-	local bufnr = vim.api.nvim_get_current_buf()
-	local info = M.llm_info[bufnr]
-
-	if not info or not info.name then
-		return nil
-	end
-
-	local hl
-	icon, hl = mini_icons.get('filetype', info.name)
-
-	local model = info.model or info.name
-	local llm_name = string.format('%%#%s#%s%%*', hl, icon or info.name)
-	local model_info = model and (' ' .. model) or ''
-	local status = llm_name .. ' ' .. model_info
-
-	return vim.bo.filetype == 'codecompanion'
-			and string.format('%%#StatusLineLSP# %s ', status)
-		or nil
 end
 
 return M

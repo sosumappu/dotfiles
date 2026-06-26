@@ -166,7 +166,7 @@
             pskRaw = "ext:psk_home";
             priority = 5;
           };
-          "Freebox-0B1620" = {
+          "Freelocos" = {
             pskRaw = "ext:psk_home_free";
             priority = 10;
           };
