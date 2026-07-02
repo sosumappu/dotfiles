@@ -91,7 +91,7 @@ let
                   # mouse/scroll input and can leave less unresponsive to keys
                   # (e.g. q) under tmux. --redraw-on-quit keeps the final screen
                   # visible after quitting without disabling terminal setup.
-                  LESS = "-F -g -i -M -R -S -w --redraw-on-quit --mouse --wheel-lines=3";
+                  LESS = "-F -g -i -M -R -S -w";
                   # LESSOPEN = "|${lib.getExe pkgs.lesspipe}.sh %s";
                   LS_COLORS = "$(${lib.getExe pkgs.vivid} generate ~/.config/vivid/theme.yml)";
                   NEXT_TELEMETRY_DISABLED = "1";

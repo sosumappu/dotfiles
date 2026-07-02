@@ -17,6 +17,7 @@ let
               pip
               setuptools
               pynvim
+              pylatexenc
             ]))
           ruff
           basedpyright
