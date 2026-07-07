@@ -73,6 +73,9 @@
               enabled = true;
               template = "{{y}}/{{MM}}/{{filename}}";
             };
+            machineLearning = {
+              urls = ["http://192.168.50.1:3003"];
+            };
           };
         };
 

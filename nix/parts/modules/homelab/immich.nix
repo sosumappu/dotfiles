@@ -28,10 +28,7 @@ let
       services.immich = {
         enable = true;
         host = "0.0.0.0";
-        machine-learning = {
-          enable = true;
-          url = "http://192.168.50.1:3003";
-        };
+        machine-learning.enable = false;
         inherit (cfg) port mediaLocation settings;
         inherit (cfg) secretsFile;
       };
