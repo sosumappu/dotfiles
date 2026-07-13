@@ -52,6 +52,7 @@
           k9s
           lazydocker
           llm-agents.pi
+          golden-cheetah-bin
           entr
         ];
       };
