@@ -19,6 +19,7 @@ pack.add {
 			npairs.add_rule(Rule('<', '>', {
 				-- Avoid conflicts with nvim-ts-autotag.
 				'-html',
+				'-markdown',
 				'-javascript.jsx',
 				'-javascriptreact',
 				'-typescript.tsx',
