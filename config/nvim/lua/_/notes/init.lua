@@ -9,41 +9,43 @@
 
 ---@class _.notes
 local M = {}
-local frontmatter = require '_.notes.frontmatter'
+local frontmatter = require("_.notes.frontmatter")
 
 ---@type table<string, _.notes.CreateOptions>
 local aliases = {
-	interview = { dir = 'work', template = 'interview.md' },
-	j = { dir = 'journal', prompt = false },
-	journal = { dir = 'journal', prompt = false },
-	lc = { dir = 'work', template = 'live-coding.md' },
-	p = { dir = 'personal' },
-	personal = { dir = 'personal' },
-	rfc = { dir = 'work', template = 'rfc.md' },
-	sd = { dir = 'work', template = 'system-design.md' },
-	til = { dir = 'til' },
-	w = { dir = 'work' },
-	work = { dir = 'work' },
-	y = { dir = 'personal', template = 'year.md' },
-	year = { dir = 'personal', template = 'year.md' },
-	d = { dir = 'personal', template = 'decade.md' },
-	decade = { dir = 'personal', template = 'decade.md' },
+	interview = { dir = "work", template = "interview.md" },
+	j = { dir = "journal", prompt = false },
+	journal = { dir = "journal", prompt = false },
+	lc = { dir = "work", template = "live-coding.md" },
+	p = { dir = "personal" },
+	personal = { dir = "personal" },
+	rfc = { dir = "work", template = "rfc.md" },
+	sd = { dir = "work", template = "system-design.md" },
+	til = { dir = "til" },
+	uni = { dir = "uni" },
+	w = { dir = "work" },
+	work = { dir = "work" },
+	y = { dir = "personal", template = "year.md" },
+	year = { dir = "personal", template = "year.md" },
+	d = { dir = "personal", template = "decade.md" },
+	decade = { dir = "personal", template = "decade.md" },
 }
 
 ---@type table<string, string>
 local command_aliases = {
-	NoteJournal = 'journal',
-	NotePersonal = 'personal',
-	NoteRfc = 'rfc',
-	NoteTil = 'til',
-	NoteWork = 'work',
+	NoteJournal = "journal",
+	NotePersonal = "personal",
+	NoteRfc = "rfc",
+	NoteUni = "uni",
+	NoteTil = "til",
+	NoteWork = "work",
 }
 
 ---@type table<string, boolean>
 local ignored_dirs = {
-	['.git'] = true,
-	['.obsidian'] = true,
-	['.zk'] = true,
+	[".git"] = true,
+	[".obsidian"] = true,
+	[".zk"] = true,
 	assets = true,
 }
 
@@ -55,15 +57,15 @@ table.sort(alias_names)
 ---@param level? integer
 ---@return nil
 local function notify(message, level)
-	vim.notify(message, level or vim.log.levels.INFO, { title = 'notes' })
+	vim.notify(message, level or vim.log.levels.INFO, { title = "notes" })
 end
 
 ---@param args? string
 ---@return string?
 ---@return string
 local function first_word(args)
-	local word, rest = vim.trim(args or ''):match '^(%S+)%s*(.*)$'
-	return word, vim.trim(rest or '')
+	local word, rest = vim.trim(args or ""):match("^(%S+)%s*(.*)$")
+	return word, vim.trim(rest or "")
 end
 
 ---@return string[]
@@ -75,11 +77,7 @@ local function note_subdirs()
 
 	local dirs = {}
 	for name, type in vim.fs.dir(root) do
-		if
-			type == 'directory'
-			and not ignored_dirs[name]
-			and name:sub(1, 1) ~= '.'
-		then
+		if type == "directory" and not ignored_dirs[name] and name:sub(1, 1) ~= "." then
 			table.insert(dirs, name)
 		end
 	end
@@ -92,21 +90,21 @@ end
 ---@return boolean
 local function is_note_subdir(path)
 	local root = frontmatter.notes_dir()
-	if root == nil or path == nil or path == '' then
+	if root == nil or path == nil or path == "" then
 		return false
 	end
-	if path:sub(1, 1) == '.' or path:find '/%.' then
+	if path:sub(1, 1) == "." or path:find("/%.") then
 		return false
 	end
 
 	local stat = vim.uv.fs_stat(vim.fs.joinpath(root, path))
-	return stat ~= nil and stat.type == 'directory'
+	return stat ~= nil and stat.type == "directory"
 end
 
 ---@param args string
 ---@return _.notes.CreateOptions
 local function eval_options(args)
-	local chunk, err = loadstring('return ' .. args)
+	local chunk, err = loadstring("return " .. args)
 	if chunk == nil then
 		error(err)
 	end
@@ -115,8 +113,8 @@ local function eval_options(args)
 	if not ok then
 		error(value)
 	end
-	if type(value) ~= 'table' then
-		error ':N Lua form must evaluate to a table'
+	if type(value) ~= "table" then
+		error(":N Lua form must evaluate to a table")
 	end
 
 	return value
@@ -125,8 +123,8 @@ end
 ---@param args? string
 ---@return _.notes.CreateOptions
 local function resolve_options(args)
-	local trimmed = vim.trim(args or '')
-	if trimmed:sub(1, 1) == '{' then
+	local trimmed = vim.trim(args or "")
+	if trimmed:sub(1, 1) == "{" then
 		return eval_options(trimmed)
 	end
 
@@ -142,10 +140,10 @@ local function resolve_options(args)
 	end
 
 	local options = vim.deepcopy(defaults)
-	if options.prompt ~= false and title == '' then
-		title = vim.fn.input 'Title: '
+	if options.prompt ~= false and title == "" then
+		title = vim.fn.input("Title: ")
 	end
-	if title ~= '' then
+	if title ~= "" then
 		options.title = title
 	end
 
@@ -158,14 +156,14 @@ end
 ---@return string[]
 local function complete_targets(arg_lead, cmdline, cursorpos)
 	local before_cursor = cmdline:sub(1, cursorpos - 1)
-	local args = before_cursor:match '^%S+%s*(.*)$' or ''
-	if args:find '%s' then
+	local args = before_cursor:match("^%S+%s*(.*)$") or ""
+	if args:find("%s") then
 		return {}
 	end
 
 	local seen = {}
 	local targets = {}
-	for _, source in ipairs { alias_names, note_subdirs() } do
+	for _, source in ipairs({ alias_names, note_subdirs() }) do
 		for _, target in ipairs(source) do
 			if not seen[target] and vim.startswith(target, arg_lead) then
 				seen[target] = true
@@ -184,10 +182,7 @@ local function new_note(options)
 
 	local notebook_path = options.notebook_path or frontmatter.notes_dir()
 	if notebook_path == nil then
-		notify(
-			'NOTES_DIR/ZK_NOTEBOOK_DIR is not set or does not exist',
-			vim.log.levels.ERROR
-		)
+		notify("NOTES_DIR/ZK_NOTEBOOK_DIR is not set or does not exist", vim.log.levels.ERROR)
 		return
 	end
 
@@ -197,7 +192,7 @@ local function new_note(options)
 	api_options.prompt = nil
 	api_options.edit = nil
 
-	require('zk.api').new(notebook_path, api_options, function(err, result)
+	require("zk.api").new(notebook_path, api_options, function(err, result)
 		vim.schedule(function()
 			if err ~= nil then
 				notify(tostring(err), vim.log.levels.ERROR)
@@ -236,40 +231,40 @@ end
 
 ---@return nil
 function M.setup()
-	vim.api.nvim_create_user_command('Note', function(ev)
+	vim.api.nvim_create_user_command("Note", function(ev)
 		M.new_from_args(ev.args, { edit = not ev.bang })
 	end, {
 		bang = true,
 		complete = complete_targets,
-		desc = 'Create a zk note',
+		desc = "Create a zk note",
 		force = true,
-		nargs = '*',
+		nargs = "*",
 	})
 
-	vim.api.nvim_create_user_command('NoteFrontmatter', function(ev)
+	vim.api.nvim_create_user_command("NoteFrontmatter", function(ev)
 		frontmatter.normalize(0, { write = ev.bang })
 	end, {
 		bang = true,
-		desc = 'Normalize note frontmatter',
+		desc = "Normalize note frontmatter",
 		force = true,
 	})
 
 	-- :N is a built-in Ex command, so use an abbreviation for the shortcut.
-	vim.cmd [[cnoreabbrev <expr> N getcmdtype() ==# ':' && getcmdline() ==# 'N' ? 'Note' : 'N']]
+	vim.cmd([[cnoreabbrev <expr> N getcmdtype() ==# ':' && getcmdline() ==# 'N' ? 'Note' : 'N']])
 
 	for name, alias in pairs(command_aliases) do
 		vim.api.nvim_create_user_command(name, function(ev)
-			M.new_from_args(alias .. ' ' .. ev.args, { edit = not ev.bang })
+			M.new_from_args(alias .. " " .. ev.args, { edit = not ev.bang })
 		end, {
 			bang = true,
-			desc = 'Create a zk note',
+			desc = "Create a zk note",
 			force = true,
-			nargs = '*',
+			nargs = "*",
 		})
 	end
 
-	vim.api.nvim_create_autocmd({ 'BufNewFile', 'BufReadPost' }, {
-		pattern = { '*.md', '*.markdown' },
+	vim.api.nvim_create_autocmd({ "BufNewFile", "BufReadPost" }, {
+		pattern = { "*.md", "*.markdown" },
 		callback = function(ev)
 			if frontmatter.is_note(ev.buf) and frontmatter.is_empty(ev.buf) then
 				frontmatter.normalize(ev.buf, { write = true })

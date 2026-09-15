@@ -24,6 +24,11 @@
     description = "A simple template for one-off Python scripts";
     welcomeText = ''Welcome to python uv script mode template'';
   };
+  r = {
+    path = ./r;
+    description = "A simple template for R";
+    welcomeText = ''Welcome to R template'';
+  };
   go = {
     path = ./go;
     description = "A simple template for Go";
