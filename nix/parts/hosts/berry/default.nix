@@ -270,6 +270,7 @@
         "ripgrep"
         "tmux"
         "misc"
+        "quarto"
         "node"
         "go"
         "rust"

@@ -184,6 +184,7 @@ pack.add({
 					c = { "clang-format" },
 					cpp = { "clang-format" },
 					rust = { "rustfmt" },
+					r = { "air" },
 				}, js_formats),
 				format_on_save = function(bufnr)
 					-- Disable with a global or buffer-local variable

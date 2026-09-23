@@ -123,6 +123,7 @@
         "mpv"
         "kitty"
         "zk"
+        "quarto"
         "discord"
         "bun"
         "gaming"

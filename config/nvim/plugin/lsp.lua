@@ -100,6 +100,7 @@ pack.add({
 				{ "kotlin_lsp", "kotlin-lsp" },
 
 				{ "clangd" },
+				{ "r_language_server", "R" },
 			}
 
 			for _, value in ipairs(servers) do
@@ -342,7 +343,9 @@ pack.add({
 				end
 
 				print("󰒋 LSP Status for buffer " .. current_bufnr .. ":")
-				print("─────────────────────────────────")
+				print(
+					"─────────────────────────────────"
+				)
 
 				for i, client in ipairs(clients) do
 					print(string.format("󰌘 Client %d: %s (ID: %d)", i, client.name, client.id))
