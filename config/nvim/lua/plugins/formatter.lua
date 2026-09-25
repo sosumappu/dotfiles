@@ -114,6 +114,7 @@ return {
 					return { first(bufnr, "oxfmt", "prettier", "deno_fmt"), "injected" }
 				end,
 
+<<<<<<< Updated upstream
 				mdx = function(bufnr)
 					return { first(bufnr, "oxfmt", "prettier"), "injected" }
 				end,
@@ -157,6 +158,94 @@ return {
 				if vim.g.disable_autoformat or vim.b[bufnr].disable_autoformat then
 					return
 				end
+||||||| Stash base
+        mdx = function(bufnr)
+          return { first(bufnr, "oxfmt", "prettier"), "injected" }
+        end,
+        html = function(bufnr)
+          return { first(bufnr, "oxfmt", "prettier"), "injected" }
+        end,
+        xml = function(bufnr)
+          return { first(bufnr, "oxfmt", "prettier"), "injected" }
+        end,
+        yaml = function(bufnr)
+          return { first(bufnr, "oxfmt", "prettier"), "injected" }
+        end,
+        css = { "oxfmt", "prettier", stop_after_first = true },
+        vue = { "oxfmt", "prettier", stop_after_first = true },
+        scss = { "oxfmt", "prettier", stop_after_first = true },
+        less = { "oxfmt", "prettier", stop_after_first = true },
+        graphql = { "oxfmt", "prettier", stop_after_first = true },
+        lua = { "stylua" },
+        -- Ideally I'd use the LSP for this, but I'd lose organize imports and the autofix
+        -- https://github.com/astral-sh/ruff/issues/12778#issuecomment-2279374570
+        python = { "ruff_fix", "ruff_organize_imports", "ruff_format" },
+        go = {
+          -- this will run gofmt too
+          -- I'm using this instead of LSP format because it cleans up imports too
+          "goimports",
+        },
+        nix = { "alejandra", "statix" },
+        -- not 100% supported but does the job as long as I'm writing POSIX and not fancy zsh
+        zsh = { "shfmt" },
+        sh = { "shfmt" },
+        bash = { "shfmt" },
+        toml = { "taplo" },
+        c = { "clang-format" },
+        cpp = { "clang-format" },
+        java = { "google-java-format" },
+        asm = { "mipsfmt" },
+      }, js_formats),
+      format_on_save = function(bufnr)
+        -- Disable with a global or buffer-local variable
+        if vim.g.disable_autoformat or vim.b[bufnr].disable_autoformat then
+          return
+        end
+=======
+        mdx = function(bufnr)
+          return { first(bufnr, "oxfmt", "prettier"), "injected" }
+        end,
+        html = function(bufnr)
+          return { first(bufnr, "oxfmt", "prettier"), "injected" }
+        end,
+        xml = function(bufnr)
+          return { first(bufnr, "oxfmt", "prettier"), "injected" }
+        end,
+        yaml = function(bufnr)
+          return { first(bufnr, "oxfmt", "prettier"), "injected" }
+        end,
+        css = { "oxfmt", "prettier", stop_after_first = true },
+        vue = { "oxfmt", "prettier", stop_after_first = true },
+        scss = { "oxfmt", "prettier", stop_after_first = true },
+        less = { "oxfmt", "prettier", stop_after_first = true },
+        graphql = { "oxfmt", "prettier", stop_after_first = true },
+        lua = { "stylua" },
+        -- Ideally I'd use the LSP for this, but I'd lose organize imports and the autofix
+        -- https://github.com/astral-sh/ruff/issues/12778#issuecomment-2279374570
+        python = { "ruff_fix", "ruff_organize_imports", "ruff_format" },
+        go = {
+          -- this will run gofmt too
+          -- I'm using this instead of LSP format because it cleans up imports too
+          "goimports",
+        },
+        nix = { "alejandra", "statix" },
+        -- not 100% supported but does the job as long as I'm writing POSIX and not fancy zsh
+        zsh = { "shfmt" },
+        sh = { "shfmt" },
+        bash = { "shfmt" },
+        toml = { "taplo" },
+        c = { "clang-format" },
+        cpp = { "clang-format" },
+        java = { "google-java-format" },
+        asm = { "mipsfmt" },
+        rust = { "rustfmt" }
+      }, js_formats),
+      format_on_save = function(bufnr)
+        -- Disable with a global or buffer-local variable
+        if vim.g.disable_autoformat or vim.b[bufnr].disable_autoformat then
+          return
+        end
+>>>>>>> Stashed changes
 
 				-- Disable autoformat for files in a certain path
 				local bufname = vim.api.nvim_buf_get_name(bufnr)
