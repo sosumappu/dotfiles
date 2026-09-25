@@ -56,7 +56,6 @@ let
       config = with lib; {
         my.user.packages = with pkgs; [
           patchedQuarto
-          (python3.withPackages myPythonPackages)
           (rWrapper.override {packages = myRPackages;})
           texliveFull
         ];

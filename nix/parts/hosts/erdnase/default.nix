@@ -110,6 +110,7 @@
         "kubernetes"
         "unison"
         "python"
+        "quarto"
         "agenix"
         "vim"
         "gui"

@@ -1,7 +1,6 @@
--- REPL / Quarto plugins
 local pack = require("_.pack")
 
-local repl_filetypes = { "r", "rmd", "quarto" }
+local repl_filetypes = { "rmd", "quarto" }
 
 pack.add({
 	{
@@ -41,7 +40,7 @@ pack.add({
 			require("quarto").setup({
 				lspFeatures = {
 					enabled = true,
-					languages = { "r" },
+					languages = {},
 					chunks = "curly",
 					diagnostics = {
 						enabled = true,
@@ -76,13 +75,9 @@ vim.api.nvim_create_autocmd("FileType", {
 		local otter = require("otter")
 		local blink = require("blink.cmp")
 
-		-- Fetch completion capabilities from blink
-		local capabilities = blink.get_lsp_capabilities()
-
-		-- Activate otter for the languages you use inside your code chunks
 		otter.activate({ "python", "r", "julia", "bash" }, {
 			lsp = {
-				capabilities = capabilities,
+				capabilities = blink.get_lsp_capabilities(),
 			},
 		})
 

@@ -18,6 +18,13 @@ let
               setuptools
               pynvim
               pylatexenc
+              pandas
+              numpy
+              scipy
+              statsmodels
+              scikit-learn
+              sympy
+              matplotlib
             ]))
           ruff
           basedpyright
