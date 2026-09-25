@@ -76,38 +76,92 @@ vim.api.nvim_create_autocmd("FileType", {
 		local blink = require("blink.cmp")
 
 		otter.activate({ "python", "r", "julia", "bash" }, {
-			lsp = {
-				capabilities = blink.get_lsp_capabilities(),
-			},
+			lsp = { capabilities = blink.get_lsp_capabilities() },
 		})
 
 		local buf = args.buf
 		local is_quarto = vim.bo[buf].filetype == "quarto"
-		local function map(mode, lhs, rhs, desc)
-			vim.keymap.set(mode, lhs, rhs, { buffer = buf, silent = true, desc = desc })
+
+		-- ---------------
+		-- MAPPINGS
+		-- ---------------
+		for _, item in ipairs({
+			{
+				{ "n" },
+				"<localleader>rl",
+				"<Plug>SlimeLineSend",
+				{ desc = "Send [l]ine" },
+			},
+			{
+				{ "x" },
+				"<localleader>rl",
+				"<Plug>SlimeRegionSend",
+				{ desc = "Send se[l]ection" },
+			},
+			{
+				{ "n" },
+				"<localleader>rc",
+				function()
+					if is_quarto then
+						require("quarto.runner").run_cell()
+					else
+						vim.cmd([[normal! <Plug>SlimeParagraphSend]])
+					end
+				end,
+				{ desc = "Send [c]ell/chunk" },
+			},
+			{
+				{ "n" },
+				"<localleader>ra",
+				function()
+					if is_quarto then
+						require("quarto.runner").run_above()
+					else
+						local cur = vim.api.nvim_win_get_cursor(0)[1]
+						vim.cmd(string.format("normal! ggV%dG", cur))
+						vim.fn["slime#send_op"]("v")
+					end
+				end,
+				{ desc = "Send cell and [a]bove" },
+			},
+			{
+				{ "n" },
+				"<localleader>rf",
+				function()
+					vim.cmd("normal! ggVG")
+					vim.fn["slime#send_op"]("v")
+				end,
+				{ desc = "Send whole [f]ile" },
+			},
+			{
+				{ "n" },
+				"<localleader>ro",
+				start_repl,
+				{ desc = "[O]pen (tmux split + R)" },
+			},
+			{
+				{ "n" },
+				"<localleader>rC",
+				"<Cmd>SlimeConfig<CR>",
+				{ desc = "[C]onfigure target pane" },
+			},
+		}) do
+			local extra_opts = table.remove(item, 4)
+			local merged_opts = vim.tbl_extend("force", { silent = true, buf = buf }, extra_opts)
+
+			table.insert(item, 4, merged_opts)
+
+			local modes, lhs, rhs, opt = item[1], item[2], item[3], item[4]
+
+			vim.keymap.set(modes, lhs, rhs, opt)
 		end
 
-		map("n", "<localleader>rl", "<Plug>SlimeLineSend", "REPL: send line")
-		map("x", "<localleader>rl", "<Plug>SlimeRegionSend", "REPL: send selection")
-
-		map("n", "<localleader>rc", function()
-			if is_quarto then
-				require("quarto.runner").run_cell()
-			else
-				vim.cmd([[normal! <Plug>SlimeParagraphSend]])
-			end
-		end, "REPL: send cell/chunk")
-
-		map("n", "<localleader>rf", function()
-			vim.cmd("normal! ggVG")
-			vim.fn["slime#send_op"]("v")
-		end, "REPL: send whole file")
-
-		map("n", "<localleader>ro", start_repl, "REPL: start (tmux split + R)")
-		map("n", "<localleader>rC", "<Cmd>SlimeConfig<CR>", "REPL: reconfigure target pane")
-
 		if is_quarto then
-			map("n", "<localleader>rp", "<Cmd>QuartoPreview<CR>", "Quarto: preview")
+			vim.keymap.set("n", "<localleader>rp", "<Cmd>QuartoPreview<CR>", {
+				silent = true,
+				buf = buf,
+				desc = "[P]review",
+			})
 		end
 	end,
 })

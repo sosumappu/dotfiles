@@ -19,10 +19,10 @@ pack.add({
 	},
 	{
 		src = "https://github.com/MeanderingProgrammer/render-markdown.nvim",
-		ft = { "markdown", "md", "codecompanion", "quatro", "qmd" },
+		ft = { "markdown", "md", "codecompanion", "quarto" },
 		config = function()
 			require("render-markdown").setup({
-				file_types = { "markdown", "md", "codecompanion", "quatro", "qmd" },
+				file_types = { "markdown", "md", "codecompanion", "quarto" },
 				render_modes = { "n", "no", "c", "t", "i", "ic" },
 				code = {
 					sign = false,
@@ -57,14 +57,17 @@ pack.add({
 					alignment_indicator = "─",
 				},
 			})
+			vim.schedule(function()
+				vim.api.nvim_exec_autocmds("FileType", { buffer = 0 })
+			end)
 		end,
 	},
 	{
 		src = "https://github.com/YousefHadder/markdown-plus.nvim",
-		ft = { "markdown" },
+		ft = { "markdown", "quarto" },
 		config = function()
 			require("markdown-plus").setup({
-				filetypes = { "markdown" },
+				filetypes = { "markdown", "quarto" },
 				-- Avoid overlapping with markdown_oxide, render-markdown, and snippets.
 				features = {
 					list_management = true,

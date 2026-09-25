@@ -1,88 +1,79 @@
 -- Completion and snippets
-local pack = require '_.pack'
+local pack = require("_.pack")
 
-local utils = require '_.utils'
+local utils = require("_.utils")
 
-pack.add {
-	{ src = 'https://github.com/rafamadriz/friendly-snippets', load = false },
+pack.add({
+	{ src = "https://github.com/rafamadriz/friendly-snippets", load = false },
 	{
-		src = 'https://github.com/L3MON4D3/LuaSnip',
-		event = { 'InsertEnter' },
+		src = "https://github.com/L3MON4D3/LuaSnip",
+		event = { "InsertEnter" },
 		load = false,
 		config = function()
-			vim.cmd.packadd 'friendly-snippets'
+			vim.cmd.packadd("friendly-snippets")
 
 			-- Setup toggle choice
-			vim.keymap.set({ 'i', 's' }, '<C-l>', function()
-				local ok, ls = pcall(require, 'luasnip')
+			vim.keymap.set({ "i", "s" }, "<C-l>", function()
+				local ok, ls = pcall(require, "luasnip")
 				if ok and ls.choice_active() then
 					ls.change_choice(1)
 				end
 			end, { silent = true })
 
-			local ls = require 'luasnip'
-			local types = require 'luasnip.util.types'
+			local ls = require("luasnip")
+			local types = require("luasnip.util.types")
 
-			ls.config.set_config {
+			ls.config.set_config({
 				history = true,
 				enable_autosnippets = true,
-				store_selection_keys = '<Tab>', -- needed for TM_SELECTED_TEXT
-				updateevents = 'TextChanged,TextChangedI', -- default is InsertLeave
+				store_selection_keys = "<Tab>", -- needed for TM_SELECTED_TEXT
+				updateevents = "TextChanged,TextChangedI", -- default is InsertLeave
 				ext_opts = {
 					[types.choiceNode] = {
 						active = {
-							virt_text = { { '← Choice', 'Todo' } },
+							virt_text = { { "← Choice", "Todo" } },
 						},
 					},
 				},
-			}
+			})
 
-			require('luasnip.loaders.from_vscode').lazy_load {
+			require("luasnip.loaders.from_vscode").lazy_load({
 				lazy_paths = {
-					string.format(
-						'%s/%s%s',
-						vim.env.XDG_DATA_HOME,
-						vim.fn.hostname(),
-						'/snippets'
-					),
+					string.format("%s/%s%s", vim.env.XDG_DATA_HOME, vim.fn.hostname(), "/snippets"),
 				},
-			}
+			})
 
-			require('_.snippets').setup()
+			require("_.snippets").setup()
 		end,
 		build = function(plugin)
-			vim.fn.system { 'make', '-C', plugin.path, 'install_jsregexp' }
+			vim.fn.system({ "make", "-C", plugin.path, "install_jsregexp" })
 		end,
 	},
-	{ src = 'https://github.com/moyiz/blink-emoji.nvim', load = false },
-	{ src = 'https://github.com/xzbdmw/colorful-menu.nvim', load = false },
-	{ src = 'https://github.com/Saghen/blink.lib', load = false },
+	{ src = "https://github.com/moyiz/blink-emoji.nvim", load = false },
+	{ src = "https://github.com/xzbdmw/colorful-menu.nvim", load = false },
+	{ src = "https://github.com/Saghen/blink.lib", load = false },
 	{
-		src = 'https://github.com/Saghen/blink.cmp',
-		name = 'blink.cmp',
-		version = 'main',
-		event = { 'InsertEnter' },
+		src = "https://github.com/Saghen/blink.cmp",
+		name = "blink.cmp",
+		version = "main",
+		event = { "InsertEnter" },
 		config = function()
-			vim.cmd.packadd 'blink.lib'
-			vim.cmd.packadd 'blink-emoji.nvim'
-			vim.cmd.packadd 'colorful-menu.nvim'
+			vim.cmd.packadd("blink.lib")
+			vim.cmd.packadd("blink-emoji.nvim")
+			vim.cmd.packadd("colorful-menu.nvim")
 
 			local has_words_before = function()
-				if
-					vim.api.nvim_get_option_value('buftype', { buf = 0 }) == 'prompt'
-				then
+				if vim.api.nvim_get_option_value("buftype", { buf = 0 }) == "prompt" then
 					return false
 				end
 				local line, col = unpack(vim.api.nvim_win_get_cursor(0))
 				return col ~= 0
-					and vim.api
-							.nvim_buf_get_text(0, line - 1, 0, line - 1, col, {})[1]
-							:match '^%s*$'
+					and vim.api.nvim_buf_get_text(0, line - 1, 0, line - 1, col, {})[1]:match("^%s*$")
 						== nil
 			end
 
 			local function get_mini_icon_info(ctx)
-				local MiniIcons = require 'mini.icons'
+				local MiniIcons = require("mini.icons")
 				local source = ctx.item.source_name
 				local label = ctx.item.label
 
@@ -90,15 +81,15 @@ pack.add {
 					return
 				end
 
-				if source == 'path' then
-					if label:match '%.[^/]+$' then
-						return MiniIcons.get('file', label)
+				if source == "path" then
+					if label:match("%.[^/]+$") then
+						return MiniIcons.get("file", label)
 					end
 
-					return MiniIcons.get('directory', ctx.item.label)
+					return MiniIcons.get("directory", ctx.item.label)
 				end
 
-				return MiniIcons.get('lsp', ctx.kind)
+				return MiniIcons.get("lsp", ctx.kind)
 			end
 
 			local function get_icon(ctx)
@@ -113,23 +104,23 @@ pack.add {
 				return hl
 			end
 
-			require('blink.cmp').setup {
+			require("blink.cmp").setup({
 				keymap = {
 					-- Set my own, and get rid of the ones I don't use
-					preset = 'none',
-					['<C-space>'] = { 'show', 'show_documentation', 'hide_documentation' },
-					['<C-c>'] = { 'hide' },
+					preset = "none",
+					["<C-space>"] = { "show", "show_documentation", "hide_documentation" },
+					["<C-c>"] = { "hide" },
 
-					['<C-p>'] = { 'select_prev', 'fallback_to_mappings' },
-					['<C-n>'] = { 'select_next', 'fallback_to_mappings' },
+					["<C-p>"] = { "select_prev", "fallback_to_mappings" },
+					["<C-n>"] = { "select_next", "fallback_to_mappings" },
 
-					['<C-b>'] = { 'scroll_documentation_up', 'fallback' },
-					['<C-f>'] = { 'scroll_documentation_down', 'fallback' },
+					["<C-b>"] = { "scroll_documentation_up", "fallback" },
+					["<C-f>"] = { "scroll_documentation_down", "fallback" },
 
 					-- Not sure about this one
-					['<C-k>'] = { 'show_signature', 'hide_signature', 'fallback' },
-					['<S-Tab>'] = { 'select_prev', 'snippet_backward', 'fallback' },
-					['<Tab>'] = {
+					["<C-k>"] = { "show_signature", "hide_signature", "fallback" },
+					["<S-Tab>"] = { "select_prev", "snippet_backward", "fallback" },
+					["<Tab>"] = {
 						function(cmp)
 							if not has_words_before() then
 								return
@@ -139,16 +130,16 @@ pack.add {
 								return cmp.select_next()
 							end
 						end,
-						'snippet_forward',
-						'fallback',
+						"snippet_forward",
+						"fallback",
 					},
-					['<CR>'] = { 'select_and_accept', 'fallback' },
+					["<CR>"] = { "select_and_accept", "fallback" },
 				},
 
-				snippets = { preset = 'luasnip' },
+				snippets = { preset = "luasnip" },
 
 				fuzzy = {
-					implementation = 'prefer_rust',
+					implementation = "prefer_rust",
 				},
 
 				completion = {
@@ -163,17 +154,15 @@ pack.add {
 						draw = {
 							padding = 1,
 							gap = 2,
-							columns = { { 'kind_icon' }, { 'label', 'kind', gap = 2 } },
+							columns = { { "kind_icon" }, { "label", "kind", gap = 2 } },
 							components = {
 								label = {
 									width = { fill = true },
 									text = function(ctx)
-										return require('colorful-menu').blink_components_text(ctx)
+										return require("colorful-menu").blink_components_text(ctx)
 									end,
 									highlight = function(ctx)
-										return require('colorful-menu').blink_components_highlight(
-											ctx
-										)
+										return require("colorful-menu").blink_components_highlight(ctx)
 									end,
 								},
 								label_description = { width = { fill = true } },
@@ -216,65 +205,65 @@ pack.add {
 
 				sources = {
 					default = {
-						'lsp',
-						'path',
-						'snippets',
-						'buffer',
-						'emoji',
+						"lsp",
+						"path",
+						"snippets",
+						"buffer",
+						"emoji",
 					},
 					providers = {
 						lsp = {
-							name = 'lsp',
+							name = "lsp",
 							enabled = true,
-							module = 'blink.cmp.sources.lsp',
-							fallbacks = { 'buffer' },
+							module = "blink.cmp.sources.lsp",
+							fallbacks = { "buffer" },
 						},
 						path = {
-							name = 'Path',
-							module = 'blink.cmp.sources.path',
-							fallbacks = { 'snippets', 'buffer' },
+							name = "Path",
+							module = "blink.cmp.sources.path",
+							fallbacks = { "snippets", "buffer" },
 							opts = {
 								trailing_slash = false,
 								label_trailing_slash = true,
 								get_cwd = function(context)
-									return vim.fn.expand(('#%d:p:h'):format(context.bufnr))
+									return vim.fn.expand(("#%d:p:h"):format(context.bufnr))
 								end,
 								show_hidden_files_by_default = true,
 							},
 						},
 						buffer = {
-							name = 'Buffer',
+							name = "Buffer",
 							enabled = true,
 							max_items = 3,
-							module = 'blink.cmp.sources.buffer',
+							module = "blink.cmp.sources.buffer",
 							min_keyword_length = 4,
 						},
 						emoji = {
-							module = 'blink-emoji',
-							name = 'Emoji',
+							module = "blink-emoji",
+							name = "Emoji",
 							opts = { insert = true },
 						},
 						snippets = {
-							name = 'snippets',
+							name = "snippets",
 							enabled = true,
 							max_items = 8,
 							min_keyword_length = 2,
-							module = 'blink.cmp.sources.snippets',
+							module = "blink.cmp.sources.snippets",
 						},
 					},
 				},
-			}
+			})
 		end,
 		build = function()
-			vim.cmd.packadd 'blink.lib'
+			vim.cmd.packadd("blink.lib")
 
 			local ok, err = pcall(function()
-				local download = require('blink.cmp').download
-				download({ force = true, match = '*' }):wait(60000)
+				local download = require("blink.cmp").download
+				download({ force = true, match = "*" }):wait(60000)
 			end)
 			if not ok then
-				vim.notify(err, vim.log.levels.WARN, { title = 'blink.cmp binary' })
+				vim.notify(err, vim.log.levels.WARN, { title = "blink.cmp binary" })
 			end
 		end,
 	},
-}
+})
