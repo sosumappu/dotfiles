@@ -79,5 +79,6 @@ $0
 }
 
 vim.list_extend(snippets, require("_.snippets.markdown"))
+vim.list_extend(snippets, require("_.snippets.markdown_math"))
 
 return snippets

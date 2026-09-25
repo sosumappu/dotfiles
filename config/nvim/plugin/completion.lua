@@ -68,8 +68,7 @@ pack.add({
 				end
 				local line, col = unpack(vim.api.nvim_win_get_cursor(0))
 				return col ~= 0
-					and vim.api.nvim_buf_get_text(0, line - 1, 0, line - 1, col, {})[1]:match("^%s*$")
-						== nil
+					and vim.api.nvim_buf_get_text(0, line - 1, 0, line - 1, col, {})[1]:match("^%s*$") == nil
 			end
 
 			local function get_mini_icon_info(ctx)
@@ -247,7 +246,7 @@ pack.add({
 							name = "snippets",
 							enabled = true,
 							max_items = 8,
-							min_keyword_length = 2,
+							min_keyword_length = 1,
 							module = "blink.cmp.sources.snippets",
 						},
 					},

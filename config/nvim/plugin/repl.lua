@@ -5,12 +5,14 @@ local repl_filetypes = { "rmd", "quarto" }
 pack.add({
 	{
 		src = "https://github.com/jpalardy/vim-slime",
-		ft = repl_filetypes,
+		-- it bugs when lazy loading
+		-- ft = repl_filetypes,
 		config = function()
 			vim.g.slime_target = "tmux"
 			vim.g.slime_no_mappings = 1
 			vim.g.slime_bracketed_paste = 1
 			vim.g.slime_dont_ask_default = 1
+			vim.g.slime_python_ipython = 1
 			vim.g.slime_default_config = {
 				socket_name = "default",
 				target_pane = "{last}",
@@ -53,7 +55,7 @@ pack.add({
 				codeRunner = {
 					enabled = true,
 					default_method = "slime",
-					ft_runners = { r = "slime" },
+					ft_runners = { r = "slime", python = "slime", julia = "slime" },
 				},
 			})
 		end,
@@ -64,8 +66,13 @@ pack.add({
 -- "{last}", tmux resolves "last active pane" dynamically on every send, so
 -- as long as focus returns to the nvim pane after R starts, no further
 -- configuration step is needed.
+
 local function start_repl()
-	vim.fn.jobstart({ "tmux", "split-window", "-h", "R" }, { detach = true })
+	vim.ui.select({ "ipython", "R", "julia", "bash" }, { prompt = "Select REPL:" }, function(choice)
+		if choice then
+			vim.fn.jobstart({ "tmux", "split-window", "-h", choice }, { detach = true })
+		end
+	end)
 end
 
 vim.api.nvim_create_autocmd("FileType", {

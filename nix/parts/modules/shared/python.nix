@@ -25,6 +25,7 @@ let
               scikit-learn
               sympy
               matplotlib
+              ipython ## for quarto
             ]))
           ruff
           basedpyright
