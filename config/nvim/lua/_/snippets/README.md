@@ -1,25 +1,26 @@
 # Snippets setup
 
-This directory contains the custom LuaSnip snippets used by the Neovim configuration. Markdown owns the math-snippet surface: LaTeX-style math macros are available only from Markdown buffers and only while the cursor is inside a Markdown math zone, except for the snippets that create a math zone.
+This directory contains the custom LuaSnip snippets used by the Neovim configuration. A single math snippet module is shared by Markdown-family and LaTeX buffers; math-zone detection routes each filetype to the matching scanner so the same triggers expand to delimiter-correct output.
 
 ## Goals
 
-- Keep Markdown math snippets useful for notes without loading a full LaTeX document-authoring snippet set.
-- Make `mk` and `dm` create Markdown-native `$...$` and `$$...$$` zones from normal prose.
-- Gate math-macro snippets consistently for autosnippet expansion and completion-menu display.
-- Detect math zones without requiring a `latex` tree-sitter parser or a `markup.math` capture.
+- Share one math snippet surface across `tex`, `markdown`, and `quarto`, parameterised by the display-math delimiter (`$$...$$` for Markdown-family, `\[...\]` for TeX).
+- Make `mk` and `dm` create a math zone from normal prose.
+- Gate math-macro snippets consistently for autosnippet expansion and completion-menu display, so Markdown macros never fire in prose and Markdown prose snippets never fire inside math.
+- Detect math zones in Markdown without requiring a `latex` tree-sitter parser or a `markup.math` capture.
 - Avoid letting `$` in inline code, fenced code blocks, shell snippets, environment variables, or prices leak into later math-zone detection.
 
 ## Files
 
 | File | Purpose |
 | --- | --- |
-| `init.lua` | Registers snippet modules by filetype. Markdown is registered; `tex` is intentionally not registered. |
-| `markdown.lua` | Owns normal Markdown snippets and appends the dedicated Markdown math snippet list. |
-| `markdown_math.lua` | Owns all Markdown math-zone creators and math-macro snippets. It does not require `tex.lua`. |
-| `mathzone.lua` | Math-context detector used by snippet conditions. Its Markdown path is regex-based and skips inline code spans and fenced code blocks. |
-| `mathzone_manual_test.lua` | Unit-style manual smoke test for tricky math-zone cases. |
-| `tex.lua` | Legacy LaTeX snippet source kept unused. It is not registered for any filetype. |
+| `init.lua` | Registers snippet modules by filetype and wires `filetype_extend` so `quarto` and `rmd` inherit `markdown`. |
+| `math.lua` | Shared math-zone creators, macros, and the `ctx` helper that attaches `math`/`text`/`line`/`auto` gating. `get({ dm_style = "dollar" \| "bracket" })` returns the parameterised snippet list. |
+| `markdown.lua` | Markdown-only prose snippets (links, images, tables, headers). Each is gated `text = true` via `ctx` so it never appears inside math. Appends `math.get({ dm_style = "dollar" })`. |
+| `tex.lua` | TeX-only document snippets (environments, templates). Appends `math.get({ dm_style = "bracket" })`. |
+| `quarto.lua` | Quarto-only prose snippets (YAML header, code chunks, callouts, cross-refs). Each is gated `text = true`. Math snippets are inherited from `markdown` via `filetype_extend`. |
+| `r.lua` | R-specific snippets inherited by `quarto` and `rmd`. |
+| `mathzone.lua` | Math-context detector used by snippet conditions. Routes `markdown`/`quarto`/`rmd`/`md`/`mdx` to a regex-based scanner (code-fence aware, inline-code masking); routes `tex`/`plaintex` to VimTeX's `vimtex#syntax#in_mathzone()` when available with the Markdown scanner as fallback. |
 | `README.md` | This document. |
 
 Related files outside this directory:
@@ -143,7 +144,11 @@ The test covers dollars in inline code, dollars in fenced code blocks, two separ
 
 ### Math snippets expand in prose
 
-Check that the buffer filetype is Markdown and that the trigger is not `mk` or `dm`. Math macros should have both `condition` and `show_condition` through `markdown_math.lua`; autosnippets use `condition`, and both paths call `mathzone.math_mode()` through a safe wrapper.
+Check that the buffer filetype is one of `markdown`, `quarto`, `rmd`, `mdx`, `tex`, or `plaintex`, and that the trigger is not `mk` or `dm`. Math macros should have both `condition` and `show_condition` set through `math.lua`'s `ctx` helper; autosnippets use `condition`, and both paths call `mathzone.math_mode()` through a safe wrapper.
+
+### Prose snippets expand inside `$...$`
+
+`markdown.lua` and `quarto.lua` gate every non-math snippet with `text = true` through `ctx`. If a new snippet leaks into math zones, add `text = true` to its options table.
 
 ### Math snippets do not expand inside `$...$`
 

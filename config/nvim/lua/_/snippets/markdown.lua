@@ -7,12 +7,17 @@ local i = ls.insert_node
 local f = ls.function_node
 local fmt = require("luasnip.extras.fmt").fmt
 local parse = ls.parser.parse_snippet
+
+local math_snippets = require("_.snippets.math")
+local ctx = math_snippets.ctx
+
 local snippets = {
 	parse(
-		{
+		ctx({
 			trig = "oto",
 			dscr = "One to one section",
-		},
+			text = true,
+		}),
 		[=[## [[${CURRENT_YEAR}-${CURRENT_MONTH}-${CURRENT_DATE}]]
 $0
 
@@ -24,7 +29,7 @@ $0
 ]=]
 	),
 	s(
-		{ trig = "img", dscr = "Markdown image" },
+		ctx({ trig = "img", dscr = "Markdown image", text = true }),
 		fmt("![{alt}]({url}){next}", {
 			url = f(function(_, snip)
 				return snip.env.TM_SELECTED_TEXT[1] or sn(nil, i(1, "https://example.com"))
@@ -34,7 +39,7 @@ $0
 		})
 	),
 	s(
-		{ trig = "link", dscr = "Markdown link" },
+		ctx({ trig = "link", dscr = "Markdown link", text = true }),
 		fmt("[{text}]({url}){next}", {
 			url = f(function(_, snip)
 				return snip.env.TM_SELECTED_TEXT[1] or sn(nil, i(1, "https://example.com"))
@@ -43,7 +48,7 @@ $0
 			next = i(0),
 		})
 	),
-	s({ trig = "table", dscr = "Table template" }, {
+	s(ctx({ trig = "table", dscr = "Table template", text = true }), {
 		t("| "),
 		i(1, "First Header"),
 		t({
@@ -54,7 +59,7 @@ $0
 		}),
 	}),
 	parse(
-		{ trig = "footer", dscr = "Project footer" },
+		ctx({ trig = "footer", dscr = "Project footer", text = true }),
 		[=[
 **${1:projectname}** © ${$CURRENT_YEAR}+, Adel Arab Released under the [MIT] License.<br>
 Authored and maintained Adel Arab with help from contributors ([list][contributors]).
@@ -66,7 +71,7 @@ Authored and maintained Adel Arab with help from contributors ([list][contributo
     ]=]
 	),
 	parse(
-		{ trig = "mit", dscr = "MIT Licence" },
+		ctx({ trig = "mit", dscr = "MIT Licence", text = true }),
 		[=[
 The MIT License (MIT)
 
