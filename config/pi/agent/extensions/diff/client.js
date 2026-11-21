@@ -22,10 +22,14 @@ const hasConflictMarkers = (contents) =>
 const resolveMergeConflict =
 	diffsLib.resolveMergeConflict || diffsLib.resolveConflict
 
+// Highlights (WASM lexers) needs WebAssembly with SIMD and a CSP that allows
+// it; shiki-js is the fallback where either is missing.
+const preferredHighlighter = diffsLib.canUseWASM() ? 'highlights' : 'shiki-js'
+
 const config = window.PI_DIFF_CONFIG
-// Server-provided UI prefs (sidebar widths). The HTTP server picks a new random
-// port every session, so localStorage — being origin-scoped — resets each time;
-// the server persists these on disk and seeds them here instead.
+// Server-provided UI prefs. The HTTP server picks a new random port every
+// session, so localStorage — being origin-scoped — resets each time; the server
+// persists these on disk and seeds them here instead.
 const initialUi = (config && config.ui) || {}
 
 const LEFT_SIDEBAR_WIDTH_KEY = 'pi.diff.leftSidebarWidth'
@@ -95,7 +99,9 @@ const authorLabel = (author) => (author === 'pi' ? 'pi' : 'you')
 const ICONS = {
 	layout:
 		'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9.5h18M3 14.5h18"/>',
-	split: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M12 4v16"/>',
+	split:
+		'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M12 4v16"/>',
+	wrap: '<path d="M4 6h13M4 10h12a4 4 0 0 1 0 8h-3"/><path d="m15 15-3 3 3 3"/>',
 	refresh: '<path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4.5v5h-5"/>',
 	send: '<path d="M12 19.5V5"/><path d="M6 11l6-6 6 6"/>',
 	close: '<path d="M6 6l12 12M18 6L6 18"/>',
@@ -259,7 +265,12 @@ const Header = ({
 	status,
 	subtitle,
 	layout,
+	wrapLines,
+	currentPath,
+	currentFileWrapLines,
 	onToggleLayout,
+	onToggleWrapLines,
+	onToggleCurrentFileWrapLines,
 	onRefresh,
 	onSubmit,
 	onCancel,
@@ -282,6 +293,31 @@ const Header = ({
 			<button id="layoutButton" type="button" onClick=${onToggleLayout}>
 				<${Icon} name=${layout === 'split' ? 'layout' : 'split'} />
 				<span>${layout === 'split' ? 'Unified' : 'Split'}</span>
+			</button>
+			<button
+				id="wrapAllButton"
+				type="button"
+				aria-pressed=${wrapLines}
+				title="Toggle line wrapping for every file"
+				onClick=${onToggleWrapLines}
+			>
+				<${Icon} name="wrap" />
+				<span>Wrap all</span>
+			</button>
+			<button
+				id="wrapFileButton"
+				type="button"
+				aria-pressed=${currentFileWrapLines}
+				disabled=${!currentPath}
+				title=${
+					currentPath
+						? 'Toggle line wrapping for ' + currentPath
+						: 'Select a file to change its line wrapping'
+				}
+				onClick=${onToggleCurrentFileWrapLines}
+			>
+				<${Icon} name="wrap" />
+				<span>Wrap file</span>
 			</button>
 			<button id="refreshButton" type="button" onClick=${onRefresh}>
 				<${Icon} name="refresh" />
@@ -511,7 +547,8 @@ const FileTreePanel = ({files, currentPath, onSelect}) => {
 				) {
 					return
 				}
-				const key = event.key?.length === 1 ? event.key.toLowerCase() : event.key
+				const key =
+					event.key?.length === 1 ? event.key.toLowerCase() : event.key
 				if (key === 'j' || key === 'k') {
 					event.preventDefault()
 					event.stopPropagation()
@@ -598,15 +635,17 @@ const ReplyEntry = ({reply, onDelete}) => html`
 			<span class=${'annotation-author ' + reply.author}>
 				${authorLabel(reply.author)}
 			</span>
-			${onDelete
-				? html`<button
-						type="button"
-						class="link danger"
-						onClick=${() => onDelete(reply.id)}
-					>
-						Delete
-					</button>`
-				: null}
+			${
+				onDelete
+					? html`<button
+							type="button"
+							class="link danger"
+							onClick=${() => onDelete(reply.id)}
+						>
+							Delete
+						</button>`
+					: null
+			}
 		</div>
 		<div
 			class="reply-text markdown"
@@ -660,10 +699,12 @@ const AnnotationCard = ({
 	inline,
 }) => html`
 	<div
-		class=${'annotation-card' +
-		(inline ? ' inline' : '') +
-		' annotation-by-' +
-		annotation.author}
+		class=${
+			'annotation-card' +
+			(inline ? ' inline' : '') +
+			' annotation-by-' +
+			annotation.author
+		}
 	>
 		<div class="annotation-header">
 			<span class=${'annotation-author ' + annotation.author}>
@@ -675,43 +716,53 @@ const AnnotationCard = ({
 			class="annotation-text markdown"
 			dangerouslySetInnerHTML=${renderMarkdown(annotation.text)}
 		></div>
-		${annotation.replies.length > 0
-			? html`<div class="replies">
-					${annotation.replies.map(
-						(reply) =>
-							html`<${ReplyEntry}
-								key=${reply.id}
-								reply=${reply}
-								onDelete=${onDeleteReply
-									? (replyId) => onDeleteReply(annotation.id, replyId)
-									: null}
-							/>`,
-					)}
-				</div>`
-			: null}
-		${onAddReply
-			? html`<${ReplyForm}
-					onSubmit=${(text) => onAddReply(annotation.id, text)}
-				/>`
-			: null}
+		${
+			annotation.replies.length > 0
+				? html`<div class="replies">
+						${annotation.replies.map(
+							(reply) =>
+								html`<${ReplyEntry}
+									key=${reply.id}
+									reply=${reply}
+									onDelete=${
+										onDeleteReply
+											? (replyId) => onDeleteReply(annotation.id, replyId)
+											: null
+									}
+								/>`,
+						)}
+					</div>`
+				: null
+		}
+		${
+			onAddReply
+				? html`<${ReplyForm}
+						onSubmit=${(text) => onAddReply(annotation.id, text)}
+					/>`
+				: null
+		}
 		<div class="annotation-actions">
-			${onJump
-				? html`<button
-						type="button"
-						onClick=${() => onJump(annotation.path, annotation)}
-					>
-						Show file
-					</button>`
-				: null}
-			${onDelete
-				? html`<button
-						type="button"
-						class="danger"
-						onClick=${() => onDelete(annotation.id)}
-					>
-						Delete
-					</button>`
-				: null}
+			${
+				onJump
+					? html`<button
+							type="button"
+							onClick=${() => onJump(annotation.path, annotation)}
+						>
+							Show file
+						</button>`
+					: null
+			}
+			${
+				onDelete
+					? html`<button
+							type="button"
+							class="danger"
+							onClick=${() => onDelete(annotation.id)}
+						>
+							Delete
+						</button>`
+					: null
+			}
 		</div>
 	</div>
 `
@@ -773,6 +824,7 @@ const DiffViewer = ({
 	diffs,
 	currentPath,
 	layout,
+	wrapLines,
 	annotations,
 	activeRange,
 	draftRange,
@@ -846,11 +898,12 @@ const DiffViewer = ({
 			instance = new diffsLib.FileDiff({
 				theme: {dark: 'pierre-dark', light: 'pierre-light'},
 				themeType: 'system',
+				preferredHighlighter,
 				diffStyle: layout,
 				diffIndicators: 'bars',
 				hunkSeparators: 'line-info-basic',
 				lineDiffType: 'word-alt',
-				overflow: 'scroll',
+				overflow: wrapLines ? 'wrap' : 'scroll',
 				enableGutterUtility: true,
 				enableLineSelection: true,
 				lineHoverHighlight: 'both',
@@ -904,7 +957,7 @@ const DiffViewer = ({
 			host.innerHTML = '<pre class="raw-patch">' + escapeHtml(patch) + '</pre>'
 		}
 		return undefined
-	}, [currentDiff, layout, patch])
+	}, [currentDiff, layout, patch, wrapLines])
 
 	// Push selection + annotation updates into the live instance instead of
 	// tearing the diff down, which would reset the scroll position.
@@ -941,7 +994,10 @@ const DiffViewer = ({
 		return html`<p class="empty">Select a file to view its diff.</p>`
 	}
 
-	return html`<div ref=${diffRef} class="diff-host"></div>`
+	return html`<div
+		ref=${diffRef}
+		class=${'diff-host' + (wrapLines ? ' wrap-lines' : '')}
+	></div>`
 }
 
 const SidebarResizeHandle = ({side, width, onPointerDown, onKeyDown}) => html`
@@ -949,9 +1005,9 @@ const SidebarResizeHandle = ({side, width, onPointerDown, onKeyDown}) => html`
 		class=${'resize-handle resize-handle-' + side}
 		role="separator"
 		aria-orientation="vertical"
-		aria-label=${side === 'left'
-			? 'Resize file sidebar'
-			: 'Resize review sidebar'}
+		aria-label=${
+			side === 'left' ? 'Resize file sidebar' : 'Resize review sidebar'
+		}
 		aria-valuemin=${MIN_SIDEBAR_WIDTH}
 		aria-valuemax=${MAX_SIDEBAR_WIDTH}
 		aria-valuenow=${width}
@@ -962,7 +1018,7 @@ const SidebarResizeHandle = ({side, width, onPointerDown, onKeyDown}) => html`
 	></div>
 `
 
-const ConflictViewer = ({file, onSave}) => {
+const ConflictViewer = ({file, wrapLines, onSave}) => {
 	const hostRef = useRef(null)
 	const [contents, setContents] = useState(file.contents)
 	const [saving, setSaving] = useState(false)
@@ -982,7 +1038,9 @@ const ConflictViewer = ({file, onSave}) => {
 		try {
 			const instance = new diffsLib.UnresolvedFile({
 				theme: {dark: 'pierre-dark', light: 'pierre-light'},
+				preferredHighlighter,
 				diffIndicators: 'bars',
+				overflow: wrapLines ? 'wrap' : 'scroll',
 				onMergeConflictAction(payload) {
 					currentContents = resolveMergeConflict(currentContents, payload)
 					setContents(currentContents)
@@ -1003,7 +1061,7 @@ const ConflictViewer = ({file, onSave}) => {
 				'<pre class="raw-patch">' + escapeHtml(file.contents) + '</pre>'
 		}
 		return undefined
-	}, [file.path, file.contents])
+	}, [file.path, file.contents, wrapLines])
 
 	const save = async () => {
 		setSaving(true)
@@ -1030,13 +1088,17 @@ const ConflictViewer = ({file, onSave}) => {
 					<div class="conflict-path">${file.path}</div>
 				</div>
 				<div class="conflict-actions">
-					${saveStatus
-						? html`<span
-								class=${'conflict-save-status' +
-								(saveStatus.startsWith('Saved') ? ' ok' : ' error')}
-								>${saveStatus}</span
-							>`
-						: null}
+					${
+						saveStatus
+							? html`<span
+									class=${
+										'conflict-save-status' +
+										(saveStatus.startsWith('Saved') ? ' ok' : ' error')
+									}
+									>${saveStatus}</span
+								>`
+							: null
+					}
 					<button
 						class=${unresolved ? '' : 'primary'}
 						type="button"
@@ -1047,7 +1109,10 @@ const ConflictViewer = ({file, onSave}) => {
 					</button>
 				</div>
 			</div>
-			<div ref=${hostRef} class="conflict-host"></div>
+			<div
+				ref=${hostRef}
+				class=${'conflict-host' + (wrapLines ? ' wrap-lines' : '')}
+			></div>
 		</div>
 	`
 }
@@ -1082,19 +1147,21 @@ const ReviewPanel = ({
 		></textarea>
 		<div class="panel-title" style=${{marginTop: '16px'}}>Annotations</div>
 		<div class="annotation-list">
-			${annotations.length === 0
-				? html`<p class="empty">No annotations yet.</p>`
-				: annotations.map(
-						(annotation) =>
-							html`<${AnnotationCard}
-								key=${annotation.id}
-								annotation=${annotation}
-								onDelete=${onDeleteAnnotation}
-								onJump=${onJump}
-								onAddReply=${onAddReply}
-								onDeleteReply=${onDeleteReply}
-							/>`,
-					)}
+			${
+				annotations.length === 0
+					? html`<p class="empty">No annotations yet.</p>`
+					: annotations.map(
+							(annotation) =>
+								html`<${AnnotationCard}
+									key=${annotation.id}
+									annotation=${annotation}
+									onDelete=${onDeleteAnnotation}
+									onJump=${onJump}
+									onAddReply=${onAddReply}
+									onDeleteReply=${onDeleteReply}
+								/>`,
+						)
+			}
 		</div>
 		<p class="empty">
 			Click the + gutter button in the diff to add a line annotation. pi can add
@@ -1112,6 +1179,8 @@ const App = () => {
 	const [diffs, setDiffs] = useState([])
 	const [currentPath, setCurrentPath] = useState(null)
 	const [layout, setLayout] = useState('split')
+	const [wrapLines, setWrapLines] = useState(initialUi.wrapLines === true)
+	const [fileWrapOverrides, setFileWrapOverrides] = useState({})
 	const [annotations, setAnnotations] = useState([])
 	const [note, setNote] = useState('')
 	const [sidebar, setSidebar] = useState(null)
@@ -1119,7 +1188,10 @@ const App = () => {
 	const [activeRange, setActiveRange] = useState(null)
 	const [submitting, setSubmitting] = useState(false)
 	const [leftSidebarWidth, setLeftSidebarWidth] = useState(() =>
-		readNumberPreference(LEFT_SIDEBAR_WIDTH_KEY, initialUi.leftSidebarWidth ?? 280),
+		readNumberPreference(
+			LEFT_SIDEBAR_WIDTH_KEY,
+			initialUi.leftSidebarWidth ?? 280,
+		),
 	)
 	const [rightSidebarWidth, setRightSidebarWidth] = useState(() =>
 		readNumberPreference(
@@ -1137,6 +1209,9 @@ const App = () => {
 		() => conflicts.find((conflict) => conflict.path === currentPath) || null,
 		[conflicts, currentPath],
 	)
+	const currentFileWrapLines = currentPath
+		? (fileWrapOverrides[currentPath] ?? wrapLines)
+		: wrapLines
 
 	const applySnapshot = useCallback((nextSnapshot) => {
 		const nextPatch = nextSnapshot.patch || ''
@@ -1282,6 +1357,22 @@ const App = () => {
 		}
 	}, [annotations, note])
 
+	const toggleWrapLines = useCallback(() => {
+		setFileWrapOverrides({})
+		setWrapLines((current) => !current)
+	}, [])
+
+	const toggleCurrentFileWrapLines = useCallback(() => {
+		if (!currentPath) return
+		const nextValue = !currentFileWrapLines
+		setFileWrapOverrides((current) => {
+			const next = {...current}
+			if (nextValue === wrapLines) delete next[currentPath]
+			else next[currentPath] = nextValue
+			return next
+		})
+	}, [currentFileWrapLines, currentPath, wrapLines])
+
 	const cancelServer = useCallback(() => {
 		setStatus({message: 'Closing server…'})
 		void fetch(apiUrl('/api/cancel'), {
@@ -1348,7 +1439,7 @@ const App = () => {
 		writeNumberPreference(RIGHT_SIDEBAR_WIDTH_KEY, rightSidebarWidth)
 	}, [rightSidebarWidth])
 
-	// Persist widths to the server (disk), debounced past the drag. localStorage
+	// Persist UI preferences to disk, debounced past sidebar drags. localStorage
 	// alone can't survive the random port each session runs on.
 	useEffect(() => {
 		if (!prefsHydratedRef.current) {
@@ -1358,11 +1449,15 @@ const App = () => {
 		const timeout = setTimeout(() => {
 			void api('/api/prefs', {
 				method: 'POST',
-				body: JSON.stringify({leftSidebarWidth, rightSidebarWidth}),
+				body: JSON.stringify({
+					leftSidebarWidth,
+					rightSidebarWidth,
+					wrapLines,
+				}),
 			}).catch(() => {})
 		}, 400)
 		return () => clearTimeout(timeout)
-	}, [leftSidebarWidth, rightSidebarWidth])
+	}, [leftSidebarWidth, rightSidebarWidth, wrapLines])
 
 	useEffect(() => {
 		setCurrentPathFromFiles(setCurrentPath, displayFiles)
@@ -1459,8 +1554,13 @@ const App = () => {
 				status=${status}
 				subtitle=${subtitle}
 				layout=${layout}
+				wrapLines=${wrapLines}
+				currentPath=${currentPath}
+				currentFileWrapLines=${currentFileWrapLines}
 				onToggleLayout=${() =>
 					setLayout((current) => (current === 'split' ? 'unified' : 'split'))}
+				onToggleWrapLines=${toggleWrapLines}
+				onToggleCurrentFileWrapLines=${toggleCurrentFileWrapLines}
 				onRefresh=${refresh}
 				onSubmit=${submitAnnotations}
 				onCancel=${cancelServer}
@@ -1523,24 +1623,28 @@ const App = () => {
 					onKeyDown=${(event) => resizeSidebarByKeyboard('left', event)}
 				/>
 				<section class="diff-wrap">
-					${currentConflict
-						? html`<${ConflictViewer}
-								file=${currentConflict}
-								onSave=${saveConflict}
-							/>`
-						: html`<${DiffViewer}
-								patch=${patch}
-								diffs=${diffs}
-								currentPath=${currentPath}
-								layout=${layout}
-								annotations=${annotations}
-								activeRange=${activeRange}
-								draftRange=${draftRange}
-								onAddAnnotation=${addAnnotation}
-								onDeleteAnnotation=${deleteAnnotation}
-								onSaveDraft=${saveDraft}
-								onCancelDraft=${cancelDraft}
-							/>`}
+					${
+						currentConflict
+							? html`<${ConflictViewer}
+									file=${currentConflict}
+									wrapLines=${currentFileWrapLines}
+									onSave=${saveConflict}
+								/>`
+							: html`<${DiffViewer}
+									patch=${patch}
+									diffs=${diffs}
+									currentPath=${currentPath}
+									layout=${layout}
+									wrapLines=${currentFileWrapLines}
+									annotations=${annotations}
+									activeRange=${activeRange}
+									draftRange=${draftRange}
+									onAddAnnotation=${addAnnotation}
+									onDeleteAnnotation=${deleteAnnotation}
+									onSaveDraft=${saveDraft}
+									onCancelDraft=${cancelDraft}
+								/>`
+					}
 				</section>
 				<${SidebarResizeHandle}
 					side="right"

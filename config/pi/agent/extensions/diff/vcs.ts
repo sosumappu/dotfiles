@@ -1,5 +1,5 @@
-import {readFile, writeFile} from 'node:fs/promises'
-import {isAbsolute, relative, resolve} from 'node:path'
+import {readFile, realpath, writeFile} from 'node:fs/promises'
+import {isAbsolute, relative, resolve, sep} from 'node:path'
 import type {
 	ExtensionAPI,
 	ExtensionCommandContext,
@@ -7,12 +7,7 @@ import type {
 
 export type VcsKind = 'jj' | 'git'
 export type DiffStatus =
-	| 'added'
-	| 'modified'
-	| 'deleted'
-	| 'renamed'
-	| 'copied'
-	| 'unknown'
+	'added' | 'modified' | 'deleted' | 'renamed' | 'copied' | 'unknown'
 export type DiffSourceKind = 'working' | 'pr' | 'ref'
 
 type ExecResult = Awaited<ReturnType<ExtensionAPI['exec']>>
@@ -62,6 +57,10 @@ interface DiffRequest {
 	target?: string
 	ref?: string
 	pathspec: string[]
+	// Set on the implicit default-branch diff: when it produces no changes
+	// (e.g. sitting on main with only uncommitted work in git), fall back to
+	// the working diff instead of showing nothing.
+	fallbackToWorking?: boolean
 }
 
 interface PullRequestMetadata {
@@ -79,7 +78,7 @@ const formatCommand = (command: string, args: string[]): string =>
 		...args.map((arg) => (/[\s"']/.test(arg) ? JSON.stringify(arg) : arg)),
 	].join(' ')
 
-const parseCommandArgs = (value: string): string[] => {
+export const parseCommandArgs = (value: string): string[] => {
 	const args: string[] = []
 	let current = ''
 	let quote: '"' | "'" | null = null
@@ -131,7 +130,7 @@ const parseCommandArgs = (value: string): string[] => {
 	}
 
 	if (quote) {
-		throw new Error('Unclosed quote in /diff arguments')
+		throw new Error('Unclosed quote in command arguments')
 	}
 
 	push()
@@ -169,7 +168,7 @@ export const execOrNull = async (
 	}
 }
 
-const getJjRoot = async (
+export const getJjRoot = async (
 	pi: ExtensionAPI,
 	cwd: string,
 ): Promise<string | null> => {
@@ -181,7 +180,7 @@ const getJjRoot = async (
 	return root || null
 }
 
-const getGitRoot = async (
+export const getGitRoot = async (
 	pi: ExtensionAPI,
 	cwd: string,
 ): Promise<string | null> => {
@@ -369,6 +368,24 @@ const GIT_RANGE_PATTERN = /(?:^|[^/])\.\.\.?(?:$|[^/])/
 
 const isGitRange = (value: string): boolean => GIT_RANGE_PATTERN.test(value)
 
+// origin/HEAD and upstream/HEAD point at the remote's actual default branch,
+// so they come before the guessed remote branch names; local main/master stay
+// first so labels read naturally in the common case.
+const GIT_DEFAULT_BASE_REFS = [
+	'main',
+	'master',
+	'origin/HEAD',
+	'origin/main',
+	'origin/master',
+	'upstream/HEAD',
+	'upstream/main',
+	'upstream/master',
+]
+
+// trunk() covers the remote default branch (main/master/trunk on any remote),
+// so listing per-remote variants is unnecessary.
+const JJ_DEFAULT_BASE_REVS = ['main', 'master', 'trunk()']
+
 const splitGitRange = (
 	value: string,
 ): {left: string; right: string; separator: '..' | '...'} | null => {
@@ -422,6 +439,34 @@ const canResolveJjRevision = async (
 	revset: string,
 ): Promise<boolean> => (await resolveJjCommits(pi, jjRoot, revset)) !== null
 
+const resolveDefaultGitBaseRef = async (
+	pi: ExtensionAPI,
+	gitRoot: string,
+	refs: readonly string[],
+): Promise<string | null> => {
+	for (const ref of refs) {
+		if (await resolveGitCommit(pi, gitRoot, ref)) {
+			return ref
+		}
+	}
+	return null
+}
+
+const resolveDefaultJjBaseRev = async (
+	pi: ExtensionAPI,
+	jjRoot: string,
+): Promise<string | null> => {
+	for (const revset of JJ_DEFAULT_BASE_REVS) {
+		const commits = await resolveJjCommits(pi, jjRoot, revset)
+		// trunk() falls back to root() when no trunk exists; diffing against
+		// root() would show the entire history, so treat it as unresolved.
+		if (commits && !commits.every((commit) => /^0+$/.test(commit))) {
+			return revset
+		}
+	}
+	return null
+}
+
 const getPullRequestMetadata = async (
 	pi: ExtensionAPI,
 	cwd: string,
@@ -457,11 +502,45 @@ const resolveDiffRequest = async (
 	jjRoot: string | null,
 	gitRoot: string | null,
 	args: string,
+	gitBaseRefs: readonly string[],
 ): Promise<DiffRequest> => {
 	const parsedArgs = splitDiffArgs(parseCommandArgs(args.trim()))
 	const first = parsedArgs.targetTokens[0]
+	if (parsedArgs.all.length === 0) {
+		const jjBase = jjRoot ? await resolveDefaultJjBaseRev(pi, jjRoot) : null
+		if (jjBase) {
+			return {
+				kind: 'jj-rev',
+				args: parsedArgs.all,
+				ref: `${jjBase}..@`,
+				pathspec: [],
+				fallbackToWorking: true,
+			}
+		}
+
+		const gitBase = gitRoot
+			? await resolveDefaultGitBaseRef(pi, gitRoot, gitBaseRefs)
+			: null
+		if (gitBase) {
+			return {
+				kind: 'ref',
+				args: parsedArgs.all,
+				ref: `${gitBase}...HEAD`,
+				pathspec: [],
+				fallbackToWorking: true,
+			}
+		}
+	}
+
 	if (!first) {
-		return {kind: 'working', args: parsedArgs.all, pathspec: []}
+		// A lone `--` opts out of the default branch diff; drop it so the git
+		// working path does not forward it as a literal pathspec that matches
+		// nothing (`git diff HEAD -- --` is silently empty).
+		const forwardedArgs =
+			parsedArgs.hasSeparator && parsedArgs.pathspecAfterSeparator.length === 0
+				? []
+				: parsedArgs.all
+		return {kind: 'working', args: forwardedArgs, pathspec: []}
 	}
 
 	if (isPrCommand(first)) {
@@ -721,19 +800,25 @@ const loadJjRevisionSnapshot = async (
 }
 
 const hasConflictMarkers = (contents: string): boolean =>
-	/^<<<<<<<(?: |$)/m.test(contents) &&
-	/^=======$/m.test(contents) &&
-	/^>>>>>>>(?: |$)/m.test(contents)
+	/^<{7,}(?: |$)/m.test(contents) &&
+	(/^={7,}$/m.test(contents) || /^(?:%{7,}|\+{7,})(?: |$)/m.test(contents)) &&
+	/^>{7,}(?: |$)/m.test(contents)
 
-const safeRepoFilePath = (repoRoot: string, filePath: string): string => {
+const safeRepoFilePath = async (
+	repoRoot: string,
+	filePath: string,
+): Promise<string> => {
 	if (isAbsolute(filePath)) {
 		throw new Error('Conflict path must be repository-relative')
 	}
-	const absolutePath = resolve(repoRoot, filePath)
-	const relativePath = relative(repoRoot, absolutePath)
+	// Resolve both paths so symlinks cannot redirect conflict I/O outside the repo.
+	const root = await realpath(repoRoot)
+	const absolutePath = await realpath(resolve(root, filePath))
+	const relativePath = relative(root, absolutePath)
 	if (
 		relativePath === '' ||
-		relativePath.startsWith('..') ||
+		relativePath === '..' ||
+		relativePath.startsWith(`..${sep}`) ||
 		isAbsolute(relativePath)
 	) {
 		throw new Error(`Conflict path escapes repository: ${filePath}`)
@@ -762,14 +847,15 @@ const getJjConflictPaths = async (
 	pi: ExtensionAPI,
 	repoRoot: string,
 ): Promise<string[]> => {
-	const result = await execOrNull(pi, 'jj', ['diff', '--types'], repoRoot)
-	if (!result || result.code !== 0) return []
-	return uniquePaths(
-		result.stdout.split('\n').map((line) => {
-			const match = line.match(/^([A-Z-]{2})\s+(.+)$/)
-			return match?.[1].includes('C') ? match[2] : ''
-		}),
+	// A merge can inherit conflicts without changing anything relative to its parents.
+	const result = await execOrNull(
+		pi,
+		'jj',
+		['--color', 'never', 'file', 'list', '-T', 'if(conflict, path ++ "\\0")'],
+		repoRoot,
 	)
+	if (!result || result.code !== 0) return []
+	return result.stdout.split('\0').filter(Boolean)
 }
 
 export const loadConflictFiles = async (
@@ -784,7 +870,7 @@ export const loadConflictFiles = async (
 	for (const path of paths) {
 		try {
 			const contents = await readFile(
-				safeRepoFilePath(snapshot.repoRoot, path),
+				await safeRepoFilePath(snapshot.repoRoot, path),
 				'utf8',
 			)
 			files.push({path, contents, resolved: !hasConflictMarkers(contents)})
@@ -800,7 +886,11 @@ export const saveConflictFile = async (
 	contents: string,
 ): Promise<ConflictFile> => {
 	const resolved = !hasConflictMarkers(contents)
-	await writeFile(safeRepoFilePath(snapshot.repoRoot, path), contents, 'utf8')
+	await writeFile(
+		await safeRepoFilePath(snapshot.repoRoot, path),
+		contents,
+		'utf8',
+	)
 	if (resolved && snapshot.vcs === 'git') {
 		const result = await execOrNull(
 			pi,
@@ -823,6 +913,7 @@ export const createDiffSnapshotLoader = (
 	pi: ExtensionAPI,
 	ctx: ExtensionCommandContext,
 	args: string,
+	gitBaseRefs: readonly string[] = GIT_DEFAULT_BASE_REFS,
 ) => {
 	// Roots and request kind are deterministic for fixed args, so resolve them
 	// once and reuse across refreshes instead of re-running jj/git/gh detection
@@ -836,7 +927,14 @@ export const createDiffSnapshotLoader = (
 		if (resolution) return resolution
 		const jjRoot = await getJjRoot(pi, ctx.cwd)
 		const gitRoot = await getGitRoot(pi, ctx.cwd)
-		const request = await resolveDiffRequest(pi, ctx.cwd, jjRoot, gitRoot, args)
+		const request = await resolveDiffRequest(
+			pi,
+			ctx.cwd,
+			jjRoot,
+			gitRoot,
+			args,
+			gitBaseRefs,
+		)
 		resolution = {jjRoot, gitRoot, request}
 		return resolution
 	}
@@ -857,14 +955,20 @@ export const createDiffSnapshotLoader = (
 			if (!gitRoot) {
 				throw new Error('/diff ref requires a Git repository')
 			}
-			return loadGitRefSnapshot(pi, ctx, request, gitRoot)
+			const snapshot = await loadGitRefSnapshot(pi, ctx, request, gitRoot)
+			if (snapshot.patch.trim() || !request.fallbackToWorking) {
+				return snapshot
+			}
 		}
 
 		if (request.kind === 'jj-rev') {
 			if (!jjRoot) {
 				throw new Error('/diff jj requires a Jujutsu repository')
 			}
-			return loadJjRevisionSnapshot(pi, ctx, request, jjRoot)
+			const snapshot = await loadJjRevisionSnapshot(pi, ctx, request, jjRoot)
+			if (snapshot.patch.trim() || !request.fallbackToWorking) {
+				return snapshot
+			}
 		}
 
 		if (jjRoot) {
@@ -894,10 +998,25 @@ export const createDiffSnapshotLoader = (
 			['rev-parse', '--verify', 'HEAD'],
 			gitRoot,
 		)
+		// Everything after `--` is a pathspec to git, so a flag placed there
+		// (e.g. /diff -w) silently matches nothing and yields an empty diff;
+		// splice option-like args before the separator instead.
+		const flagArgs: string[] = []
+		const pathArgs: string[] = []
+		let afterSeparator = false
+		for (const arg of request.args) {
+			if (!afterSeparator && arg === '--') {
+				afterSeparator = true
+			} else if (!afterSeparator && arg.startsWith('-')) {
+				flagArgs.push(arg)
+			} else {
+				pathArgs.push(arg)
+			}
+		}
 		const gitArgs =
 			hasHead?.code === 0
-				? ['diff', '--no-color', 'HEAD', '--', ...request.args]
-				: ['diff', '--no-color', '--', ...request.args]
+				? ['diff', '--no-color', ...flagArgs, 'HEAD', '--', ...pathArgs]
+				: ['diff', '--no-color', ...flagArgs, '--', ...pathArgs]
 		const result = assertSuccessfulDiff(
 			await execOrNull(pi, 'git', gitArgs, gitRoot),
 			formatCommand('git', gitArgs),

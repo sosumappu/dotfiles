@@ -12,11 +12,12 @@
  * taken from https://github.com/mitsuhiko/agent-stuff/blob/a3f8ab1108a48fec9e175f6cd5d9aaa4694ce29d/extensions/answer.ts
  */
 
-import {
-	complete,
-	type Model,
-	type Api,
-	type UserMessage,
+import type {
+	Model,
+	Api,
+	AssistantMessage,
+	TextContent,
+	UserMessage,
 } from '@earendil-works/pi-ai'
 import type {
 	ExtensionAPI,
@@ -45,6 +46,8 @@ interface ExtractedQuestion {
 interface ExtractionResult {
 	questions: ExtractedQuestion[]
 }
+
+type AssistantContent = AssistantMessage['content'][number]
 
 const SYSTEM_PROMPT = `You are a question extractor. Given text from a conversation, extract any questions that need answering.
 
@@ -78,35 +81,35 @@ Example output:
   ]
 }`
 
-const CODEX_MODEL_ID = 'gpt-5.3'
-const HAIKU_MODEL_ID = 'claude-haiku-4-5'
+const MAIN_MODEL_ID = 'gpt-5.6-luna'
+const FALLBACK_MODEL_ID = 'claude-sonnet-5'
 
 /**
- * Prefer GPT-5.3 for extraction when available, otherwise fallback to haiku or the current model.
+ * Prefer GPT-5.6 Luna for extraction when available, otherwise fall back to Sonnet 5 or the current model.
  */
 async function selectExtractionModel(
 	currentModel: Model<Api>,
 	modelRegistry: ModelRegistry,
 ): Promise<Model<Api>> {
-	const codexModel = modelRegistry.find('openai-codex', CODEX_MODEL_ID)
-	if (codexModel) {
-		const auth = await modelRegistry.getApiKeyAndHeaders(codexModel)
+	const openaiModel = modelRegistry.find('openai', MAIN_MODEL_ID)
+	if (openaiModel) {
+		const auth = await modelRegistry.getApiKeyAndHeaders(openaiModel)
 		if (auth.ok) {
-			return codexModel
+			return openaiModel
 		}
 	}
 
-	const haikuModel = modelRegistry.find('anthropic', HAIKU_MODEL_ID)
-	if (!haikuModel) {
+	const sonnetModel = modelRegistry.find('anthropic', FALLBACK_MODEL_ID)
+	if (!sonnetModel) {
 		return currentModel
 	}
 
-	const auth = await modelRegistry.getApiKeyAndHeaders(haikuModel)
+	const auth = await modelRegistry.getApiKeyAndHeaders(sonnetModel)
 	if (auth.ok === false) {
 		return currentModel
 	}
 
-	return haikuModel
+	return sonnetModel
 }
 
 /**
@@ -447,8 +450,11 @@ export default function (pi: ExtensionAPI) {
 						return
 					}
 					const textParts = msg.content
-						.filter((c): c is {type: 'text'; text: string} => c.type === 'text')
-						.map((c) => c.text)
+						.filter(
+							(content: AssistantContent): content is TextContent =>
+								content.type === 'text',
+						)
+						.map((content: TextContent) => content.text)
 					if (textParts.length > 0) {
 						lastAssistantText = textParts.join('\n')
 						break
@@ -468,53 +474,60 @@ export default function (pi: ExtensionAPI) {
 			ctx.modelRegistry,
 		)
 
-		// Run extraction with loader UI
-		const extractionResult = await ctx.ui.custom<ExtractionResult | null>(
-			(tui, theme, _kb, done) => {
-				const loader = new BorderedLoader(
-					tui,
-					theme,
-					`Extracting questions using ${extractionModel.id}...`,
-				)
-				loader.onAbort = () => done(null)
+		// Run extraction with loader UI; null means the user aborted, {error}
+		// carries real failures so they are not reported as cancellation.
+		const extractionResult = await ctx.ui.custom<
+			ExtractionResult | {error: string} | null
+		>((tui, theme, _kb, done) => {
+			const loader = new BorderedLoader(
+				tui,
+				theme,
+				`Extracting questions using ${extractionModel.id}...`,
+			)
+			loader.onAbort = () => done(null)
 
-				const doExtract = async () => {
-					const auth =
-						await ctx.modelRegistry.getApiKeyAndHeaders(extractionModel)
-					if (auth.ok === false) {
-						throw new Error(auth.error)
-					}
-					const userMessage: UserMessage = {
-						role: 'user',
-						content: [{type: 'text', text: lastAssistantText!}],
-						timestamp: Date.now(),
-					}
-
-					const response = await complete(
-						extractionModel,
-						{systemPrompt: SYSTEM_PROMPT, messages: [userMessage]},
-						{apiKey: auth.apiKey, headers: auth.headers, signal: loader.signal},
-					)
-
-					if (response.stopReason === 'aborted') {
-						return null
-					}
-
-					const responseText = response.content
-						.filter((c): c is {type: 'text'; text: string} => c.type === 'text')
-						.map((c) => c.text)
-						.join('\n')
-
-					return parseExtractionResult(responseText)
+			const doExtract = async () => {
+				const userMessage: UserMessage = {
+					role: 'user',
+					content: [{type: 'text', text: lastAssistantText!}],
+					timestamp: Date.now(),
 				}
 
-				doExtract()
-					.then(done)
-					.catch(() => done(null))
+				const response = await ctx.modelRegistry.complete(
+					extractionModel,
+					{systemPrompt: SYSTEM_PROMPT, messages: [userMessage]},
+					{signal: loader.signal},
+				)
 
-				return loader
-			},
-		)
+				if (response.stopReason === 'aborted') {
+					return null
+				}
+
+				const responseText = response.content
+					.filter((c): c is {type: 'text'; text: string} => c.type === 'text')
+					.map((c) => c.text)
+					.join('\n')
+
+				const parsed = parseExtractionResult(responseText)
+				if (parsed === null) {
+					throw new Error('could not parse the extraction response')
+				}
+				return parsed
+			}
+
+			doExtract()
+				.then(done)
+				.catch((err) =>
+					done({error: err instanceof Error ? err.message : String(err)}),
+				)
+
+			return loader
+		})
+
+		if (extractionResult !== null && 'error' in extractionResult) {
+			ctx.ui.notify(`Extraction failed: ${extractionResult.error}`, 'error')
+			return
+		}
 
 		if (extractionResult === null) {
 			ctx.ui.notify('Cancelled', 'info')

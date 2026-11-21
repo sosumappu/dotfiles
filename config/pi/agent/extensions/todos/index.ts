@@ -28,8 +28,6 @@
  *
  * Use `/todos` to bring up the visual todo manager or just let the LLM use them
  * naturally.
- *
- * taken from https://github.com/mitsuhiko/agent-stuff/blob/a3f8ab1108a48fec9e175f6cd5d9aaa4694ce29d/extensions/todos.ts
  */
 import {
 	DynamicBorder,
@@ -50,13 +48,14 @@ import {
 	Container,
 	type Focusable,
 	Input,
+	type Keybinding,
 	Key,
 	Markdown,
 	SelectList,
 	Spacer,
 	type SelectItem,
 	Text,
-	TUI,
+	type TUI,
 	fuzzyMatch,
 	matchesKey,
 	truncateToWidth,
@@ -100,7 +99,7 @@ interface TodoSettings {
 }
 
 type KeybindingMatcher = {
-	matches: (keyData: string, keybindingId: string) => boolean
+	matches: (keyData: string, keybindingId: Keybinding) => boolean
 }
 
 const TodoParams = Type.Object({
@@ -167,13 +166,7 @@ type TodoToolDetails =
 	  }
 	| {
 			action:
-				| 'get'
-				| 'create'
-				| 'update'
-				| 'append'
-				| 'delete'
-				| 'claim'
-				| 'release'
+				'get' | 'create' | 'update' | 'append' | 'delete' | 'claim' | 'release'
 			todo: TodoRecord
 			error?: string
 	  }
@@ -855,9 +848,10 @@ function getTodoSettingsPath(todosDir: string): string {
 
 function normalizeTodoSettings(raw: Partial<TodoSettings>): TodoSettings {
 	const gc = raw.gc ?? DEFAULT_TODO_SETTINGS.gc
-	const gcDays = Number.isFinite(raw.gcDays)
-		? (raw.gcDays as number)
-		: DEFAULT_TODO_SETTINGS.gcDays
+	const gcDays =
+		typeof raw.gcDays === 'number' && Number.isFinite(raw.gcDays)
+			? raw.gcDays
+			: DEFAULT_TODO_SETTINGS.gcDays
 	return {
 		gc: Boolean(gc),
 		gcDays: Math.max(0, Math.floor(gcDays)),
@@ -1978,14 +1972,13 @@ export default function todosExtension(pi: ExtensionAPI) {
 			}
 
 			let nextPrompt: string | null = null
-			let rootTui: TUI | null = null
-			await ctx.ui.custom<void>((tui, theme, keybindings, done) => {
-				rootTui = tui
+			const rootTui = await ctx.ui.custom<TUI>((tui, theme, keys, finish) => {
+				const done = () => finish(tui)
 				let selector: TodoSelectorComponent | null = null
 				let actionMenu: TodoActionMenuComponent | null = null
 				let deleteConfirm: TodoDeleteConfirmComponent | null = null
 				let activeComponent: {
-					render: (width: number) => string[]
+					render: (width: number) => readonly string[]
 					invalidate: () => void
 					handleInput?: (data: string) => void
 					focused?: boolean
@@ -1994,7 +1987,7 @@ export default function todosExtension(pi: ExtensionAPI) {
 
 				const setActiveComponent = (
 					component: {
-						render: (width: number) => string[]
+						render: (width: number) => readonly string[]
 						invalidate: () => void
 						handleInput?: (data: string) => void
 						focused?: boolean
@@ -2217,7 +2210,7 @@ export default function todosExtension(pi: ExtensionAPI) {
 				selector = new TodoSelectorComponent(
 					tui,
 					theme,
-					keybindings,
+					keys,
 					todos,
 					(todo) => {
 						void handleSelect(todo)

@@ -36,8 +36,9 @@
 	--ok: light-dark(#3f7d33, #74d36a);
 	--ring: light-dark(#9a6a00, #f0b429);
 
-	--mono: 'PragmataPro Mono', 'PragmataPro', ui-monospace, 'SF Mono',
-		SFMono-Regular, Menlo, Consolas, monospace;
+	--mono:
+		'PragmataPro Mono', 'PragmataPro', ui-monospace, 'SF Mono', SFMono-Regular,
+		Menlo, Consolas, monospace;
 	--diffs-font-family: var(--mono);
 
 	--header-h: 56px;
@@ -122,6 +123,11 @@ button:hover {
 	border-color: var(--muted);
 	background: var(--panel-3);
 	transform: translateY(-1px);
+}
+button[aria-pressed='true'] {
+	border-color: var(--pi-line);
+	background: var(--pi-soft);
+	color: var(--pi);
 }
 button:active {
 	transform: translateY(0);
@@ -521,6 +527,15 @@ body.resizing-sidebar {
 .diff-host,
 .conflict-host {
 	min-width: 680px;
+}
+.diff-host.wrap-lines,
+.conflict-host.wrap-lines {
+	min-width: 0;
+}
+.diff-host.wrap-lines .raw-patch,
+.conflict-host.wrap-lines .raw-patch {
+	white-space: pre-wrap;
+	overflow-wrap: anywhere;
 }
 
 .conflict-viewer {

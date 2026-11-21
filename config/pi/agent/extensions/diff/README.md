@@ -8,7 +8,12 @@ diff restores the previous review.
 
 ## TL;DR
 
-- Run `/diff` to review the current working diff.
+- Run `/diff` to review the current jj revision stack or Git branch against
+  `main`/`master`; if no base resolves or the branch diff is empty, it falls
+  back to the working diff.
+- Run `/diff --` or `/diff <flags…>` to review the current working diff instead.
+  In Git, branch diffs only cover commits, so use `/diff --` to see uncommitted
+  changes.
 - Run `/diff <ref>`, `/diff pr <n>`, `/diff jj <revset>`, or paste a GitHub
   PR/commit URL to review anything else.
 - A localhost HTTP server boots, your browser opens, and the agent and you can
@@ -25,7 +30,9 @@ browser (using [`@pierre/diffs`](https://www.npmjs.com/package/@pierre/diffs)
 for syntax-aware rendering and
 [`@pierre/trees`](https://www.npmjs.com/package/@pierre/trees) for the file
 tree), while keeping pi as the active reviewer that can drop comments, reply to
-yours, and react to your final review notes.
+yours, and react to your final review notes. Syntax highlighting uses the
+[`@pierre/highlights`](https://diffs.com/highlights) WebAssembly backend when
+`canUseWASM()` reports support and falls back to shiki-js otherwise.
 
 ## High-level architecture
 
@@ -152,34 +159,49 @@ sequenceDiagram
 | `index.ts`             | Extension entrypoint. Registers the `/diff` command, the three `diff_*` tools, manages `ReviewSession`s, and serves the HTTP API.                                                           |
 | `vcs.ts`               | Source-of-truth for "where does the patch come from": parses `/diff` args, dispatches to `jj`, `git`, or `gh`, parses unified-diff headers into `DiffFile[]`, and surfaces merge conflicts. |
 | `annotations-store.ts` | On-disk persistence. Per-repo, per-source JSON files with atomic rename + legacy single-file migration.                                                                                     |
-| `prefs.ts`             | On-disk UI preferences (sidebar widths). A single global JSON file with atomic rename; survives the random server port that defeats browser `localStorage`.                                  |
-| `html.ts`              | Tiny HTML shell with an `importmap` that pulls Preact, htm, marked, DOMPurify, `@pierre/diffs`, and `@pierre/trees` from `esm.sh`. Inlines `client.js` and `styles.css`.                    |
+| `prefs.ts`             | On-disk UI preferences (sidebar widths and global line wrapping). A single global JSON file with atomic rename; survives the random server port that defeats browser `localStorage`.        |
+| `html.ts`              | Tiny HTML shell with an `importmap` that pulls Preact, htm, marked, DOMPurify, `@pierre/diffs`, and `@pierre/trees` from `esm.sh`. Inlines `client.js` and `styles.css`. The CSP allows `wasm-unsafe-eval` for the Highlights lexers. |
 | `client.js`            | Preact UI: file tree, diff renderer, annotation threads, merge-conflict editor, SSE wiring. Shipped as plain JS so no build step is needed.                                                 |
 | `styles.css`           | UI styling (light/dark via `light-dark()`).                                                                                                                                                 |
 
 ## Browser sidebar controls
 
-The file sidebar supports keyboard navigation when it has focus: `j` opens the next edited file and `k` opens the previous edited file. If the target file is inside a collapsed folder, its parent folders are expanded automatically. The sidebar toolbar also has **Collapse all** and **Open all** buttons for large trees.
+The file sidebar supports keyboard navigation when it has focus: `j` opens the
+next edited file and `k` opens the previous edited file. If the target file is
+inside a collapsed folder, its parent folders are expanded automatically. The
+sidebar toolbar also has **Collapse all** and **Open all** buttons for large
+trees.
 
-Both sidebars are resizable by dragging their dividers (or focusing a divider and using the arrow keys). Because the server binds a fresh random port every session, `localStorage` — which is origin-scoped — would reset each time, so the widths are persisted server-side via `POST /api/prefs` and seeded back into the page on load.
+Both sidebars are resizable by dragging their dividers (or focusing a divider
+and using the arrow keys). Because the server binds a fresh random port every
+session, `localStorage` — which is origin-scoped — would reset each time, so the
+widths are persisted server-side via `POST /api/prefs` and seeded back into the
+page on load.
+
+The header has **Wrap all** and **Wrap file** controls. **Wrap all** changes the
+default for every file and persists it through `/api/prefs`; horizontal
+scrolling remains the initial default. **Wrap file** overrides that setting for
+the selected file during the active review. Changing **Wrap all** clears the
+per-file overrides so the new global setting applies consistently. Both regular
+diffs and merge-conflict files use the selected mode.
 
 ## The `/diff` command
 
 `/diff [args…]` accepts several forms. They are resolved in order, with the
 first match winning:
 
-| Form                                                                                             | Meaning                                                                                                             |
-| ------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- |
-| `/diff`                                                                                          | Working diff. Prefers `jj diff --git` if inside a jj repo, otherwise `git diff HEAD`.                               |
-| `/diff <flags…>`                                                                                 | Same as above; remaining args are forwarded to the underlying VCS (e.g. `/diff -- src/`).                           |
-| `/diff pr [target]`                                                                              | GitHub PR via `gh pr diff [target] --patch`. `target` may be `123`, `#123`, `pull/123`, a branch name, or a PR URL. |
-| `/diff <github-pull-url>`                                                                        | Same as above; URL is detected automatically.                                                                       |
-| `/diff #123` / `/diff 123`                                                                       | Bare PR number. `123` is also tried as a PR if it is not a valid git ref.                                           |
-| `/diff ref <ref>` / `/diff commit <ref>` / `/diff show <ref>`                                    | `git show <ref>` for commits, `git diff <range>` for `A..B` / `A...B`.                                              |
-| `/diff <ref>`                                                                                    | Auto-detected: tries jj revset, then git ref, then PR number.                                                       |
-| `/diff jj <revset>` / `/diff rev <revset>` / `/diff revision <revset>` / `/diff revset <revset>` | Forces `jj diff --git -r <revset>`.                                                                                 |
-| `/diff <github-commit-url>`                                                                      | Extracts the SHA and runs `git show`.                                                                               |
-| `… -- <pathspec…>`                                                                               | Restrict to paths (working diff, git ref, jj revision; not yet supported for PR diffs).                             |
+| Form                                                                                             | Meaning                                                                                                                                                                                                                                                                               |
+| ------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/diff`                                                                                          | Default branch diff. Prefers `jj diff --git -r <base>..@` when inside a jj repo, otherwise `git diff <base>...HEAD`; `<base>` is `main`/`master`, `trunk()` (jj), or the remote default branch (git). Falls back to the working diff if no base resolves or the branch diff is empty. |
+| `/diff --` / `/diff <flags…>`                                                                    | Working diff. Prefers `jj diff --git` if inside a jj repo, otherwise `git diff HEAD`; remaining args are forwarded to the underlying VCS (e.g. `/diff -- src/`).                                                                                                                      |
+| `/diff pr [target]`                                                                              | GitHub PR via `gh pr diff [target] --patch`. `target` may be `123`, `#123`, `pull/123`, a branch name, or a PR URL.                                                                                                                                                                   |
+| `/diff <github-pull-url>`                                                                        | Same as above; URL is detected automatically.                                                                                                                                                                                                                                         |
+| `/diff #123` / `/diff 123`                                                                       | Bare PR number. `123` is also tried as a PR if it is not a valid git ref.                                                                                                                                                                                                             |
+| `/diff ref <ref>` / `/diff commit <ref>` / `/diff show <ref>`                                    | `git show <ref>` for commits, `git diff <range>` for `A..B` / `A...B`.                                                                                                                                                                                                                |
+| `/diff <ref>`                                                                                    | Auto-detected: tries jj revset, then git ref, then PR number.                                                                                                                                                                                                                         |
+| `/diff jj <revset>` / `/diff rev <revset>` / `/diff revision <revset>` / `/diff revset <revset>` | Forces `jj diff --git -r <revset>`.                                                                                                                                                                                                                                                   |
+| `/diff <github-commit-url>`                                                                      | Extracts the SHA and runs `git show`.                                                                                                                                                                                                                                                 |
+| `… -- <pathspec…>`                                                                               | Restrict to paths (working diff, git ref, jj revision; not yet supported for PR diffs).                                                                                                                                                                                               |
 
 If the resulting patch is empty **and** there are no merge conflicts, the
 command notifies and exits without opening a browser.
@@ -198,7 +220,7 @@ Drop a markdown annotation on a specific line/range.
 	"side": "additions", // or "deletions"
 	"line": 42,
 	"endLine": 47, // optional, defaults to line
-	"text": "This early-return swallows the error from `parse()`."
+	"text": "This early-return swallows the error from `parse()`.",
 }
 ```
 
@@ -264,13 +286,22 @@ Override paths via env vars:
 
 ## Merge-conflict editor
 
-When the working diff is loaded, the extension also asks the VCS for files in
-conflict (`git diff --name-only --diff-filter=U` or `jj diff --types` filtered
-for the `C` flag) and exposes them via `/api/conflicts`. The browser renders a
-side-by-side editor; saving via `/api/conflicts/write` writes the file back into
-the repo and, for git, runs `git add -- <path>` once the conflict markers are
-gone. Paths are validated with `safeRepoFilePath` to refuse anything that
-escapes the repo root.
+When a diff is loaded, the extension asks the VCS for files in conflict and
+exposes them via `/api/conflicts`. Git uses
+`git diff --name-only --diff-filter=U`. Jujutsu uses `jj file list` with a
+template that selects conflicted entries and emits NUL-delimited paths. This
+includes conflicts inherited from merge parents even when the working diff is
+empty, and preserves whitespace in filenames.
+
+The browser renders a side-by-side editor. Saving via `/api/conflicts/write`
+writes the file back into the repo and, for Git, stages it once the conflict
+markers are gone. Marker detection supports Git and Jujutsu's `diff`,
+`snapshot`, and `git` styles.
+
+Conflict files must already exist. `safeRepoFilePath` resolves the repository
+root and target to their real paths before checking containment. It rejects
+absolute paths and targets outside the repo, including file and directory
+symlinks that point outside. Symlinks to files inside the repo remain usable.
 
 ## Lifecycle & cleanup
 
@@ -308,6 +339,32 @@ escapes the repo root.
 - No diff content or annotation text is uploaded anywhere; only ESM modules from
   `esm.sh` are fetched by the browser, and only after the user has explicitly
   chosen to open the URL.
+
+## Tests
+
+Run from the repository root with Node 24+, Git, and Jujutsu on `PATH`:
+
+```sh
+node --test config/pi/agent/extensions/diff/diff.test.ts
+node --test config/pi/agent/extensions/diff/diff.e2e.test.ts
+nix build .#checks.aarch64-darwin.pi-diff
+```
+
+`diff.test.ts` contains offline unit and integration tests for argument and
+patch parsing, annotation persistence and limits, preferences including line
+wrapping, real Git/Jujutsu repositories, symlink containment, and Jujutsu
+conflict discovery and resolution. All three Jujutsu marker styles are exercised
+with real merges. Node's built-in test runner and TypeScript support require no
+test framework or transpiler. The local `package.json` declares these files as
+ES modules.
+
+`diff.e2e.test.ts` also requires `pi` on `PATH`. It launches the actual
+extension over RPC and exercises its token-protected HTTP API, annotations,
+replies, SSE, persistence on reopen, conflict writes, and shutdown. It creates
+temporary repositories and an isolated Pi configuration, omits browser launchers
+to exercise the URL fallback, and makes no model calls or external network
+requests. It does not test browser rendering or GitHub PR mode. This test runs
+separately from the sandboxed Nix check.
 
 ## Extending
 
