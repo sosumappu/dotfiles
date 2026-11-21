@@ -1,33 +1,39 @@
 local M = {}
 
 local filetypes = {
-	'all',
-	'javascript',
-	'typescript',
-	'javascriptreact',
-	'typescriptreact',
-	'markdown',
-	'html',
-	'css',
+	"all",
+	"javascript",
+	"typescript",
+	"javascriptreact",
+	"typescriptreact",
+	"markdown",
+	"quarto",
+	"tex",
+	"html",
+	"r",
+	"css",
 }
 
 local filetype_extensions = {
-	{ 'jinja', { 'html', 'twig' } },
-	{ 'jinja2', { 'html', 'twig' } },
-	{ 'html.twig', { 'html', 'twig' } },
-	{ 'typescriptreact', { 'html' } },
-	{ 'javascriptreact', { 'html' } },
+	{ "jinja", { "html", "twig" } },
+	{ "jinja2", { "html", "twig" } },
+	{ "html.twig", { "html", "twig" } },
+	{ "typescriptreact", { "html" } },
+	{ "javascriptreact", { "html" } },
+	{ "quarto", { "markdown", "r" } },
+	{ "rmd", { "markdown", "quarto", "r" } },
+	{ "plaintex", { "tex" } },
 }
 
 function M.setup()
-	local ls = require 'luasnip'
+	local ls = require("luasnip")
 
 	for _, extension in ipairs(filetype_extensions) do
 		ls.filetype_extend(extension[1], extension[2])
 	end
 
 	for _, filetype in ipairs(filetypes) do
-		ls.add_snippets(filetype, require('_.snippets.' .. filetype))
+		ls.add_snippets(filetype, require("_.snippets." .. filetype))
 	end
 end
 

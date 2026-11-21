@@ -1,4 +1,4 @@
-local utils = require '_.utils'
+local utils = require("_.utils")
 
 -- wrap open_float to inspect diagnostics and use the severity color for border
 -- https://neovim.discourse.group/t/lsp-diagnostics-how-and-where-to-retrieve-severity-level-to-customise-border-color/1679
@@ -20,10 +20,10 @@ vim.diagnostic.open_float = (function(orig)
 		end
 
 		local border_color = ({
-			[vim.diagnostic.severity.HINT] = 'DiagnosticHint',
-			[vim.diagnostic.severity.INFO] = 'DiagnosticInfo',
-			[vim.diagnostic.severity.WARN] = 'DiagnosticWarn',
-			[vim.diagnostic.severity.ERROR] = 'DiagnosticError',
+			[vim.diagnostic.severity.HINT] = "DiagnosticHint",
+			[vim.diagnostic.severity.INFO] = "DiagnosticInfo",
+			[vim.diagnostic.severity.WARN] = "DiagnosticWarn",
+			[vim.diagnostic.severity.ERROR] = "DiagnosticError",
 		})[max_severity]
 
 		opts.border = utils.get_border(border_color)
@@ -33,28 +33,28 @@ vim.diagnostic.open_float = (function(orig)
 end)(vim.diagnostic.open_float)
 
 local clean_src_names = {
-	['Lua Diagnostics.'] = 'lua',
-	['Lua Syntax Check.'] = 'lua',
+	["Lua Diagnostics."] = "lua",
+	["Lua Syntax Check."] = "lua",
 }
 
-vim.diagnostic.config {
+vim.diagnostic.config({
 	jump = {
 		on_jump = function(diagnostic, bufnr)
 			if diagnostic == nil then
 				return
 			end
 
-			vim.diagnostic.open_float(bufnr, { scope = 'cursor' })
+			vim.diagnostic.open_float(bufnr, { scope = "cursor" })
 		end,
 	},
 	severity_sort = true,
 	status = {
 		format = function(counts)
 			local levels = {
-				{ vim.diagnostic.severity.ERROR, 'error', 'DiagnosticSignError' },
-				{ vim.diagnostic.severity.WARN, 'warn', 'DiagnosticSignWarn' },
-				{ vim.diagnostic.severity.INFO, 'info', 'DiagnosticSignInfo' },
-				{ vim.diagnostic.severity.HINT, 'hint', 'DiagnosticSignHint' },
+				{ vim.diagnostic.severity.ERROR, "error", "DiagnosticSignError" },
+				{ vim.diagnostic.severity.WARN, "warn", "DiagnosticSignWarn" },
+				{ vim.diagnostic.severity.INFO, "info", "DiagnosticSignInfo" },
+				{ vim.diagnostic.severity.HINT, "hint", "DiagnosticSignHint" },
 			}
 			local parts = {}
 
@@ -63,49 +63,39 @@ vim.diagnostic.config {
 				local count = counts[severity]
 
 				if count ~= nil and count > 0 then
-					table.insert(
-						parts,
-						string.format(
-							'%%#%s#%s%s%%*',
-							highlight,
-							utils.get_icon(icon_name),
-							count
-						)
-					)
+					table.insert(parts, string.format("%%#%s#%s%s%%*", highlight, utils.get_icon(icon_name), count))
 				end
 			end
 
-			return table.concat(parts, ' ')
+			return table.concat(parts, " ")
 		end,
 	},
 	virtual_text = {
 		spacing = 0,
 		prefix = function(diag, _, total)
-			local icon =
-				utils.get_icon(vim.diagnostic.severity[diag.severity]:lower())
+			local icon = utils.get_icon(vim.diagnostic.severity[diag.severity]:lower())
 
-			return total > 1 and ' ' .. icon or icon
+			return total > 1 and " " .. icon or icon
 		end,
 		format = function(_)
-			return ''
+			return ""
 		end,
 	},
 	float = {
 		source = false, -- I handle this in the custom format
-		header = '',
-		suffix = '',
+		header = "",
+		suffix = "",
 		prefix = function(diag, _, _)
 			local level = vim.diagnostic.severity[diag.severity]
 			local icon = utils.get_icon(level:lower())
-			local prefix = string.format(' %s ', icon)
+			local prefix = string.format(" %s ", icon)
 
-			return prefix, 'Diagnostic' .. level:gsub('^%l', string.upper)
+			return prefix, "Diagnostic" .. level:gsub("^%l", string.upper)
 		end,
 		format = function(diag)
 			local msg = string.format(
-				'[%s] %s',
-				(clean_src_names[diag.source] or diag.source or '')
-					.. (diag.code and ' -> ' .. diag.code or ''),
+				"[%s] %s",
+				(clean_src_names[diag.source] or diag.source or "") .. (diag.code and " -> " .. diag.code or ""),
 				diag.message
 			)
 
@@ -113,4 +103,4 @@ vim.diagnostic.config {
 		end,
 	},
 	signs = false,
-}
+})

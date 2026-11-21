@@ -101,6 +101,8 @@ pack.add({
 
 				{ "clangd" },
 				{ "r_language_server", "R" },
+				{ "texlab" },
+				{ "ltex_plus", "ltex-ls-plus" },
 			}
 
 			for _, value in ipairs(servers) do

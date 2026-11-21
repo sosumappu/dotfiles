@@ -3,7 +3,7 @@ local au = require '_.utils.au'
 local pack = require '_.pack'
 
 pack.add {
-	{ src = 'https://github.com/tpope/vim-repeat', load = false },
+	{ src = 'https://github.com/tpope/vim-repeat' },
 	{
 		src = 'https://github.com/alexghergh/nvim-tmux-navigation',
 		load = false,
@@ -43,17 +43,15 @@ pack.add {
 		src = 'https://github.com/wincent/loupe',
 		event = { 'UIEnter' },
 		config = function()
-			local hl = require '_.utils.highlight'
-
 			-- Loupe: load after startup (was event = 'VeryLazy')
 			vim.g.LoupeClearHighlightMap = 0
 			-- Not needed in Neovim (see `:help hl-CurSearch`).
 			vim.g.LoupeHighlightGroup = ''
 
 			local function set_up_loupe_highlight()
-				hl.group('QuickFixLine', { link = 'PmenuSel' })
+				vim.api.nvim_set_hl(0, 'QuickFixLine', { link = 'PmenuSel' })
 				vim.cmd 'highlight! clear Search'
-				hl.group('Search', { link = 'Underlined' })
+				vim.api.nvim_set_hl(0, 'Search', { link = 'Underlined' })
 			end
 
 			local loupe_group =
@@ -66,11 +64,6 @@ pack.add {
 
 			set_up_loupe_highlight()
 		end,
-	},
-	{
-		src = 'https://github.com/junegunn/fzf',
-		name = 'fzf',
-		ft = { 'qf' },
 	},
 	{ src = 'https://github.com/kevinhwang91/nvim-bqf', ft = { 'qf' } },
 	{
@@ -143,6 +136,23 @@ pack.add {
 		ft = { 'typescript', 'typescriptreact' },
 	},
 
+	{
+		src = 'https://github.com/tpope/vim-dadbod',
+		cmd = { 'DB' },
+	},
+	{
+		src = 'https://github.com/kristijanhusak/vim-dadbod-ui',
+		cmd = {
+			'DBUI',
+			'DBUIToggle',
+			'DBUIAddConnection',
+			'DBUIFindBuffer',
+		},
+		config = function()
+			vim.g.db_ui_use_nerd_fonts = 1
+		end,
+	},
+
 	-- {
 	-- 	src = 'https://github.com/aikhe/fleur.nvim',
 	-- 	priority = 1000,
@@ -166,17 +176,4 @@ pack.add {
 	-- 		vim.cmd [[highlight StatusLine guibg=NONE ctermbg=NONE]]
 	-- 	end,
 	-- },
-}
-
--- Ghostty: local plugin, lazy on FileType (not a git repo, just add to rtp)
-au.autocmd {
-	event = 'FileType',
-	pattern = 'ghostty',
-	callback = function()
-		local ghostty_path =
-			'/Applications/Ghostty.app/Contents/Resources/vim/vimfiles/'
-		if vim.uv.fs_stat(ghostty_path) then
-			vim.opt.rtp:prepend(ghostty_path)
-		end
-	end,
 }

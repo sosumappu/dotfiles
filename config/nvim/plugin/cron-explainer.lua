@@ -1,5 +1,3 @@
-local au = require '_.utils.au'
-
 -- Heavily influnced by https://github.com/fabridamicelli/cronex.nvim and some code are copied from there
 local M = {}
 
@@ -8,27 +6,28 @@ M._cache = {}
 
 -- Define patterns for the content of cron expressions of different lengths.
 -- The first field is typically numeric (minute, second), subsequent fields can be more general.
-local field_numeric = '[%d%-%/%*,]+'
-local field_general = '[%a%d%-%/%*,%?#]+'
+local field_numeric = "[%d%-%/%*,]+"
+local field_general = "[%a%d%-%/%*,%?#]+"
 
 local cron_content_patterns_by_length = {
-	[5] = field_numeric .. ('%s+' .. field_general):rep(4),
-	[6] = field_numeric .. ('%s+' .. field_general):rep(5),
-	[7] = field_numeric .. ('%s+' .. field_general):rep(6),
+	[5] = field_numeric .. ("%s+" .. field_general):rep(4),
+	[6] = field_numeric .. ("%s+" .. field_general):rep(5),
+	[7] = field_numeric .. ("%s+" .. field_general):rep(6),
 }
 
 -- "0 15 * * 1-5"
 
 M.get_cmd = function()
-	if vim.fn.executable 'hcron' == 1 then
-		return 'hcron'
+	if vim.fn.executable("hcron") == 1 then
+		return "hcron"
 	end
 end
 
 M.explain = function(cron_expression)
 	local cmd = M.get_cmd()
 	if not cmd then
-		vim.notify('cron explainer command not found', vim.log.levels.ERROR)
+		vim.notify("cron explainer command not found", vim.log.levels.ERROR)
+		return
 	end
 
 	local cached = M._cache[cron_expression]
@@ -37,9 +36,9 @@ M.explain = function(cron_expression)
 		return cached
 	end
 
-	local full_cmd = { cmd, '-24-hour', cron_expression }
+	local full_cmd = { cmd, "-24-hour", cron_expression }
 
-	local output = ''
+	local output = ""
 
 	local job_id = vim.fn.jobstart(full_cmd, {
 		stdout_buffered = true,
@@ -49,14 +48,21 @@ M.explain = function(cron_expression)
 			M._cache[cron_expression] = output
 		end,
 		on_stderr = function(_, data, _)
-			vim.notify(string.format('Error: %s', vim.inspect(data)))
+			vim.notify(string.format("Error: %s", vim.inspect(data)))
 		end,
 		pty = true, -- IMPORTANT, otherwise it hangs up!
 	})
 
 	vim.fn.jobwait({ job_id }, 2000)
 
-	return vim.fn.split(output, ': ')[2]
+	-- Empty when the job times out or hcron prints something unexpected.
+	local description = vim.fn.split(output, ": ")[2]
+	if description == nil then
+		vim.notify("cron explainer produced no output", vim.log.levels.ERROR)
+		return
+	end
+
+	return description
 end
 
 M.cron_from_line = function(line)
@@ -81,7 +87,7 @@ M.cron_from_line = function(line)
 	return nil
 end
 
-local ns = vim.api.nvim_create_namespace 'cron-explainer'
+local ns = vim.api.nvim_create_namespace("cron-explainer")
 
 M.render = function(info)
 	local cursor = vim.api.nvim_win_get_cursor(0)
@@ -91,45 +97,45 @@ M.render = function(info)
 		ns,
 		cursor[1] - 1,
 		0,
-		{ virt_text = { { '󰥔  ' .. info, 'DiagnosticVirtualTextInfo' } } }
+		{ virt_text = { { "󰥔  " .. info, "DiagnosticVirtualTextInfo" } } }
 	)
 end
 
-vim.keymap.set({ 'n' }, '<leader>ec', function()
+vim.keymap.set({ "n" }, "<leader>ec", function()
 	if mark_id then
 		vim.api.nvim_buf_del_extmark(0, ns, mark_id)
 		mark_id = nil -- Clear the stored ID after deleting the mark
 	end
 
-	local line = vim.fn.getline '.'
+	local line = vim.fn.getline(".")
 	local expression, start_pos, end_pos = M.cron_from_line(line)
 
 	if expression then
 		local data = M._cache[expression]
 
 		if not data then
-			data = vim.trim(M.explain(expression))
+			local explained = M.explain(expression)
+			if not explained then
+				return
+			end
+			data = vim.trim(explained)
 			M._cache[expression] = data
 		end
 
 		local row = vim.api.nvim_win_get_cursor(0)[1] - 1
-		vim.hl.range(
-			0,
-			ns,
-			'DiagnosticInfo',
-			{ row, start_pos - 1 },
-			{ row, end_pos }
-		)
+		vim.hl.range(0, ns, "DiagnosticInfo", { row, start_pos - 1 }, { row, end_pos })
 		mark_id = M.render(data)
-	end
-end, { desc = 'Explain a cron expression' })
 
-au.augroup('cron-explainer', {
-	{
-		event = { 'CursorMoved', 'CursorMovedI' },
-		callback = function(ev)
-			vim.api.nvim_buf_clear_namespace(ev.buf, ns, 0, -1)
-			mark_id = nil -- Reset mark_id as the extmark is now cleared
-		end,
-	},
-})
+		-- Clear the explanation on the next cursor move. Registered only while
+		-- a mark is visible, so no cursor autocmd runs the rest of the time.
+		local group = vim.api.nvim_create_augroup("cron-explainer-clear", { clear = true })
+		vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
+			group = group,
+			callback = function(ev)
+				vim.api.nvim_buf_clear_namespace(ev.buf, ns, 0, -1)
+				mark_id = nil -- Reset mark_id as the extmark is now cleared
+				vim.api.nvim_clear_autocmds({ group = group })
+			end,
+		})
+	end
+end, { desc = "Explain a cron expression" })

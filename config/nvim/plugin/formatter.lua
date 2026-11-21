@@ -83,12 +83,27 @@ pack.add({
 			---@module "conform"
 			---@type conform.setupOpts
 			require("conform").setup({
-				log_level = vim.log.levels.DEBUG,
+				log_level = vim.log.levels.WARN,
 				formatters = {
 					injected = {
 						options = {
 							ignore_errors = true,
+							lang_to_ft = {
+								r = "r",
+								R = "r",
+								python = "python",
+								py = "python",
+								bash = "sh",
+								sh = "sh",
+								tex = "tex",
+								latex = "tex",
+							},
 						},
+					},
+					["tex-fmt"] = {
+						command = "tex-fmt",
+						args = { "--stdin", "--nowrap" },
+						stdin = true,
 					},
 					prettier = {
 						cwd = function()
@@ -185,6 +200,11 @@ pack.add({
 					cpp = { "clang-format" },
 					rust = { "rustfmt" },
 					r = { "air" },
+					quarto = { "injected" },
+					rmd = { "injected" },
+					tex = { "tex-fmt", "latexindent", stop_after_first = true },
+					plaintex = { "tex-fmt", "latexindent", stop_after_first = true },
+					bib = { "bibtex-tidy", "tex-fmt", stop_after_first = true },
 				}, js_formats),
 				format_on_save = function(bufnr)
 					-- Disable with a global or buffer-local variable

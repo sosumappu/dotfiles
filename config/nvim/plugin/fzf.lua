@@ -1,143 +1,155 @@
 local pack = require '_.pack'
+local utils = require '_.utils'
 
 vim.g.fzf_history_dir = vim.fn.expand '~/.fzf-history'
+vim.g.fzf_layout = vim.env.TMUX ~= nil and { popup = 'center,85%,85%' }
+	or {
+		window = {
+			width = 0.85,
+			height = 0.85,
+			relative = true,
+			border = utils.get_border(),
+		},
+	}
+
+-- Outside tmux fzf runs in a floating window that already gets 'winborder',
+-- so the --border in FZF_DEFAULT_OPTS would draw a second frame inside it.
+if vim.env.TMUX == nil then
+	vim.env.FZF_DEFAULT_OPTS = (vim.env.FZF_DEFAULT_OPTS or '') .. ' --no-border'
+end
+
+-- Keep this in sync with `git config alias.l`.
+local git_log_args =
+	[[--color=always --graph --pretty=format:"%C(blue)%h %Creset- %C(green)%>(12)(%cr) %Creset%s - %C(cyan)%aN %C(magenta)%d" --date=auto:human]]
+
+vim.g.fzf_vim = {
+	commits_log_options = git_log_args,
+	files_options = { '--walker-skip', '.git,node_modules' },
+	preview_window = { 'right:border-left:60%:hidden' },
+}
 
 pack.add {
 	{
-		src = 'https://github.com/ibhagwan/fzf-lua',
+		src = 'https://github.com/junegunn/fzf',
+		name = 'fzf',
+		event = { 'UIEnter' },
+	},
+	{
+		src = 'https://github.com/junegunn/fzf.vim',
 		event = { 'UIEnter' },
 		config = function()
-			local actions = require 'fzf-lua.actions'
-			local defaults = require 'fzf-lua.defaults'
-			local utils = require '_.utils'
+			local function with_preview(spec, placeholder, visible, offset)
+				spec = spec or {}
+				spec.options = spec.options or {}
 
-			-- Keep this in sync with `git config alias.l`.
-			local git_log_args =
-				[[--color=always --graph --pretty=format:"%C(blue)%h %Creset- %C(green)%>(12)(%cr) %Creset%s - %C(cyan)%aN %C(magenta)%d" --date=auto:human]]
+				local command = vim.env.FZF_PREVIEW_COMMAND
+					or 'COLORTERM=truecolor previewer {}'
+				command = command:gsub('{}', placeholder or '{}', 1)
 
-			local function log_cmd(extra)
-				return 'git log ' .. git_log_args .. (extra and (' ' .. extra) or '')
+				local preview_window = 'right:border-left:60%'
+					.. (visible and '' or ':hidden')
+				if offset ~= nil then
+					preview_window = preview_window .. ':' .. offset
+				end
+
+				vim.list_extend(spec.options, {
+					'--preview',
+					command,
+					'--preview-window',
+					preview_window,
+				})
+				return spec
 			end
 
-			require('fzf-lua').setup {
-				defaults = {
-					-- Git icons are very slow in large codea bases and not very useful
-					-- https://github.com/ibhagwan/fzf-lua/wiki#how-do-i-get-maximum-performance-out-of-fzf-lua
-					git_icons = false,
-				},
-				file_icon_padding = ' ',
-				file_icons = 'mini',
-				winopts = {
-					border = utils.get_border(),
-					preview = {
-						border = utils.get_border(),
-						winopts = {
-							number = false,
-							cursorline = true,
-						},
+			local function grep_spec(prompt)
+				local spec = with_preview({
+					options = {
+						'--bind',
+						'ctrl-q:select-all+accept',
 					},
-					on_create = function()
-						-- disable indent plugins
-						vim.b.miniindentscope_disable = true
-						vim.b.snacks_indent = true
+				}, '{1} {2}', true, '+{2}/2')
+				if prompt ~= nil then
+					vim.list_extend(spec.options, { '--prompt', prompt })
+				end
+				return spec
+			end
+
+			local function grep_project(pattern, prompt)
+				local command = table.concat({
+					'rg --column --line-number --no-heading --color=always',
+					'--smart-case --hidden --no-ignore -e',
+					vim.fn['fzf#shellescape'](pattern),
+				}, ' ')
+				vim.fn['fzf#vim#grep'](command, grep_spec(prompt), false)
+			end
+
+			local function spell_suggest()
+				local suggestions = vim.fn.spellsuggest(vim.fn.expand '<cword>')
+				if vim.tbl_isempty(suggestions) then
+					return
+				end
+
+				local spec = vim.fn['fzf#wrap']('spell', {
+					source = suggestions,
+					sink = function(word)
+						vim.cmd.normal { args = { '"_ciw' .. word }, bang = true }
 					end,
-				},
-				fzf_opts = {
-					['--pointer'] = '▶',
-					['--marker'] = '✓ ',
-					['--no-scrollbar'] = true,
-					['--info'] = 'inline-right',
-					['--walker-skip'] = '.git,node_modules',
-				},
-				keymap = {
-					builtin = {
-						['?'] = 'toggle-preview',
+					options = {
+						'--prompt',
+						'Spell Suggestions> ',
+						'--no-multi',
+						'--no-preview',
 					},
-				},
-				oldfiles = {
-					include_current_session = true,
-					stat_file = true,
-				},
-				buffers = {
-					_fzf_nth_devicons = true,
-				},
-				files = {
-					cwd_prompt = false,
-					fd_opts = vim.env.FZF_DEFAULT_COMMAND and nil
-						or defaults.defaults.files.fd_opts,
-					cmd = vim.env.FZF_DEFAULT_COMMAND ~= nil
-							and vim.env.FZF_DEFAULT_COMMAND
-						or defaults.defaults.files.cmd,
-					no_ignore = true,
-					hidden = true,
-					follow = true,
-					line_query = true,
-					_fzf_nth_devicons = true,
-					actions = {
-						['ctrl-g'] = false,
-						['default'] = actions.file_edit,
-					},
-				},
-				grep = {
-					rg_glob = true,
-					actions = {
-						['ctrl-q'] = {
-							fn = actions.file_edit_or_qf,
-							prefix = 'select-all+',
-						},
-					},
-				},
-				commits = {
-					cmd = log_cmd(),
-				},
-				bcommits = {
-					cmd = log_cmd '{file}',
-				},
-			}
+				}, false)
+				vim.fn['fzf#run'](spec)
+			end
 
 			vim.keymap.set('n', '<leader><leader>', function()
-				require('fzf-lua').files {}
+				vim.fn['fzf#vim#files']('', with_preview(nil, nil, true), false)
 			end, { silent = true, desc = 'Search Files' })
 
 			vim.keymap.set('n', '<leader>b', function()
-				require('fzf-lua').buffers {}
-			end, { silent = true, desc = 'Search [B]uffers' })
+				vim.fn['fzf#vim#buffers'](
+					'',
+					with_preview({}, '{4}', true, '+{2}/2'),
+					false
+				)
+			end, { silent = true, desc = 'Search [B]uffers' }) -- spellchecker:disable-line
 
-			vim.keymap.set('n', '<leader>h', function()
-				require('fzf-lua').help_tags {}
-			end, { silent = true, desc = 'Search [H]elp' })
+			vim.keymap.set('n', '<leader>h', '<Cmd>Helptags<CR>', {
+				silent = true,
+				desc = 'Search [H]elp',
+			})
 
-			vim.keymap.set('n', '<Leader>o', function()
-				require('fzf-lua').oldfiles {}
-			end, { silent = true, desc = 'Search [O]ldfiles' })
+			vim.keymap.set('n', '<Leader>o', '<Cmd>History<CR>', {
+				silent = true,
+				desc = 'Search [O]ldfiles',
+			})
 
 			vim.keymap.set('n', '<Leader>\\', function()
-				require('fzf-lua').live_grep { exec_empty_query = true }
+				vim.fn['fzf#vim#grep2'](
+					'rg --column --line-number --no-heading --color=always --smart-case --',
+					'',
+					grep_spec(),
+					false
+				)
 			end, { silent = true, desc = 'grep project' })
 
 			vim.keymap.set('n', '<leader>ta', function()
-				require('fzf-lua').grep_project {
-					winopts = { title = ' Tasks ' },
-					search = '^\\s*- \\[ \\]',
-					no_esc = true,
-					no_ignore = true,
-					hidden = true,
-				}
+				grep_project([=[^\s*- \[ \]]=], 'Tasks> ')
 			end, { desc = 'Search for incomplete t[a]sks' })
 
 			vim.keymap.set('n', '<leader>to', function()
-				require('fzf-lua').grep_project {
-					winopts = { title = ' TODOs ' },
-					search = [[^\s*?(//|#|--|%|;|/\*)\s*@?(todo|note|hack|bug|fixme|fix|warn|xxx):?\b]],
-					no_esc = true,
-					no_ignore = true,
-					hidden = true,
-				}
+				grep_project(
+					[[^\s*?(//|#|--|%|;|/\*)\s*@?(todo|note|hack|bug|fixme|fix|warn|xxx):?\b]],
+					'TODOs> '
+				)
 			end, { desc = 'Search for t[o]dos' })
 
-			vim.keymap.set('n', 'z=', function()
-				require('fzf-lua').spell_suggest {}
-			end, { silent = true, desc = 'Spelling Suggestions' })
+			vim.keymap.set('n', 'z=', spell_suggest, {
+				silent = true,
+				desc = 'Spelling Suggestions',
+			})
 		end,
 	},
 }

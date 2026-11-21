@@ -93,6 +93,6 @@ SOFTWARE.
 	),
 }
 
-vim.list_extend(snippets, require("_.snippets.markdown_math"))
+vim.list_extend(snippets, require("_.snippets.math").get({ dm_style = "dollar" }))
 
 return snippets
