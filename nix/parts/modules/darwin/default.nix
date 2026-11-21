@@ -7,10 +7,6 @@ let
   }: {
     imports = [
       inputs.self.modules.darwin.karabiner
-      inputs.self.modules.darwin.skhd
-      inputs.self.modules.darwin.yabai
-      inputs.self.modules.darwin.sketchybar
-      inputs.self.modules.darwin.colima
     ];
 
     system.primaryUser = config.my.username;
