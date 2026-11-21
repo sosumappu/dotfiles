@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-""".pythonrc for history/completion & Django dev
+""".pythonrc for history/completion helpers.
 
 This file is executed when the Python interactive shell is started if
 $PYTHONSTARTUP is in your environment and points to this file. It's just
@@ -10,13 +10,19 @@ complement this file.
 # original https://github.com/whiteinge/dotfiles/blob/master/.pythonrc.py
 
 # Imports we need
-import sys
-import os
-import readline
 import atexit
-from pprint import pprint
-from tempfile import mkstemp
+import builtins
+import os
+import pathlib
+import readline
+import shlex
+import subprocess  # ruff: ignore[suspicious-subprocess-import] -- Launch the user's configured editor.
+import sys
 from code import InteractiveConsole
+from collections import UserDict
+from pprint import pprint
+from tempfile import TemporaryDirectory
+from typing import override
 
 # Imports we want
 
@@ -25,9 +31,11 @@ from code import InteractiveConsole
 ###############
 
 
-class TermColors(dict):
-    """Gives easy access to ANSI color codes. Attempts to fall back to no color
-    for certain TERM values. (Mostly stolen from IPython.)"""
+class TermColors(UserDict[str, str]):
+    """Give easy access to ANSI color codes.
+
+    Fall back to no color for unsupported TERM values. Mostly stolen from IPython.
+    """
 
     COLOR_TEMPLATES = (
         ("Black", "0;30"),
@@ -52,10 +60,13 @@ class TermColors(dict):
     NoColor = ""
     _base = "\001\033[%sm\002"
 
-    def __init__(self):
-        if os.environ.get("TERM") in (
+    def __init__(self) -> None:
+        """Avoid emitting ANSI codes when terminal capabilities are unknown."""
+        super().__init__()
+        if os.environ.get("TERM") in {
             "xterm-color",
             "xterm-kitty",
+            "xterm-rex",
             "alacritty",
             "alacritty-direct",
             "xterm-256color",
@@ -64,10 +75,10 @@ class TermColors(dict):
             "screen-256color",
             "screen-bce",
             "tmux-256color",
-        ):
-            self.update(dict([(k, self._base % v) for k, v in self.COLOR_TEMPLATES]))
+        }:
+            self.update({k: self._base % v for k, v in self.COLOR_TEMPLATES})
         else:
-            self.update(dict([(k, self.NoColor) for k, v in self.COLOR_TEMPLATES]))
+            self.update({k: self.NoColor for k, _ in self.COLOR_TEMPLATES})
 
 
 _c = TermColors()
@@ -78,14 +89,15 @@ _c = TermColors()
 HISTFILE = f"""{os.environ["XDG_CACHE_HOME"]}/.pyhistory"""
 
 # Read the existing history if there is one
-if os.path.exists(HISTFILE):
+if pathlib.Path(HISTFILE).exists():
     readline.read_history_file(HISTFILE)
 
 # Set maximum number of items that will be written to the history file
 readline.set_history_length(1000)
 
 
-def savehist():
+def savehist() -> None:
+    """Keep readline history available to the next console session."""
     readline.write_history_file(HISTFILE)
 
 
@@ -102,16 +114,11 @@ sys.ps2 = f"""{_c["Red"]}... {_c["Normal"]}"""
 ###################################
 
 
-def my_displayhook(value):
+def my_displayhook(value: object) -> None:
+    """Preserve the REPL's last-result binding while pretty-printing values."""
     if value is not None:
-        try:
-            import __builtin__
-
-            __builtin__._ = value
-        except ImportError:
-            __builtins__._ = value
-
-        pprint(value)
+        vars(builtins)["_"] = value
+        pprint(value)  # ruff: ignore[p-print] -- This is the REPL's display hook.
 
 
 sys.displayhook = my_displayhook
@@ -119,126 +126,22 @@ sys.displayhook = my_displayhook
 # Welcome message
 #################
 
-WELCOME = (
-    """\
-%(Cyan)s
+WELCOME = f"""\
+{_c["Cyan"]}
 You've got color, history, and pretty printing.
 (If your ~/.inputrc doesn't suck, you've also
 got completion and vi-mode keybindings.)
-%(Brown)s
-Type \e to get an external editor.
-%(Normal)s"""
-    % _c
-)
+{_c["Brown"]}
+Type \\e to get an external editor.
+{_c["Normal"]}"""
 
 atexit.register(
     lambda: sys.stdout.write(
-        """%(DarkGray)s
+        f"""{_c["DarkGray"]}
 Sheesh, I thought he'd never leave. Who invited that guy?
-%(Normal)s"""
-        % _c
+{_c["Normal"]}"""
     )
 )
-
-# Django Helpers
-################
-
-
-def SECRET_KEY():
-    "Generates a new SECRET_KEY that can be used in a project settings file."
-
-    from random import choice
-
-    return "".join(
-        [
-            choice("abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)")
-            for i in range(50)
-        ]
-    )
-
-
-# If we're working with a Django project, set up the environment
-if "DJANGO_SETTINGS_MODULE" in os.environ:
-    from django.db.models.loading import get_models
-    from django.test.client import Client
-    from django.test.utils import setup_test_environment
-    from django.conf import settings as S
-
-    class DjangoModels(object):
-        """Loop through all the models in INSTALLED_APPS and import them."""
-
-        def __init__(self):
-            for m in get_models():
-                setattr(self, m.__name__, m)
-
-    A = DjangoModels()
-    C = Client()
-
-    WELCOME += (
-        """%(Green)s
-Django environment detected.
-* Your INSTALLED_APPS models are available as `A`.
-* Your project settings are available as `S`.
-* The Django test client is available as `C`.
-%(Normal)s"""
-        % _c
-    )
-
-    setup_test_environment()
-    S.DEBUG_PROPAGATE_EXCEPTIONS = True
-
-    WELCOME += (
-        """%(LightPurple)s
-Warning: the Django test environment has been set up; to restore the
-normal environment call `teardown_test_environment()`.
-
-Warning: DEBUG_PROPAGATE_EXCEPTIONS has been set to True.
-%(Normal)s"""
-        % _c
-    )
-
-
-# Salt Helpers
-##############
-if "SALT_CLIENT_CONFIG" in os.environ:
-    try:
-        import salt.config
-        import salt.client
-        import salt.runner
-    except ImportError:
-        pass
-    else:
-        __opts_client__ = salt.config.client_config(os.environ["SALT_CLIENT_CONFIG"])
-
-        # Instantiate LocalClient and RunnerClient
-        SLC = salt.client.LocalClient(mopts=__opts_client__)
-        SRUN = salt.runner.Runner(__opts_client__)
-
-if "SALT_MINION_CONFIG" in os.environ:
-    try:
-        import salt.config
-        import salt.client
-        import salt.loader
-    except ImportError:
-        pass
-    else:
-        # # Create the Salt __opts__ variable
-        __opts__ = salt.config.minion_config(os.environ.get("SALT_MINION_CONFIG"))
-
-        # Default to local mode to avoid timeouts if a master is not running.
-        # Can set this to 'remote' manually and re-instantiate if desired.
-        __opts__["file_client"] = "local"
-
-        # Instantiate the Caller class
-        SCALL = salt.client.Caller(mopts=__opts__)
-
-        # Populate grains if it hasn't been done already
-        if "grains" not in __opts__ or not __opts__["grains"]:
-            __opts__["grains"] = salt.loader.grains(__opts__)
-
-        # Populate template variables
-        __salt__ = salt.loader.minion_mods(__opts__)
-        __grains__ = __opts__["grains"]
 
 # Start an external editor with \e
 ##################################
@@ -249,24 +152,54 @@ EDIT_CMD = r"\e"
 
 
 class EditableBufferInteractiveConsole(InteractiveConsole):
-    def __init__(self, *args, **kwargs):
-        self.last_buffer = []  # This holds the last executed statement
-        InteractiveConsole.__init__(self, *args, **kwargs)
+    """Allow the previous input to be revised in the user's preferred editor."""
 
-    def runsource(self, source, *args, **kwargs):
+    def __init__(
+        self,
+        # Keep the standard library constructor's keyword argument name.
+        locals: dict[str, object] | None = None,  # ruff: ignore[builtin-argument-shadowing]
+        filename: str = "<console>",
+        *,
+        local_exit: bool = False,
+    ) -> None:
+        """Retain compiler state and a separate editable copy of the last input."""
+        self.last_buffer: list[bytes] = []  # This holds the last executed statement
+        super().__init__(locals=locals, filename=filename, local_exit=local_exit)
+
+    @override
+    def runsource(
+        self,
+        source: str,
+        filename: str = "<input>",
+        symbol: str = "single",
+    ) -> bool:
+        """Remember source before compilation so incomplete input can be edited.
+
+        Returns:
+            Whether the compiler needs more input.
+
+        """
         self.last_buffer = [source.encode("utf-8")]
-        return InteractiveConsole.runsource(self, source, *args, **kwargs)
+        return super().runsource(source, filename, symbol)
 
-    def raw_input(self, *args):
-        line = InteractiveConsole.raw_input(self, *args)
+    @override
+    def raw_input(self, prompt: str = "") -> str:
+        """Treat the editor command as a request to revise the previous buffer.
+
+        Returns:
+            The next line for the interactive compiler.
+
+        """
+        line = super().raw_input(prompt)
         if line == EDIT_CMD:
-            fd, tmpfl = mkstemp(".py")
-            os.write(fd, b"\n".join(self.last_buffer))
-            os.close(fd)
-            os.system("%s %s" % (EDITOR, tmpfl))
-            line = open(tmpfl).read()
-            os.unlink(tmpfl)
-            tmpfl = ""
+            with TemporaryDirectory() as directory:
+                buffer = pathlib.Path(directory) / "buffer.py"
+                buffer.write_bytes(b"\n".join(self.last_buffer))
+                # EDITOR is user-configured; the buffer path must stay one argument.
+                subprocess.run(  # ruff: ignore[subprocess-without-shell-equals-true]
+                    [*shlex.split(EDITOR), str(buffer)], check=True
+                )
+                line = buffer.read_text(encoding="utf-8")
             lines = line.split("\n")
             for i in range(len(lines) - 1):
                 self.push(lines[i])

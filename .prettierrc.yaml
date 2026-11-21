@@ -7,3 +7,11 @@ arrowParens: 'always'
 trailingComma: 'all'
 semi: false
 endOfLine: 'lf'
+overrides:
+  # Claude Code and pi rewrite these files with two-space indentation.
+  - files:
+      - config/claude/settings.json
+      - config/pi/settings.json
+    options:
+      useTabs: false
+      tabWidth: 2

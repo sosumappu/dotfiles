@@ -1,3 +1,10 @@
 [files]
-extend-exclude = ["config/weechat/*.conf"]
 ignore-hidden = false
+extend-exclude = ["nix/secrets/*.age"]
+
+[default]
+extend-ignore-re = [
+  "(?Rm)^.*(#|//|--)\\s*spellchecker:disable-line$",
+  "(?m)^\\s*set -ue -o pipefail$",
+  "(?m)^eza:ue=36$",
+]

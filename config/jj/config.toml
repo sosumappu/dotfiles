@@ -1,4 +1,8 @@
-#:schema https://docs.jj-vcs.dev/latest/config-schema.json
+"$schema" = "https://docs.jj-vcs.dev/latest/config-schema.json"
+
+[user]
+name = "Adel Arab"
+# email is set up per machine with nix
 
 # https://github.com/jennings/dotfiles/blob/62590e20046ef95a48d1b5f84162c8d36f4a00c1/dot_config/jj/conf.d/config.toml.tmpl
 # https://github.com/wincent/wincent/blob/aafcf9efdef93aad1f6a8eb8a3222c5ffaa3fea7/aspects/dotfiles/templates/.config/jj/config.toml.erb
@@ -7,57 +11,50 @@ behavior = "own"
 backend = "gpg"
 backends.gpg.program = "vcs-gpg"
 
+# push-bookmark-prefix, auto-track-bookmarks, and git_push_bookmark are
+# derived from my.github_username and generated into conf.d/nix.toml.
 [git]
-push-bookmark-prefix = 'sosumappu/'
-private-commits = 'private()'
+private-commits = 'blacklist()'
+write-change-id-header = true
 
 [remotes.origin]
-# https://docs.jj-vcs.dev/latest/config/#automatic-tracking-of-bookmarks
-auto-track-bookmarks = "sosumappu/*"
 auto-track-created-bookmarks = "*"
 
+[merge-tools.difft]
+program = "difft"
+diff-args = ["--color=always", "$left", "$right"]
+diff-invocation-mode = "file-by-file"
+
+[snapshot]
+auto-update-stale = true
+
+[jira]
+# Empty by default so the log template treats Jira as disabled on hosts without
+# it. Hosts that have Jira override `url`. A default keeps `config("jira.url")`
+# always present, so `.as_string()` returns a clean String type instead of
+# erroring on a missing key.
+url = ""
 
 [ui]
 # better tool support, syntax highlighting and one less thing to relearn
 conflict-marker-style = "git"
-default-command = "log"
-# https://difftastic.wilfred.me.uk/jj.html
-# diff-formatter = ["difft", "--color=always", "$left", "$right"]
-# diff-formatter = ":git"
-# pager = ["delta", "--hunk-header-style", "plain"]
-# # pager = ["delta_", "--color-only", "--features=interactive"]
-# paginate = "auto"
+# Resolve in $EDITOR with the markers above instead of the built-in TUI; unlike
+# the other merge tools, it also handles conflicts with more than two sides.
+merge-editor = ":editor"
+default-command = ["log"]
+diff-formatter = ":git"
+pager = ["delta"]
 # diff-editor = ":builtin"
 show-cryptographic-signatures = true
-
-[colors]
-"diff removed token" = { underline = false }
-"diff added token" = { underline = false }
-"diff context" = { dim = true }
-
-[template-aliases]
-'format_short_change_id(id)' = 'id.shortest()'
-'format_short_signature(signature)' = 'signature'
-
-[revset-aliases]
-# 'default()' = 'present(@) | ancestors(immutable_heads().., 5) | present(trunk())'
-'empty_description()' = 'description(exact:"")'
-'closest_pushable(to)' = 'heads(::to & mutable() & ~empty_description() & (~empty() | merges()))'
-'last' = 'latest(ancestors(@) & ~empty() & ~empty_description())'
-
-# Work in progress
-'wip()' = 'description(glob:"wip:*") ~ ::immutable_heads()'
-
-# Any commits considered private by git.private-commits
-'private()' = '(description(glob:"private:*") | wip())'
+graph.style = "square"
 
 [revsets]
-log = "present(@) | ancestors(immutable_heads().., 5) | present(trunk())"
 bookmark-advance-to = 'closest_pushable(@)'
 log-graph-prioritize = 'trunk() | present(@)'
 
 [aliases]
 fetch = ["git", "fetch", "--all-remotes"]
+sync = ["util", "exec", "--", "sh", "-c", "jj git fetch && jj new main"]
 g = ["git"]
 d = ["diff"]
 push = ["git", "push"]
@@ -70,8 +67,7 @@ gr = ["log", "-r", "::@ & ~empty_description()", "-T", '''
   ")" ++
   " " ++
   description.first_line() ++
-  " - " ++
-  author.name() ++
+  surround(" - ", "", format_short_signature(author)) ++
   if(bookmarks, " (" ++ bookmarks ++ ")") ++
   "\n"
 ''']
@@ -80,16 +76,227 @@ o = ["oneline"]
 oneline = ["gr", "--no-graph"]
 oo = ["oneline", "--limit", "10"]
 tug = ["bookmark", "advance"]
+# EXPERIMENTAL: json output
+jsonlog = ["log", "--no-graph", "-T", "ndjson"]
+
+[revset-aliases]
+'empty_description()' = 'description(exact:"")'
+'closest_pushable(to)' = 'heads(::to & mutable() & ~empty_description() & (~empty() | merges()))'
+'last' = 'latest(ancestors(@) & ~empty() & ~empty_description())'
+
+# Work in progress
+'wip()' = 'description(glob-i:"wip:*") | description(glob-i:"[[]WIP[]]*")'
+# Any commits considered private by git.private-commits
+'private()' = 'description(glob-i:"private:*") | description(glob-i:"[[]PRIVATE[]]*")'
+
+'blacklist()' = 'wip() | private()'
+
+# @ plus its nearest bookmarked ancestors, so a bookmark still shows while @
+# is an unnamed commit on top of it; when @ itself is bookmarked the union
+# collapses to @ alone. Consumed by the shell prompt, the Claude Code
+# statusline, and the pi footer together with the `prompt_fields()` template.
+'prompt_revs()' = '@ | heads(::@ & bookmarks())'
+
+
+[template-aliases]
+# Newline-delimited `key=value` lines describing @, evaluated over
+# `prompt_revs()`. The three prompt consumers parse these identically so they
+# always show the same data. `local_bookmarks` matches the local-only
+# `bookmarks()` revset; plain `bookmarks` would also list remote-only refs.
+'prompt_fields()' = '''
+if(self.contained_in("@"),
+  "change=" ++ change_id.shortest() ++ "\n" ++
+  "dirty=" ++ if(empty, "", "*") ++ "\n" ++
+  "conflict=" ++ if(conflict, "1", "") ++ "\n" ++
+  "workspace=" ++ working_copies ++ "\n",
+  ""
+) ++
+if(local_bookmarks, "bookmarks=" ++ local_bookmarks.map(|b| b.name()).join(",") ++ "\n", "")
+'''
+
+# Basic customizations.
+'format_short_change_id(id)' = 'id.shortest()'
+# My own commits leave the author out, so only other people (or my other
+# identities) stand out. Empty fields never match, so a host without a
+# configured identity still gets the NO NAME / NO EMAIL warnings.
+'is_current_user(signature)' = '''
+signature.name() && signature.email()
+  && signature.name() == config("user.name").as_string()
+  && signature.email() == config("user.email").as_string()
+'''
+'format_short_signature(signature)' = '''
+if(!is_current_user(signature), separate(" ",
+  if(signature.name(), signature.name(), label("text warning", "NO NAME")),
+  surround("<", ">", if(signature.email(), signature.email(), label("text warning", "NO EMAIL")))
+))
+'''
+'format_short_signature_oneline(signature)' = 'format_short_signature(signature)'
+# jj's default, minus the name and email on my own commits; `jj show` uses it
+# for both author and committer.
+'format_detailed_signature(signature)' = '''
+separate(" ",
+  if(!is_current_user(signature), separate(" ",
+    coalesce(signature.name(), name_placeholder),
+    "<" ++ coalesce(signature.email(), email_placeholder) ++ ">",
+  )),
+  "(" ++ format_timestamp(signature.timestamp()) ++ ")",
+)
+'''
+
+'format_timestamp(ts)' = ' ts.ago() '
+# Link each local bookmark/tag to its tree when a forge URL is known; remote
+# refs render plain (their local counterpart already carries the link).
+'render_refs(refs)' = '''
+  refs.map(|r|
+    if(git_web_url() && !r.remote(),
+      hyperlink(git_web_url() ++ "/tree/" ++ r.name(), r),
+      r,
+    )
+  )
+'''
+
+'render_jira(commit)' = '''
+  if(jira_base(),
+    surround("[", "]", label("jira", jira_links(commit.description())))
+  )
+'''
+
+'format_current_revision_summary(commit)' = '''
+if(commit.current_working_copy() && !commit.empty(),
+  indent("  ", commit.diff().summary())
+)
+'''
+
+# Compact header shared with jj's built-in log templates.
+'format_short_commit_header(commit)' = '''separate(" ",
+  format_short_change_id_with_change_offset(commit),
+  format_timestamp(commit_timestamp(commit)),
+	if(config("ui.show-cryptographic-signatures").as_boolean(),
+		format_short_cryptographic_signature(commit.signature())
+	),
+  format_short_signature(commit.author()),
+  format_short_commit_id(commit.commit_id()),
+  render_refs(commit.bookmarks()),
+  render_refs(commit.tags()),
+  commit.working_copies(),
+  if(commit.contained_in('first_parent(@)'), label("git_head", "git_head()")),
+  if(commit.conflict(), label("conflict", "conflict")),
+	render_jira(commit),
+)'''
+
+'format_short_cryptographic_signature(signature)' = '''
+if(signature,
+  label("signature status", label(signature.status(),
+    coalesce(
+      if(signature.status() == "good", "✓︎"),
+      if(signature.status() == "unknown", "?"),
+      "x",
+    )
+  ))
+)
+'''
+
+'builtin_log_compact(commit)' = '''
+if(commit.root(),
+  format_root_commit(commit),
+  label(
+    separate(" ",
+      if(commit.current_working_copy(), "working_copy"),
+      if(commit.immutable(), "immutable", "mutable"),
+      if(commit.conflict(), "conflicted"),
+    ),
+    concat(
+      format_short_commit_header(commit) ++ "\n",
+      separate(" ",
+        if(commit.empty(), empty_commit_marker),
+        if(commit.description(),
+          commit.description().first_line(),
+          label(if(commit.empty(), "empty"), description_placeholder),
+        ),
+      ) ++ "\n",
+      format_current_revision_summary(commit),
+    ),
+  )
+)
+'''
+
+'builtin_log_oneline(commit)' = '''
+if(commit.root(),
+  format_root_commit(commit),
+  label(
+    separate(" ",
+      if(commit.current_working_copy(), "working_copy"),
+      if(commit.immutable(), "immutable", "mutable"),
+      if(commit.conflict(), "conflicted"),
+    ),
+    concat(
+      separate(" ",
+        format_short_change_id_with_change_offset(commit),
+        format_timestamp(commit_timestamp(commit)),
+        format_short_commit_id(commit.commit_id()),
+        format_commit_labels(commit),
+        if(config("ui.show-cryptographic-signatures").as_boolean(),
+          format_short_cryptographic_signature(commit.signature()) ++ " "
+        ),
+        if(commit.empty(), empty_commit_marker),
+        if(commit.description(),
+          commit.description().first_line(),
+          label(if(commit.empty(), "empty"), description_placeholder),
+        ),
+        render_refs(commit.bookmarks()),
+        render_refs(commit.tags()),
+        commit.working_copies(),
+        if(commit.contained_in('first_parent(@)'), label("git_head", "git_head()")),
+        render_jira(commit),
+        surround("- ", "", format_short_signature_oneline(commit.author())),
+      ) ++ "\n",
+      format_current_revision_summary(commit),
+    ),
+  )
+)
+'''
+
+# Jira-style issue key (e.g. PROJ-123); the browse base comes from `jira.url`,
+# which defaults to "" above. A default keeps `config("jira.url")` typed as a
+# clean String instead of a missing Option.
+'jira_base()' = 'config("jira.url").as_string()'
+# Project key follows Jira's default format (two or more uppercase letters), so
+# lowercase/underscore identifiers like `OPLANE_REQ-00095128` are not keys. The
+# terminator rejects CVE-style extra hyphenated numbers; the second match strips
+# that terminator back off to leave the bare key.
+'jira_key(s)' = 's.first_line().match(regex:"\\b[A-Z][A-Z]+-[0-9]+([^A-Za-z0-9_-]|$)").match(regex:"[A-Z][A-Z]+-[0-9]+")'
+'jira_key_token(s)' = 's.match(regex:"^[A-Z][A-Z]+-[0-9]+$")'
+# Every Jira key in the first line, in order, each as a browse hyperlink, so a
+# commit referencing more than one ticket links them all. Splitting keeps
+# lowercase and underscore identifiers intact so the exact token check rejects
+# them instead of extracting a partial key.
+'jira_links(s)' = '''
+  s.first_line().split(regex:"[^A-Za-z0-9_-]+").filter(|w| jira_key_token(w)).map(|w|
+    hyperlink(jira_base() ++ "/browse/" ++ w, w)
+  )
+'''
+
+'ndjson(obj)' = 'json(obj) ++ "\n"'
+'ndjson' = 'ndjson(self)'
+
 
 [templates]
-# Generate prefixed bookmark names when running `jj git push --change`:
-# See: https://jj-vcs.github.io/jj/latest/config/#generated-bookmark-names-on-push
-# git_push_bookmark = '"<%= variables.gitHubUsername %>/" ++ change_id.short()'
-git_push_bookmark = '"sosumappu/" ++ change_id.short()'
+# git_push_bookmark is generated into conf.d/nix.toml from my.github_username.
 
 # Add change ID to the end of the commit
 commit_trailers = '''
 if(!trailers.contains_key("Change-Id"), format_gerrit_change_id_trailer(self))
+'''
+
+# jj's default, with an author column wide enough for most names and emails,
+# left blank on my own lines.
+file_annotate = '''
+join(" ",
+  commit.change_id().shortest(8),
+  pad_end(32, truncate_end(32, format_short_signature(commit.author()), "…")),
+  commit_timestamp(commit).local().format("%Y-%m-%d %H:%M:%S"),
+  pad_start(4, line_number),
+) ++ ": " ++ content
 '''
 
 # Replicate `git commit -v`
@@ -104,3 +311,111 @@ concat(
   diff.git(),
 )
 '''
+
+
+# Improve the default representation in the log. The outer `node` label lets
+# node-specific color rules apply to the custom icons.
+op_log_node = '''
+label("node",
+  coalesce(
+    if(current_operation, label("current_operation", "@")),
+    label("normal", "·")
+  )
+)
+'''
+log_node = '''
+label("node",
+  coalesce(
+    if(!self, label("elided", "~")),
+    if(current_working_copy, label("working_copy", "@")),
+    if(conflict, label("conflict", "x")),
+    if(immutable, label("immutable", "◆")),
+    if(description.lower().starts_with("wip:") || description.lower().starts_with("[wip]"), label("wip", "⚑")),
+    if(description.lower().starts_with("private:") || description.lower().starts_with("[private]"), label("private", "‼")),
+    label("normal", "·")
+  )
+)
+'''
+
+[colors]
+# ── Theme tweaks: no yellow, no bold ──────────────────────────────────
+# Only the labels that differ from jj's built-in colors.toml. ANSI color
+# names (not hex) so this tracks both the dark and light terminal
+# palettes instead of hard-coding values.
+
+# Diagnostics: drop bold, recolor the yellow warning.
+"error" = { fg = "default", bold = false }
+"warning" = { fg = "default", bold = false }
+"error heading" = { fg = "red", bold = false }
+"error_source heading" = { bold = false }
+"warning heading" = { fg = "magenta", bold = false }
+"hint heading" = { fg = "cyan", bold = false }
+"conflict_description" = "cyan"
+
+# Ids: emphasis from color contrast vs the "bright black" rest, not bold.
+"immutable change_id" = "bright cyan"
+"prefix" = { bold = false }
+"change_offset" = { bold = false }
+
+"git_head" = "yellow"
+
+# People → cyan, timestamps → dim, placeholder → red (all were yellow/cyan).
+"author" = "cyan"
+"committer" = "cyan"
+"timestamp" = { dim = true }
+"description placeholder" = "red"
+"working_copy" = { bold = false }
+"working_copy author" = "magenta"
+"working_copy committer" = "bright cyan"
+"working_copy timestamp" = { dim = true }
+"working_copy description placeholder" = "magenta"
+
+"config_list value" = "default"
+
+# Diff: recolor the yellow status word, de-bold the file header.
+"diff header" = "cyan"
+"diff file_header" = "blue"
+# remove diff underlines
+"diff removed token" = { underline = false }
+"diff added token" = { underline = false }
+"diff context" = { dim = true }
+# Diff lines share Neovim's DiffAdd/DiffDelete/DiffChange backgrounds
+# via the terminal palette's tint slots 16-18, adapting to light/dark.
+# jj reuses these labels for file-status lists (jj st, the log
+# template's summary), so A/M/D rows carry the same fg + tint —
+# deliberate, keeps both surfaces consistent. Status words follow the
+# system convention: modified/renamed yellow like git color.status and
+# nvim's change groups (jj default is cyan), untracked red, hunk
+# headers gray like git's diff.frag.
+"diff added" = { fg = "green", bg = "ansi-color-16" }
+"diff removed" = { fg = "red", bg = "ansi-color-17" }
+"diff modified" = { fg = "yellow", bg = "ansi-color-18" }
+"diff renamed" = { fg = "yellow", bg = "ansi-color-18" }
+"diff copied" = { fg = "green", bg = "ansi-color-16" }
+"diff untracked" = "red"
+"diff hunk_header" = "bright black"
+
+# Operations: drop bold, recolor yellow user, dim the timestamps.
+"operation user" = "cyan"
+"operation time" = { dim = true }
+"operation current_operation" = { bold = false }
+"operation current_operation user" = "bright cyan"
+"operation current_operation time" = { dim = true }
+
+# Graph nodes: drop bold; wip/private get their own distinct hues.
+"node working_copy" = { fg = "magenta" }
+"node current_operation" = { fg = "green" }
+"node immutable" = { fg = "bright cyan" }
+"node conflicted" = { fg = "red" }
+"node wip" = { fg = "bright yellow" }
+"node private" = { fg = "bright yellow" }
+
+# Signatures: recolor the yellow ones.
+"signature display" = "cyan"
+"signature status unknown" = "magenta"
+
+# Template labels (no built-in default): de-bold.
+"text link" = { fg = "magenta", underline = true }
+"text warning" = { fg = "red" }
+# Jira ticket block in the log header (the bracketed, linked issue keys).
+"jira" = "cyan"
