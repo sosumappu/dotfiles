@@ -118,11 +118,31 @@ pack.add({
 
 					-- Not sure about this one
 					["<C-k>"] = { "show_signature", "hide_signature", "fallback" },
-					["<S-Tab>"] = { "select_prev", "snippet_backward", "fallback" },
+					["<S-Tab>"] = {
+						function()
+							local ok, ls = pcall(require, "luasnip")
+							if ok and ls.locally_jumpable(-1) then
+								return ls.jump(-1)
+							end
+						end,
+						"select_prev",
+						"snippet_backward",
+						"fallback",
+					},
 					["<Tab>"] = {
 						function(cmp)
 							if not has_words_before() then
 								return
+							end
+
+							-- While inside an active snippet, jumping to the next
+							-- placeholder must beat menu navigation; otherwise
+							-- typing a digit at e.g. the ${2} slot of \frac{}{}
+							-- opens a completion and Tab consumes the keypress
+							-- instead of advancing the snippet.
+							local ok, ls = pcall(require, "luasnip")
+							if ok and ls.locally_jumpable(1) then
+								return ls.jump(1)
 							end
 
 							if cmp.is_menu_visible() then
