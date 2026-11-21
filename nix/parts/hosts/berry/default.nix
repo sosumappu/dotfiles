@@ -271,6 +271,7 @@
         "tmux"
         "misc"
         "quarto"
+        "tex"
         "node"
         "go"
         "rust"

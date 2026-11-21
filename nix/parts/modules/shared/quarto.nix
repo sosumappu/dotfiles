@@ -11,15 +11,11 @@ let
       myRPackages = with pkgs.rPackages; [
         languageserver
         httpgd
-        ggplot2
-        dplyr
-        tidyr
-        readr
-        purrr
-        tibble
-        stringr
-        forcats
-        lubridate
+        tidyverse
+        GGally
+        broom
+        performance
+        patchwork
         knitr
         rmarkdown
         here
@@ -57,7 +53,6 @@ let
         my.user.packages = with pkgs; [
           patchedQuarto
           (rWrapper.override {packages = myRPackages;})
-          texliveFull
         ];
       };
     };

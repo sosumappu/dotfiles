@@ -1,0 +1,182 @@
+{
+  inputs,
+  lib,
+  ...
+}: {
+  perSystem = {
+    config,
+    pkgs,
+    system,
+    ...
+  }: let
+    source = inputs.self;
+    piAgentExtensionNodeModules = import ../modules/shared/pi-extension-types.nix {inherit pkgs;};
+    mkCheck = name: nativeBuildInputs: script:
+      pkgs.runCommandLocal name {inherit nativeBuildInputs;} ''
+        set -euo pipefail
+        ${script}
+        touch "$out"
+      '';
+
+    # `nix flake check` skips darwinConfigurations. Writing the drvPath
+    # without its string context forces full evaluation without building
+    # the host's closure, so Linux CI can cover darwin hosts.
+    darwinHostEvalChecks =
+      lib.mapAttrs'
+      (
+        name: host:
+          lib.nameValuePair "${name}-eval" (
+            pkgs.writeText "${name}-eval" (builtins.unsafeDiscardStringContext host.system.drvPath)
+          )
+      )
+      (
+        lib.filterAttrs (
+          _: host: host.pkgs.stdenv.hostPlatform.system == system
+        )
+        inputs.self.darwinConfigurations
+      );
+
+    systemHosts = lib.filterAttrs (_: host: host.pkgs.stdenv.hostPlatform.system == system) (
+      inputs.self.darwinConfigurations // inputs.self.nixosConfigurations
+    );
+  in {
+    checks =
+      darwinHostEvalChecks
+      // {
+        # Rex runs its config with Lua 5.1.
+        rex-init = mkCheck "rex-init-check" [pkgs.lua5_1 pkgs.stylua] ''
+          stylua --config-path ${source}/.stylua.toml --check ${source}/tests/rex_init.lua
+          lua ${source}/tests/rex_init.lua ${source}
+        '';
+
+        doctor-tests = mkCheck "doctor-tests" [pkgs.python3 pkgs.bash pkgs.gawk pkgs.gnugrep] ''
+          python3 ${source}/tests/doctor_test.py
+        '';
+
+        python-startup = mkCheck "python-startup-check" [pkgs.python3 pkgs.vim] ''
+          python3 ${source}/tests/python_startup_test.py
+        '';
+
+        ruff = mkCheck "ruff-check" [pkgs.ruff] ''
+          cd ${source}
+          ruff check --no-cache .
+          ruff format --check --no-cache .
+        '';
+
+        ty = mkCheck "ty-check" [pkgs.ty] ''
+          cd ${source}
+          ty check .
+        '';
+
+        bootstrap-args = mkCheck "bootstrap-args-check" [pkgs.bash pkgs.hostname] ''
+          bash ${source}/tests/bootstrap-args.sh
+        '';
+
+        mx = mkCheck "mx-check" [pkgs.bash pkgs.tmux] ''
+          MX_BIN=${pkgs.mx}/bin bash ${source}/nix/pkgs/mx/tests/mx.sh
+        '';
+
+        jj-templates = mkCheck "jj-templates-check" [pkgs.bash pkgs.jujutsu] ''
+          bash ${source}/tests/jj-templates.sh
+        '';
+
+        bootstrap-fonts = pkgs.writeText "bootstrap-fonts-check" (
+          builtins.toJSON (
+            import ../../../tests/bootstrap-fonts.nix {
+              inherit lib;
+              hosts = systemHosts;
+            }
+          )
+        );
+
+        aerc-mailsync-hooks = pkgs.writeText "aerc-mailsync-hooks-check" (
+          builtins.toJSON (
+            import ../../../tests/aerc-mailsync-hooks.nix {
+              inherit lib;
+              hosts = systemHosts;
+            }
+          )
+        );
+
+        # nixos-generate-config owns hardware-configuration.nix; regenerating
+        # it would bring back its unused `pkgs` argument.
+        deadnix = mkCheck "deadnix-check" [pkgs.deadnix] ''
+          deadnix --fail --exclude ${source}/nix/parts/hosts/nixos/hardware-configuration.nix -- ${source}
+        '';
+
+        # Also runs shellcheck on each workflow `run:` script.
+        actionlint = mkCheck "actionlint-check" [pkgs.actionlint pkgs.shellcheck] ''
+          actionlint -no-color ${source}/.github/workflows/*.yml
+        '';
+
+        # Offline audits only: the online ones need network and a GitHub token.
+        zizmor = mkCheck "zizmor-check" [pkgs.zizmor] ''
+          HOME=$TMPDIR zizmor --offline --no-progress ${source}/.github
+        '';
+
+        nix-format = mkCheck "nix-format-check" [pkgs.nixfmt-rs] ''
+          find ${source} -name '*.nix' -print0 | xargs -0 nixfmt --check
+        '';
+
+        pi-diff = mkCheck "pi-diff-check" [pkgs.nodejs pkgs.jujutsu pkgs.git] ''
+          node --test ${source}/config/pi/agent/extensions/diff/diff.test.ts
+        '';
+
+        # The test serves scripted and unresponsive model endpoints on loopback.
+        pi-simplify =
+          (mkCheck "pi-simplify-check" [pkgs.nodejs pkgs.llm-agents.pi pkgs.git pkgs.jujutsu] ''
+            node --test ${source}/config/pi/agent/extensions/simplify/simplify.test.ts
+          '').overrideAttrs
+          {__darwinAllowLocalNetworking = true;};
+
+        # The test starts real Pi children against a scripted loopback model.
+        # The darwin sandbox has no `ps` on PATH, and process identity needs one.
+        pi-loop =
+          (mkCheck "pi-loop-check" [pkgs.nodejs pkgs.llm-agents.pi pkgs.procps] ''
+            node --test ${source}/config/pi/agent/extensions/loop/loop.test.ts
+          '').overrideAttrs
+          {__darwinAllowLocalNetworking = true;};
+
+        # Starts real Pi in print and RPC mode against a loopback model.
+        pi-notify =
+          (mkCheck "pi-notify-check" [pkgs.nodejs pkgs.llm-agents.pi] ''
+            node --test ${source}/config/pi/agent/extensions/notify/notify.test.ts
+          '').overrideAttrs
+          {__darwinAllowLocalNetworking = true;};
+
+        pi-extensions = mkCheck "pi-extensions-check" [pkgs.typescript] ''
+          cp -R ${source}/config/pi/agent/extensions source
+          chmod -R u+w source
+          ln -s ${piAgentExtensionNodeModules} source/node_modules
+          cd source
+          tsc --noEmit
+        '';
+
+        shellcheck = mkCheck "shellcheck" [pkgs.shellcheck] ''
+          while IFS= read -r -d $'\0' file; do
+            first_line=
+            IFS= read -r first_line < "$file" || true
+            case "$first_line" in
+              *bash*|*'/bin/sh'*) shellcheck -x "$file" ;;
+            esac
+          done < <(find ${source} -type f -print0)
+        '';
+
+        stylua = mkCheck "stylua-check" [pkgs.stylua] ''
+          stylua --config-path ${source}/.stylua.toml --check ${source}/config ${source}/nix/pkgs/mx
+        '';
+
+        typos = mkCheck "typos-check" [pkgs.typos] ''
+          cd ${source}
+          typos .
+        '';
+
+        # Building runs writeShellApplication's shellcheck.
+        inherit (config.packages) doctor;
+        inherit (pkgs) next-prayer zh;
+      }
+      // lib.optionalAttrs pkgs.stdenv.hostPlatform.isDarwin {
+        inherit (config.packages) test-bootstrap;
+      };
+  };
+}

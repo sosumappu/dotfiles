@@ -12,21 +12,13 @@ let
           fzf
           fd
           ripgrep
-          (pkgs.writeShellScriptBin "yy" ''
-            set -ue -o pipefail
-
-            function ya() {
-            	local tmp="$(mktemp -t "yazi-cwd.XXXXX")"
-            	yazi "$@" --cwd-file="$tmp"
-            	if cwd="$(cat -- "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
-            		cd -- "$cwd"
-            	fi
-            	rm -f -- "$tmp"
-            }
-
-            ya "$@"
-          '')
         ];
+
+        environment = {
+          shellAliases = {
+            yy = "yazi";
+          };
+        };
       };
     };
 
@@ -55,6 +47,11 @@ let
         "yazi/plugins/git.yazi" = {
           recursive = true;
           source = "${inputs.yazi-plugins}/git.yazi";
+        };
+
+        "yazi/plugins/compress.yazi" = {
+          recursive = true;
+          source = "${inputs.yazi-plugins}/compress.yazi";
         };
 
         "yazi/plugins/types.yazi" = {

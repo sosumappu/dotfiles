@@ -13,6 +13,7 @@
     ../modules/nixos/default.nix
     ../modules/nixos/gaming.nix
     ../modules/shared/quarto.nix
+    ../modules/shared/rex.nix
     ../modules/darwin/karabiner.nix
     ../modules/darwin/skhd.nix
     ../modules/darwin/yabai.nix

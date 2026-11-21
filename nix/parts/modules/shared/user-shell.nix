@@ -11,13 +11,59 @@ let
         pkgs,
         lib,
         config,
+        inputs,
         ...
       }: let
         inherit (config.my.user) home;
-        inherit (config.my) syncFolder devFolder hostConfigHome company;
+        inherit (config.my) syncFolder devFolder hostConfigHome company dotfilesConfig;
         inherit (config.home-manager.users."${config.my.username}") xdg;
 
         local_zshrc = "${hostConfigHome}/zshrc";
+
+        mkExportedShellVars = vars:
+          lib.concatLines (lib.mapAttrsToList (name: value: "export ${lib.toShellVar name value}") vars);
+
+        # Cache only init code that is independent of the runtime environment.
+        # Regenerate it whenever the package hash changes to avoid running
+        # these generators on every interactive shell startup.
+        # Keep any generator state inside the sandbox.
+        mkShellInit = name: cmd:
+          pkgs.runCommand "${name}-init.zsh" {} ''
+            export HOME="$TMPDIR"
+            ${cmd} > $out
+          '';
+
+        fzfPreviewCommand = "COLORTERM=truecolor previewer {}";
+        fzfCtrlTCommand = "${lib.getExe pkgs.fd} --strip-cwd-prefix --hidden --follow --no-ignore-vcs";
+
+        # Single source for listing colors: "eza:"-prefixed lines become
+        # EZA_COLORS (eza-only UI keys), the rest become LS_COLORS.
+        listingColorLines = lib.filter (l: l != "" && !lib.hasPrefix "#" l) (
+          lib.splitString "\n" (builtins.readFile ../../../../config/zsh.d/ls_colors)
+        );
+
+        zshInteractiveLocalVars = {
+          CDPATH = ".:${home}:${home}/${devFolder}";
+          KEYTIMEOUT = "1";
+          SPROMPT = "zsh: correct %F{red}'%R'%f to %F{blue}'%r'%f [%B%Uy%u%bes, %B%Un%u%bo, %B%Ue%u%bdit, %B%Ua%u%bbort]?";
+        };
+
+        zshInteractiveExportedVars = {
+          # ANSI colors follow the terminal's dark/light palette automatically.
+          EZA_COLORS = lib.concatStringsSep ":" (
+            map (lib.removePrefix "eza:") (lib.filter (lib.hasPrefix "eza:") listingColorLines)
+          );
+          LS_COLORS = lib.concatStringsSep ":" (lib.filter (l: !lib.hasPrefix "eza:" l) listingColorLines);
+          EZA_ICON_SPACING = "2";
+          FZF_PREVIEW_COMMAND = fzfPreviewCommand;
+          FZF_CTRL_T_COMMAND = fzfCtrlTCommand;
+          FZF_ALT_C_COMMAND = "${fzfCtrlTCommand} --type d .";
+          FZF_DEFAULT_COMMAND = "${fzfCtrlTCommand} --type f";
+          FZF_ALT_C_OPTS = "--preview='(${fzfPreviewCommand}) 2> /dev/null'";
+          FZF_CTRL_R_OPTS = "--preview 'echo {}' --preview-window down:3:wrap:hidden --bind 'ctrl-y:execute-silent(echo -n {2..} | pbcopy)+abort' --header 'Press CTRL-Y to copy command into clipboard'";
+          FZF_CTRL_T_OPTS = "--preview-window right:border-left:60%:hidden --preview='(${fzfPreviewCommand})'";
+          FZF_DEFAULT_OPTS = "--border thinblock --prompt='» ' --pointer='▶' --marker='✓ ' --reverse --tabstop 2 --color=bg+:-1,marker:010 --gutter ' ' --separator='' --bind '?:toggle-preview' --info inline-right";
+        };
       in {
         config = lib.mkMerge [
           {
@@ -59,24 +105,11 @@ let
                   ADBLOCK = "true";
                   AWS_CONFIG_FILE = "${xdg.configHome}/aws/config";
                   AWS_SHARED_CREDENTIALS_FILE = "${xdg.configHome}/aws/credentials";
-                  CDPATH = ".:~:~/${devFolder}";
                   COLORTERM = "truecolor";
                   COMPANY = company;
                   DOCKER_CONFIG = "${xdg.configHome}/docker";
                   DOTFILES = "$HOME/.dotfiles";
                   DO_NOT_TRACK = "1"; # Future proof? https://consoledonottrack.com/
-                  ELINKS_CONFDIR = "${xdg.configHome}/elinks";
-                  EZA_COLORS = "ur=35;nnn:gr=35;nnn:tr=35;nnn:uw=34;nnn:gw=34;nnn:tw=34;nnn:ux=36;nnn:ue=36;nnn:gx=36;nnn:tx=36;nnn:uu=36;nnn:uu=38;5;235:da=38;5;238";
-                  EZA_ICON_SPACING = "2";
-                  FZF_ALT_C_COMMAND = "${FZF_CTRL_T_COMMAND} --type d .";
-                  FZF_ALT_C_OPTS = "--preview='(${FZF_PREVIEW_COMMAND}) 2> /dev/null' --walker-skip .git,node_modules";
-                  FZF_CTRL_R_OPTS = "--preview 'echo {}' --preview-window down:3:wrap:hidden --bind 'ctrl-y:execute-silent(echo -n {2..} | pbcopy)+abort' --header 'Press CTRL-Y to copy command into clipboard'";
-                  FZF_CTRL_T_COMMAND = "${lib.getExe pkgs.fd} --strip-cwd-prefix --hidden --follow --no-ignore-vcs";
-                  FZF_CTRL_T_OPTS = "--preview-window right:border-left:60%:hidden --preview='(${FZF_PREVIEW_COMMAND})' --walker-skip .git,node_modules";
-                  FZF_DEFAULT_COMMAND = "${FZF_CTRL_T_COMMAND} --type f";
-                  FZF_DEFAULT_OPTS = "--border thinblock --prompt='» ' --pointer='▶' --marker='✓ ' --reverse --tabstop 2 --multi --color=bg+:-1,marker:010 --gutter ' ' --separator='' --bind '?:toggle-preview' --info inline-right";
-                  # https://github.com/sharkdp/bat/issues/634#issuecomment-524525661
-                  FZF_PREVIEW_COMMAND = "COLORTERM=truecolor previewer {}";
                   GATSBY_TELEMETRY_DISABLED = "1";
                   GITHUB_USER = config.my.github_username;
                   # https://github.blog/2022-04-12-git-security-vulnerability-announced/
@@ -91,26 +124,22 @@ let
                   # mouse/scroll input and can leave less unresponsive to keys
                   # (e.g. q) under tmux. --redraw-on-quit keeps the final screen
                   # visible after quitting without disabling terminal setup.
-                  LESS = "-F -g -i -M -R -S -w";
+                  LESS = "-F -g -i -M -R -S -w --redraw-on-quit --mouse --wheel-lines=3";
                   # LESSOPEN = "|${lib.getExe pkgs.lesspipe}.sh %s";
                   LS_COLORS = "$(${lib.getExe pkgs.vivid} generate ~/.config/vivid/theme.yml)";
                   NEXT_TELEMETRY_DISABLED = "1";
                   NOTES_DIR = "${SYNC_DIR}/notes";
                   PAGER = "less";
                   PROJECTS_DIR = "$HOME/${devFolder}/personal/dev";
-                  RLWRAP_HOME = "${xdg.dataHome}/rlwrap";
                   # Better spell checking & auto correction prompt
                   SHELL = "${pkgs.zsh}/bin/zsh";
-                  SPROMPT = "zsh: correct %F{red}'%R'%f to %F{blue}'%r'%f [%B%Uy%u%bes, %B%Un%u%bo, %B%Ue%u%bdit, %B%Ua%u%bbort]?";
                   SYNC_DIR = "$HOME/${syncFolder}";
-                  VIM_FZF_LOG = ''"$(${lib.getExe pkgs.git} config --get alias.l 2>/dev/null | awk '{$1=""; print $0;}' | tr -d '\r')"'';
                   ZCOMPDUMP_PATH = "${ZDOTDIR}/.zcompdump";
                   ZDOTDIR = "${xdg.configHome}/zsh";
                   # I use a single zk notes dir, so set it and forget
                   ZK_NOTEBOOK_DIR = "${NOTES_DIR}";
                   WORK_DIR = "$HOME/${devFolder}/work";
                   _ZO_DATA_DIR = "${xdg.configHome}/zoxide";
-                  CLAUDE_CODE_TMPDIR = "$HOME/${devFolder}/agent-stuff";
                 };
 
               systemPackages = with pkgs; [
@@ -136,12 +165,15 @@ let
                 sd
                 dust
                 pure-prompt
-                (pkgs.writeShellScriptBin "nixup"
-                  ''
-                    pushd "$DOTFILES"/ || exit
-                    nix flake update
-                    popd
-                  '')
+                (pkgs.writeShellScriptBin "nixup" ''
+                  pushd "$DOTFILES"/ || exit
+                  nix flake update
+                  # Provided by the ai module; absent on hosts without it.
+                  if command -v update-pi-extension-types >/dev/null; then
+                    update-pi-extension-types
+                  fi
+                  popd
+                '')
               ];
             };
 
@@ -150,6 +182,9 @@ let
                 shell = pkgs.zsh;
                 packages = with pkgs; [
                   atuin
+                  # Called by the Claude/Codex hooks, the pi extension, and the
+                  # Ctrl-R widget; see nix/pkgs/zh/README.md.
+                  zh
                   # buku
                   eza
                   fd
@@ -166,7 +201,6 @@ let
                   })
                   ghostscript # to preview PDFs as images
                   poppler-utils # to preview PDFs as text
-                  newsraft
                   circumflex # HN CLI reader
                   repomix
                 ];
@@ -178,14 +212,18 @@ let
               if [ ! -e "${local_zshrc}" ]; then
               	mkdir -p "$(dirname "${local_zshrc}")"
 
-                cat > ${local_zshrc}<< EOF
+                # Quoted delimiter: the $(...) lookups must land in the file
+                # literally and run at shell startup, not expand while the
+                # activation script writes it; <<- strips the leading tabs.
+                cat > ${local_zshrc} <<- 'EOF'
               	# vim:ft=zsh:
-              	[[ -z "$GITHUB_TOKEN" ]] && echo "⚠ GITHUB_TOKEN is not set"
-              	[[ -z "$HOMEBREW_GITHUB_API_TOKEN" ]] && echo "⚠ HOMEBREW_GITHUB_API_TOKEN is not set"
-              	[[ -z "$NPM_REGISTRY_TOKEN" ]] && echo "⚠ NPM_REGISTRY_TOKEN is not set"
-              	[[ -z "$GITHUB_REGISTRY_TOKEN" ]] && echo "⚠ GITHUB_REGISTRY_TOKEN is not set"
-              	[[ -z "$GH_PASS" ]] && echo "⚠ GH_PASS is not set"
-              EOF
+              	# Machine-local shell setup, sourced at the end of /etc/zshrc.
+              	# Keep secrets out of this file: store them in the macOS
+              	# keychain with `secret set <name>` and export a lookup, e.g.
+              	#
+              	#   export GITHUB_TOKEN="$(secret get github-token)"
+              	EOF
+                chmod 600 ${local_zshrc}
               fi
             '';
 
@@ -465,7 +503,10 @@ let
             ServiceIPC = false;
           };
         };
-        programs.zsh.enableFastSyntaxHighlighting = true;
+        programs.zsh = {
+          enableAutosuggestions = true;
+          enableFastSyntaxHighlighting = true;
+        };
 
         environment = {
           shellAliases = {
@@ -492,12 +533,16 @@ let
               gnused
               coreutils
               findutils
-              (pkgs.writeShellScriptBin "nixsw"
-                ''
-                  pushd "$DOTFILES"/ || exit
-                  sudo NIX_SSL_CERT_FILE="${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt" darwin-rebuild switch --flake .
-                  popd
-                '')
+              (pkgs.writeShellScriptBin "nixsw" ''
+                pushd "$DOTFILES"/ || exit
+                sudo \
+                  NIX_SSL_CERT_FILE="${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt" \
+                  SSL_CERT_FILE="${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt" \
+                  GIT_SSL_CAINFO="${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt" \
+                  HOMEBREW_GIT_PATH="/Library/Developer/CommandLineTools/usr/bin/git" \
+                  darwin-rebuild switch --flake ".#${config.my.hostName}"
+                popd
+              '')
             ]
             ++ (lib.optional (stdenv.hostPlatform.system == "aarch64-darwin") lnav);
         };
@@ -508,26 +553,31 @@ let
     nixos = nixosModule;
     homeManager = {
       pkgs,
-      lib,
+      config,
+      myConfig,
       ...
-    }: {
-      xdg.configFile = {
-        "zsh" = {
-          recursive = true;
-          source = ../../../../config/zsh.d/zsh;
+    }: let
+      dotfilesConfig = "${myConfig.dotfilesDir}/config";
+    in {
+      xdg.configFile =
+        config.lib.file.mkOutOfStoreTree {
+          source = ../../../../config/zsh.d/zsh/bin;
+          sourceRoot = "${dotfilesConfig}/zsh.d/zsh/bin";
+          targetRoot = "zsh/bin";
+        }
+        // {
+          "zsh/.zshrc".text = "";
+          "direnv/direnvrc".text = ''
+            source ${pkgs.nix-direnv}/share/nix-direnv/direnvrc
+            source ${config.xdg.configHome}/direnv/direnvrc.local
+          '';
+          "direnv/direnvrc.local".source =
+            config.lib.file.mkOutOfStoreSymlink "${dotfilesConfig}/direnv/direnvrc";
+
+          "vivid".source = ../../../../config/vivid;
+          "atuin".source = ../../../../config/atuin;
+          "repomix".source = ../../../../config/repomix;
         };
-        "zsh/.zshrc".text = "";
-        "direnv/direnvrc".text = lib.concatStringsSep "\n" [
-          "source ${pkgs.nix-direnv}/share/nix-direnv/direnvrc"
-          (builtins.readFile ../../../../config/direnv/direnvrc)
-        ];
-        "vivid" = {
-          recursive = true;
-          source = ../../../../config/vivid;
-        };
-        "atuin".source = ../../../../config/atuin;
-        "repomix".source = ../../../../config/repomix;
-      };
 
       home.file = {
         ".terminfo" = {
