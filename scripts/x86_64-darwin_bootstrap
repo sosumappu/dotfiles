@@ -26,16 +26,13 @@ else
 fi
 
 log_info "Installing flake -> $FLAKE"
-sudo nix --experimental-features 'nix-command flakes' run nix-darwin -- switch --option eval-cache false --flake "$FLAKE_ROOT#$FLAKE"
+sudo nix --experimental-features 'nix-command flakes' run nix-darwin -- switch --option eval-cache false "${CACHE_OPTIONS[@]}" --flake "$FLAKE_ROOT#$FLAKE"
 log_success "$FLAKE installed"
 
 clone_dotfiles
 
-FAILED_COMMAND=$(fc -ln -1)
+log_success "Done."
 
-if [ $? -eq 0 ]; then
-    log_success "Done."
-    log_info "Don't forget to generate SSH keys & import gpg keys"
-else
-    log_error "Something went wrong, [ Failed on: $FAILED_COMMAND ]"
-fi
+# Keys and the pass store are set up by hand afterwards, so failures here are
+# a to-do list rather than a bootstrap error.
+doctor || log_info "Finish the items marked [!!] above, then rerun: nix run ~/.dotfiles#doctor"

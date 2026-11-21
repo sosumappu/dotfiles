@@ -2,31 +2,116 @@
 
 set -ue -o pipefail
 
-# https://github.com/pengwynn/dotfiles/blob/master/git/git.zsh
-# Wrap git with hub
+# Originally copied from https://github.com/pengwynn/dotfiles/blob/master/git/git.zsh
+#
+# Git wrapper. `g pull-request` reproduces hub's
+# `pull-request --push --draft --browse` on top of gh. It takes a shim,
+# a template lookup, and a follow-up command to match what hub — a tool
+# archived years ago — did with three flags. The dead CLI still has the
+# best DX for this flow; the maintained one gets to inherit it here.
+#
+# What the shim compensates for (verified against cli/cli v2.101.0,
+# pkg/cmd/pr/create/create.go): gh only auto-offers PR templates in its
+# interactive prompt flow via tpl.Choose(); in --editor mode it loads a
+# template only when --template is passed explicitly, otherwise the
+# editor opens with an empty body. --template doesn't fit a shim: the
+# name goes to tpl.Select(), which compares it case-sensitively against
+# the filenames GitHub serves over GraphQL (listPullRequestTemplates in
+# pkg/cmd/pr/shared/templates.go) and aborts the command on a mismatch.
+# A local file check can't predict that name; on a case-insensitive
+# filesystem PULL_REQUEST_TEMPLATE.md matches pull_request_template.md.
+# So the shim fetches the template body from that same GraphQL list and
+# passes it with --body, which gh puts in the editor without any lookup.
+# `gh api` resolves {owner}/{repo} with the same SmartBaseRepoFunc as
+# `gh pr create`, so both see the same repository. When GitHub has no
+# template or the request fails, the local file is used instead, and
+# without either the body is an HTML comment saying so, which GitHub
+# hides when rendering. hub's --push has no gh equivalent because gh
+# pushes the branch itself, and --browse becomes a follow-up
+# `gh pr view --web`.
 
-command -v git >/dev/null || return 0
+GIT=$(command -v git) || exit 0
 
 time_since_last_commit() {
-	local __LAST_COMMIT
-	__LAST_COMMIT=$(git log --color=always -1 --pretty=format:"%C(238)%cr%Creset %C(blue)%h%Creset %s - %C(cyan)%aN %C(238)%(describe:tags,abbrev=0)%Creset" --date=auto:human 2>/dev/null)
+	local fmt='%C(238)%cr%Creset %C(blue)%h%Creset %s - %C(cyan)%aN'
 
-	printf "%s\n" "$__LAST_COMMIT"
+	# %(describe) walks history until it finds a reachable tag; in a large
+	# repo with no tags that means the entire graph. The refs check is O(1)
+	# and skips the walk where it can never succeed.
+	if [ -n "$("$GIT" for-each-ref --count=1 refs/tags 2>/dev/null)" ]; then
+		fmt+=' %C(238)%(describe:tags,abbrev=0)%Creset'
+	fi
+
+	"$GIT" log --color=always -1 --pretty=format:"$fmt" 2>/dev/null
 }
 
-__CMD=""
+# The $owner and $name in the query are GraphQL variables, not shell ones.
+# shellcheck disable=SC2016
+remote_pr_template() {
+	gh api graphql -F owner='{owner}' -F name='{repo}' -f query='
+		query($owner: String!, $name: String!) {
+			repository(owner: $owner, name: $name) { pullRequestTemplates { body } }
+		}' --jq '.data.repository.pullRequestTemplates[0].body // empty' 2>/dev/null
+}
 
-if command -v hub >/dev/null 2>&1; then
-	__CMD=$(command -v hub)
-elif command -v git >/dev/null 2>&1; then
-	__CMD=$(command -v git)
-fi
+pr_template() {
+	local root file
+	root=$("$GIT" rev-parse --show-toplevel 2>/dev/null) || return 0
 
-[[ $__CMD != "" ]] || return
+	for file in .github/PULL_REQUEST_TEMPLATE.md .github/pull_request_template.md \
+		PULL_REQUEST_TEMPLATE.md pull_request_template.md \
+		docs/PULL_REQUEST_TEMPLATE.md docs/pull_request_template.md; do
+		if [[ -f $root/$file ]]; then
+			printf '%s\n' "$root/$file"
+			return 0
+		fi
+	done
+}
 
 if [ $# -eq 0 ]; then
 	printf "%s\n\n" "$(time_since_last_commit)"
-	"$__CMD" st 2>/dev/null || "$__CMD" status --short --branch
+	"$GIT" st 2>/dev/null || "$GIT" status --short --branch
+elif [ "$1" = "browse" ]; then
+	command -v gh >/dev/null || {
+		printf "g: browse requires gh\n" >&2
+		exit 1
+	}
+
+	exec gh repo view --web
+elif [ "$1" = "pull-request" ]; then
+	command -v gh >/dev/null || {
+		printf "g: pull-request requires gh\n" >&2
+		exit 1
+	}
+
+	shift
+	browse=0
+	args=()
+
+	for arg in "$@"; do
+		case "$arg" in
+		--push) ;; # gh pushes the branch automatically
+		--browse | -o) browse=1 ;;
+		*) args+=("$arg") ;;
+		esac
+	done
+
+	cmd=(gh pr create --editor)
+	body=$(remote_pr_template) || body=
+	template=$(pr_template)
+	if [ -z "$body" ] && [ -n "$template" ]; then
+		body=$(<"$template")
+	fi
+	# Attached with "=" because gh would parse a separate argument starting
+	# with "-", such as a checklist, as a flag.
+	cmd+=(--body="${body:-<!-- No pull request template found. -->}")
+	cmd+=(${args[@]+"${args[@]}"})
+
+	"${cmd[@]}"
+
+	if [ "$browse" -eq 1 ]; then
+		exec gh pr view --web
+	fi
 else
-	"$__CMD" "$@"
+	"$GIT" "$@"
 fi
