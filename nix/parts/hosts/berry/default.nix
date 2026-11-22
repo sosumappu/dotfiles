@@ -105,6 +105,23 @@
       };
     };
 
+    # Rust-heavy derivations (vaultwarden, immich-machine-learning, etc.)
+    # exhaust the 8 GB of RAM on this host when `nix` builds several at once
+    # or lets a single rustc fan out to all four cores. There is no disk
+    # swap on this installation, so an OOM kill is a hard failure. Cap
+    # parallelism and back it with compressed in-memory swap so builds that
+    # do spill complete instead of being killed.
+    nix.settings = {
+      max-jobs = 1;
+      cores = 2;
+    };
+
+    zramSwap = {
+      enable = true;
+      algorithm = "zstd";
+      memoryPercent = 50;
+    };
+
     services.samba = {
       enable = true;
       openFirewall = true;
