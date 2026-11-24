@@ -15,7 +15,7 @@ let
         ...
       }: let
         inherit (config.my.user) home;
-        inherit (config.my) syncFolder devFolder hostConfigHome company dotfilesConfig;
+        inherit (config.my) syncFolder devFolder hostConfigHome company dotfilesDir;
         inherit (config.home-manager.users."${config.my.username}") xdg;
 
         local_zshrc = "${hostConfigHome}/zshrc";
@@ -108,7 +108,7 @@ let
                   COLORTERM = "truecolor";
                   COMPANY = company;
                   DOCKER_CONFIG = "${xdg.configHome}/docker";
-                  DOTFILES = "$HOME/.dotfiles";
+                  DOTFILES = dotfilesDir;
                   DO_NOT_TRACK = "1"; # Future proof? https://consoledonottrack.com/
                   GATSBY_TELEMETRY_DISABLED = "1";
                   GITHUB_USER = config.my.github_username;
@@ -126,7 +126,6 @@ let
                   # visible after quitting without disabling terminal setup.
                   LESS = "-F -g -i -M -R -S -w --redraw-on-quit --mouse --wheel-lines=3";
                   # LESSOPEN = "|${lib.getExe pkgs.lesspipe}.sh %s";
-                  LS_COLORS = "$(${lib.getExe pkgs.vivid} generate ~/.config/vivid/theme.yml)";
                   NEXT_TELEMETRY_DISABLED = "1";
                   NOTES_DIR = "${SYNC_DIR}/notes";
                   PAGER = "less";
@@ -591,7 +590,6 @@ let
           "direnv/direnvrc.local".source =
             config.lib.file.mkOutOfStoreSymlink "${dotfilesConfig}/direnv/direnvrc";
 
-          "vivid".source = ../../../../config/vivid;
           "atuin".source = ../../../../config/atuin;
           "repomix".source = ../../../../config/repomix;
         };
