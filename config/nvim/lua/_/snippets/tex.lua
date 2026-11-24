@@ -5,18 +5,44 @@ local ctx = math_snippets.ctx
 
 local snippets = {
 	parse(
-		ctx({ trig = "template", dscr = "Analysis Mémoire / Article template", line = true }),
+		ctx({ trig = "template", dscr = "French math/quant article template", line = true, text = true }),
 		[=[
 \documentclass[11pt,a4paper]{article}
 
+% ---------- Encoding, fonts, language ----------
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage[french,english]{babel}
-\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage[english,french]{babel}
+\usepackage{csquotes}
+
+% ---------- Math ----------
+\usepackage{amsmath, amssymb, amsthm, mathtools}
+\usepackage{bm, dsfont}
+\usepackage{siunitx}
+
+% ---------- Typography & layout ----------
 \usepackage{microtype}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{enumitem}
+\usepackage{booktabs}
+
+% ---------- Graphics ----------
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usetikzlibrary{cd}
+
+% ---------- Bibliography ----------
+\usepackage[backend=biber, style=authoryear-comp]{biblatex}
+\addbibresource{${1:refs.bib}}
+
+% ---------- Cross-references (hyperref late, cleveref after) ----------
 \usepackage{hyperref}
 \usepackage{cleveref}
 
+% ---------- Theorem environments ----------
+\theoremstyle{plain}
 \newtheorem{theorem}{Théorème}[section]
 \newtheorem{lemma}[theorem]{Lemme}
 \newtheorem{proposition}[theorem]{Proposition}
@@ -24,10 +50,19 @@ local snippets = {
 \theoremstyle{definition}
 \newtheorem{definition}[theorem]{Définition}
 \theoremstyle{remark}
-\newtheorem{remark}[theorem]{Remarque}
+\newtheorem*{remark}{Remarque}
+
+\title{${2:Title}}
+\author{${3:Adel Arab}}
+\date{\today}
 
 \begin{document}
-	$0
+\maketitle
+\tableofcontents
+
+$0
+
+\printbibliography
 \end{document}
 ]=]
 	),
