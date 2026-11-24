@@ -46,6 +46,23 @@ else
 	vim.g.vimtex_view_method = "zathura"
 end
 
+-- Inverse search: sioyek calls back to nvim when the user shift-clicks or
+-- runs `turn_on_synctex_mode` in the PDF. VimTeX builds its
+-- `--inverse-search` CLI arg from `v:servername`; without one the arg is
+-- empty and the click does nothing. Start a stable pipe on first .tex
+-- buffer so repeat launches reuse the same socket.
+vim.api.nvim_create_autocmd("FileType", {
+	pattern = { "tex", "plaintex" },
+	group = vim.api.nvim_create_augroup("vimtex_server", { clear = true }),
+	callback = function()
+		if vim.v.servername ~= "" then
+			return
+		end
+		local socket = vim.fs.joinpath(vim.fn.stdpath("run"), "nvim-tex.pipe")
+		pcall(vim.fn.serverstart, socket)
+	end,
+})
+
 pack.add({
 	{
 		src = "https://github.com/lervag/vimtex",
