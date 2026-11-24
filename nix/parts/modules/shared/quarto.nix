@@ -53,6 +53,13 @@ let
         my.user.packages = with pkgs; [
           patchedQuarto
           (rWrapper.override {packages = myRPackages;})
+          # Posit's Rust-based R formatter. conform.nvim's `injected`
+          # formatter for Quarto looks up filetype `r`, whose formatter is
+          # `air`; without this binary on PATH the R chunks silently skip
+          # formatting because `ignore_errors = true` on the injected
+          # formatter. Beware: `pkgs.air` (no suffix) is a Go live-reload
+          # tool that installs the same `air` binary name.
+          air-formatter
         ];
       };
     };
