@@ -128,6 +128,43 @@ local snippets = {
 \end{table}
 ]=]
 	),
+
+	-- Document structure. Line-begin + text so they never fire inside math
+	-- or inline prose. Each pairs the heading with a cleveref-ready label.
+	parse(ctx({ trig = "cha", dscr = "Chapter", line = true, text = true }), [=[\chapter{$1}\label{chap:${2:label}}$0]=]),
+	parse(ctx({ trig = "sec", dscr = "Section", line = true, text = true }), [=[\section{$1}\label{sec:${2:label}}$0]=]),
+	parse(
+		ctx({ trig = "sub", dscr = "Subsection", line = true, text = true }),
+		[=[\subsection{$1}\label{subsec:${2:label}}$0]=]
+	),
+	parse(
+		ctx({ trig = "ssub", dscr = "Subsubsection", line = true, text = true }),
+		[=[\subsubsection{$1}\label{subsubsec:${2:label}}$0]=]
+	),
+	parse(ctx({ trig = "par", dscr = "Paragraph heading", line = true, text = true }), [=[\paragraph{$1}$0]=]),
+
+	-- Biblatex citations. All text-mode; no line-begin so they drop in mid-sentence.
+	parse(ctx({ trig = "cite", dscr = "Plain cite", text = true }), [=[\cite{$1}$0]=]),
+	parse(
+		ctx({ trig = "tcite", dscr = "Textual cite (Smith (2024))", text = true }),
+		[=[\textcite{$1}$0]=]
+	),
+	parse(
+		ctx({ trig = "pcite", dscr = "Parenthetical cite ((Smith 2024))", text = true }),
+		[=[\parencite{$1}$0]=]
+	),
+	parse(ctx({ trig = "acite", dscr = "Autocite (style-dependent)", text = true }), [=[\autocite{$1}$0]=]),
+	parse(ctx({ trig = "fcite", dscr = "Footnote cite", text = true }), [=[\footcite{$1}$0]=]),
+	parse(ctx({ trig = "cauth", dscr = "citeauthor", text = true }), [=[\citeauthor{$1}$0]=]),
+
+	-- Cross-references via cleveref. `cref` figures out the referent type
+	-- (Theorem X, Section Y) from the label prefix so prefer it over
+	-- bare \ref.
+	parse(ctx({ trig = "cref", dscr = "cref (lowercase)", text = true }), [=[\cref{$1}$0]=]),
+	parse(ctx({ trig = "Cref", dscr = "Cref (capitalised, sentence start)", text = true }), [=[\Cref{$1}$0]=]),
+	parse(ctx({ trig = "cref2", dscr = "cref with two labels", text = true }), [=[\cref{$1,$2}$0]=]),
+	parse(ctx({ trig = "nref", dscr = "nameref (prints name, not number)", text = true }), [=[\nameref{$1}$0]=]),
+	parse(ctx({ trig = "pref", dscr = "pageref", text = true }), [=[\pageref{$1}$0]=]),
 }
 
 vim.list_extend(snippets, math_snippets.get({ dm_style = "bracket" }))
