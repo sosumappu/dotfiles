@@ -53,6 +53,12 @@ let
           xcolor
           tcolorbox
           environ
+          csquotes # biblatex-french quote handler
+          datetime2 # locale-aware date formats
+          # Mémoire writing-workflow companions
+          glossaries-extra # notation index / list of symbols
+          todonotes # inline TODOs and margin notes while drafting
+          appendix # richer appendix sectioning
           ;
       };
     in {
