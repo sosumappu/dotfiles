@@ -106,7 +106,10 @@ let
               source = ../../../../config/tig;
             };
           }
-          // optionalAttrs (myConfig.company == "") {
+          # gh-dash is a dev tool used on the workstation; scope the config
+          # to darwin so the linux hosts don't trigger a cross-system IFD
+          # on their system-specific `yamlFormat.generate` derivation.
+          // optionalAttrs (myConfig.company == "" && pkgs.stdenv.hostPlatform.isDarwin) {
             "gh-dash/config.yml".text = concatStringsSep "\n" [
               "# yaml-language-server: $schema=https://www.gh-dash.dev/schema.json"
               "# ${myConfig.nix_managed}"

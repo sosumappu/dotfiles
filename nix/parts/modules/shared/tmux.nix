@@ -11,7 +11,6 @@ let
         my.user.packages = with pkgs; [
           tmux
           mx
-          next-prayer
         ];
       };
     };

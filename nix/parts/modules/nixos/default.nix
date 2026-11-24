@@ -30,10 +30,12 @@ let
         "kvm-intel"
       ];
 
-      # NVIDIA drivers package (use the stable version)
+      # NVIDIA drivers package (use the stable version). `mkDefault` so
+      # hosts can override without triggering a "defined multiple times"
+      # eval error on identical values.
       hardware.nvidia = {
-        open = false; # Use open kernel modules for Turing or later GPUs (RTX series)
-        package = config.boot.kernelPackages.nvidiaPackages.legacy_580;
+        open = mkDefault false; # Use open kernel modules for Turing or later GPUs (RTX series)
+        package = mkDefault config.boot.kernelPackages.nvidiaPackages.legacy_580;
         powerManagement.enable = true; # Enable power management (suspend/resume)
         modesetting.enable = true;
       };

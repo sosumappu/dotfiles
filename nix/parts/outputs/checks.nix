@@ -173,7 +173,7 @@
 
         # Building runs writeShellApplication's shellcheck.
         inherit (config.packages) doctor;
-        inherit (pkgs) next-prayer zh;
+        inherit (pkgs) zh;
       }
       // lib.optionalAttrs pkgs.stdenv.hostPlatform.isDarwin {
         inherit (config.packages) test-bootstrap;

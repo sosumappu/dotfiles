@@ -15,11 +15,39 @@
 in {
   config = {
     my.hostConfigHome = "${xdgHomes.dataHome}/${config.networking.hostName}";
+    my.dotfilesDir = "${home}/.dotfiles";
 
     home-manager = {
       useGlobalPkgs = true;
       useUserPackages = true;
       backupFileExtension = "bk";
+      sharedModules = [
+        (
+          {
+            config,
+            lib,
+            ...
+          }: {
+            # Keep destination directories writable while making each managed
+            # file live-editable from the dotfiles checkout.
+            lib.file.mkOutOfStoreTree = {
+              source,
+              sourceRoot,
+              targetRoot,
+            }:
+              lib.listToAttrs (
+                map (
+                  file: let
+                    relative = lib.removePrefix "${toString source}/" (toString file);
+                  in
+                    lib.nameValuePair "${targetRoot}/${relative}" {
+                      source = config.lib.file.mkOutOfStoreSymlink "${sourceRoot}/${relative}";
+                    }
+                ) (lib.filesystem.listFilesRecursive source)
+              );
+          }
+        )
+      ];
       extraSpecialArgs = {
         inherit inputs;
         myConfig = {
@@ -33,6 +61,7 @@ in {
             hostConfigHome
             modules
             username
+            dotfilesDir
             ;
           inherit (config.networking) hostName;
         };
@@ -42,7 +71,17 @@ in {
     home-manager.users."${config.my.username}" = {
       xdg = {
         enable = true;
-        inherit (xdgHomes) cacheHome configHome dataHome stateHome;
+        inherit
+          (xdgHomes)
+          cacheHome
+          configHome
+          dataHome
+          stateHome
+          ;
+        # GUI apps (e.g. Hammerspoon) inherit neither shell env vars nor a
+        # reliable machine name (an MDM may rename it), so publish the logical
+        # host name as a file they can read.
+        dataFile."host-name".text = config.my.hostName;
       };
 
       home = {

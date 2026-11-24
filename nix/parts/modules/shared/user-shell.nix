@@ -282,6 +282,7 @@ let
                     ##############################################################
 
                     path=(
+                        ${"$"}{REX_BIN_DIR}
                     	${"$"}{ZDOTDIR}/bin
                     	${"$"}{HOME}/.local/bin(N-/)
                     	${"$"}path
@@ -304,94 +305,110 @@ let
                     */
                     ''
 
-                      ##############################################################
-                      # Profiling.
-                      ##############################################################
+                       ##############################################################
+                       # Profiling.
+                       ##############################################################
 
-                      # Start profiling (uncomment when necessary)
-                      #
-                      # See: https://stackoverflow.com/a/4351664/2103996
+                       # Start profiling (uncomment when necessary)
+                       #
+                       # See: https://stackoverflow.com/a/4351664/2103996
 
-                      # Per-command profiling:
+                       # Per-command profiling:
 
-                      # zmodload zsh/datetime
-                      # setopt promptsubst
-                      # PS4='+$EPOCHREALTIME %N:%i> '
-                      # # More human readable
-                      # PS4=$'%D{%S.%.} %N:%i> '
-                      # exec 3>&2 2> startlog.$$
-                      # setopt xtrace prompt_subst
+                       # zmodload zsh/datetime
+                       # setopt promptsubst
+                       # PS4='+$EPOCHREALTIME %N:%i> '
+                       # # More human readable
+                       # PS4=$'%D{%S.%.} %N:%i> '
+                       # exec 3>&2 2> startlog.$$
+                       # setopt xtrace prompt_subst
 
-                      # Per-function profiling:
+                       # Per-function profiling:
 
-                      # zmodload zsh/zprof
+                       # zmodload zsh/zprof
 
-                       PROMPT_SYMBOLS=("λ" "ϟ" "▲" "∴" "→" "»" "৸")
-                       # Arrays in zsh starts from 1
-                       export PURE_PROMPT_SYMBOL=${"$"}{PROMPT_SYMBOLS[${"$"}RANDOM % ${"$"}{#PROMPT_SYMBOLS[@]} + 1]}
+                        PROMPT_SYMBOLS=("λ" "ϟ" "▲" "∴" "→" "»" "৸")
+                        # Arrays in zsh starts from 1
+                        export PURE_PROMPT_SYMBOL=${"$"}{PROMPT_SYMBOLS[${"$"}RANDOM % ${"$"}{#PROMPT_SYMBOLS[@]} + 1]}
 
-                       zstyle :prompt:pure:suspended_jobs color 008
-                       zstyle :prompt:pure:git:branch color blue
-                       zstyle :prompt:pure:git:arrow color blue
-                       zstyle :prompt:pure:git:stash color blue
-                       zstyle :prompt:pure:git:dirty color red
-                       zstyle :prompt:pure:git:action color 003
-                       zstyle :prompt:pure:prompt:success color 003
-                       zstyle :prompt:pure:path color 242
-                       zstyle :prompt:pure:git:stash show yes
-                       zstyle :prompt:pure:environment:nix-shell show no
-                       zstyle :prompt:pure:git:fetch only_upstream yes
+                        zstyle :prompt:pure:suspended_jobs color 008
+                        zstyle :prompt:pure:git:branch color blue
+                        zstyle :prompt:pure:git:arrow color blue
+                        zstyle :prompt:pure:git:stash color blue
+                        zstyle :prompt:pure:git:dirty color red
+                        zstyle :prompt:pure:git:action color 003
+                        zstyle :prompt:pure:prompt:success color 003
+                        zstyle :prompt:pure:path color 242
+                        zstyle :prompt:pure:git:stash show yes
+                        zstyle :prompt:pure:environment:nix-shell show no
+                        zstyle :prompt:pure:git:fetch only_upstream yes
 
-                      # This is not set by nix-darwin so I have to set it myself https://github.com/nix-darwin/nix-darwin/blob/e95de00a471d07435e0527ff4db092c84998698e/modules/programs/zsh/default.nix#L204-L208
-                      export HISTFILESIZE=${"$"}HISTSIZE
+                       # This is not set by nix-darwin so I have to set it myself https://github.com/nix-darwin/nix-darwin/blob/e95de00a471d07435e0527ff4db092c84998698e/modules/programs/zsh/default.nix#L204-L208
+                       export HISTFILESIZE=${"$"}HISTSIZE
 
-                      autoload -U select-word-style
-                      # only alphanumeric chars are considered WORDCHARS
-                      select-word-style bash
 
-                      # Rebuild zcompdump when fpath completion count changes (e.g. new package installed)
-                      autoload -Uz compinit
-                      if [[ -f "${"$"}{ZCOMPDUMP_PATH}" ]]; then
-                        local dump_header
-                        read -r dump_header < "${"$"}{ZCOMPDUMP_PATH}"
-                        local dump_count=${"$"}{${"$"}{dump_header#\#files: }%%[[:space:]]*}
-                        local -a comp_files=( ${"$"}{^fpath}/*(-.,@N) )
-                        local current_count=${"$"}{#comp_files}
-                        if [[ "${"$"}dump_count" == "${"$"}current_count" ]]; then
-                          compinit -C -d "${"$"}{ZCOMPDUMP_PATH}"
-                        else
-                          compinit -d "${"$"}{ZCOMPDUMP_PATH}"
-                        fi
-                      else
-                        compinit -d "${"$"}{ZCOMPDUMP_PATH}"
-                      fi
+                       # Keep zsh-only behavior and runtime-generated values in
+                       # interactive startup so non-interactive shells inherit a
+                       # smaller, static environment.
+                       ${lib.toShellVars zshInteractiveLocalVars}
+                       ${mkExportedShellVars zshInteractiveExportedVars}
 
-                      # Compile zcompdump for faster loading
-                      if [[ ! -f "${"$"}{ZCOMPDUMP_PATH}".zwc || "${"$"}{ZCOMPDUMP_PATH}" -nt "${"$"}{ZCOMPDUMP_PATH}".zwc ]]; then
-                        zcompile "${"$"}ZCOMPDUMP_PATH"
-                      fi
+                       # fzf ignores --popup outside tmux, and --border=none
+                       # would then leave a full-screen finder with no frame.
+                       if [[ -n ${"$"}{TMUX-} ]]; then
+                         FZF_CTRL_T_OPTS+=" --popup=center,85%,85% --border=none"
+                         FZF_ALT_C_OPTS+=" --popup=center,70%,70% --border=none"
+                       else
+                         FZF_CTRL_T_OPTS+=" --height=85%"
+                         FZF_ALT_C_OPTS+=" --height=70%"
+                       fi
+
+                       autoload -U select-word-style
+                       # only alphanumeric chars are considered WORDCHARS
+                       select-word-style bash
+
+                       # Rebuild zcompdump when fpath completion count changes (e.g. new package installed)
+                       autoload -Uz compinit
+                       if [[ -f "${"$"}{ZCOMPDUMP_PATH}" ]]; then
+                         local dump_header
+                         read -r dump_header < "${"$"}{ZCOMPDUMP_PATH}"
+                         local dump_count=${"$"}{${"$"}{dump_header#\#files: }%%[[:space:]]*}
+                         local -a comp_files=( ${"$"}{^fpath}/*(-.,@N) )
+                         local current_count=${"$"}{#comp_files}
+                         if [[ "${"$"}dump_count" == "${"$"}current_count" ]]; then
+                           compinit -C -d "${"$"}{ZCOMPDUMP_PATH}"
+                         else
+                           compinit -d "${"$"}{ZCOMPDUMP_PATH}"
+                         fi
+                       else
+                         compinit -d "${"$"}{ZCOMPDUMP_PATH}"
+                       fi
+
+                       # Compile zcompdump for faster loading
+                       if [[ ! -f "${"$"}{ZCOMPDUMP_PATH}".zwc || "${"$"}{ZCOMPDUMP_PATH}" -nt "${"$"}{ZCOMPDUMP_PATH}".zwc ]]; then
+                         zcompile "${"$"}ZCOMPDUMP_PATH"
+                       fi
 
                       # Autocomplete the g script
-                      if (( ${"$"}+commands[hub] )); then
-                        compdef g=hub
-                      elif (( ${"$"}+commands[git] )); then
-                        compdef g=git
-                      fi
+                       if (( ${"$"}+commands[git] )); then
+                         compdef g=git
+                       fi
 
-                      # Note that this will only ensure unique history if we supply a prefix
-                      # before hitting "up" (ie. we perform a "search"). HIST_FIND_NO_DUPS
-                      # won't prevent dupes from appearing when just hitting "up" without a
-                      # prefix (ie. that's "zle up-line-or-history" and not classified as a
-                      # "search"). So, we have HIST_IGNORE_DUPS to make life bearable for that
-                      # case.
-                      #
-                      # https://superuser.com/a/1494647/322531
-                      HISTORY_SUBSTRING_SEARCH_ENSURE_UNIQUE=1
 
-                      # For speed:
-                      # https://github.com/zsh-users/zsh-autosuggestions#disabling-automatic-widget-re-binding
-                      ZSH_AUTOSUGGEST_MANUAL_REBIND=1
-                      ZSH_AUTOSUGGEST_STRATEGY=(match_prev_cmd history completion)
+                       # Note that this will only ensure unique history if we supply a prefix
+                       # before hitting "up" (ie. we perform a "search"). HIST_FIND_NO_DUPS
+                       # won't prevent dupes from appearing when just hitting "up" without a
+                       # prefix (ie. that's "zle up-line-or-history" and not classified as a
+                       # "search"). So, we have HIST_IGNORE_DUPS to make life bearable for that
+                       # case.
+                       #
+                       # https://superuser.com/a/1494647/322531
+                       HISTORY_SUBSTRING_SEARCH_ENSURE_UNIQUE=1
+
+                       # For speed:
+                       # https://github.com/zsh-users/zsh-autosuggestions#disabling-automatic-widget-re-binding
+                       ZSH_AUTOSUGGEST_MANUAL_REBIND=1
+                       ZSH_AUTOSUGGEST_STRATEGY=(match_prev_cmd history completion)
                     ''
                   ]
                   ++ map builtins.readFile [

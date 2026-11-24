@@ -56,5 +56,5 @@ let
     };
   };
 in {
-  flake.module.nixos.bluetooth = module;
+  flake.modules.nixos.bluetooth = module;
 }
