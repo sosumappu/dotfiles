@@ -83,6 +83,7 @@
     }: {
       config,
       pkgs,
+      lib,
       inputs,
       ...
     }: {
@@ -135,7 +136,10 @@
         };
         optimise.automatic = optimiseAutomatic;
         distributedBuilds = true;
-        buildMachines = [
+        # Skip self so e.g. berry does not try to SSH `localhost@berry`
+        # for its own aarch64 builds and fail with "nix_builder not
+        # accessible" / "Host key verification failed".
+        buildMachines = lib.filter (b: b.hostName != config.networking.hostName) [
           {
             hostName = "silvana"; # tailscale
             systems = ["x86_64-linux"];

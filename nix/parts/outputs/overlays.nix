@@ -18,9 +18,11 @@
       # `zk index` walks the notebook without following symlinks, so notes in
       # a folder linked into the notebook are never indexed.
       # https://github.com/zk-org/zk/pull/769
-      zk = prev.zk.overrideAttrs (old: {
-        patches = (old.patches or []) ++ [../../pkgs/zk-follow-symlinks.patch];
-      });
+      # Patch disabled: upstream walk.go diverged, hunks no longer apply.
+      # Restore once the PR lands or the patch is regenerated.
+      # zk = prev.zk.overrideAttrs (old: {
+      #   patches = (old.patches or []) ++ [../../pkgs/zk-follow-symlinks.patch];
+      # });
 
       # The cargo setup hook exports RUSTONIG_SYSTEM_LIBONIG=1 by default, but
       # the yazi flake's recipe declares no oniguruma, so onig_sys fails to
